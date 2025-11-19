@@ -1,0 +1,6 @@
+google-genai
+python-dotenv
+google-cloud-aiplatform[adk]
+plotly
+pandas
+kaleido
