@@ -1,0 +1,211 @@
+{
+  "metadata": {
+    "source": "Ellen MacArthur Foundation, EU Circular Economy Monitoring Framework, Industry Associations",
+    "version": "1.0",
+    "last_updated": "2025-01-01"
+  },
+  "metals": {
+    "aluminium": {
+      "global_recycling_rate": 76,
+      "eol_collection_rate": 90,
+      "recycled_content_global_avg": 33,
+      "recycled_content_eu": 40,
+      "material_yield_primary": 95,
+      "material_yield_secondary": 92,
+      "downcycling_rate": 5,
+      "infinite_recyclability": true,
+      "typical_product_lifespan_years": {
+        "building_construction": 50,
+        "automotive": 15,
+        "packaging": 0.5,
+        "electronics": 7
+      },
+      "reuse_potential": {
+        "building_components": 0.7,
+        "automotive_parts": 0.4,
+        "packaging": 0.1,
+        "electronics": 0.2
+      },
+      "notes": "Aluminium can be recycled indefinitely without quality loss"
+    },
+    "steel": {
+      "global_recycling_rate": 85,
+      "eol_collection_rate": 90,
+      "recycled_content_global_avg": 30,
+      "recycled_content_eu": 45,
+      "material_yield_primary": 97,
+      "material_yield_secondary": 95,
+      "downcycling_rate": 3,
+      "infinite_recyclability": true,
+      "typical_product_lifespan_years": {
+        "building_construction": 75,
+        "automotive": 15,
+        "appliances": 15,
+        "packaging": 1
+      },
+      "reuse_potential": {
+        "structural_beams": 0.8,
+        "automotive_parts": 0.3,
+        "appliances": 0.2,
+        "packaging": 0.05
+      },
+      "notes": "Most recycled material in the world by volume"
+    },
+    "copper": {
+      "global_recycling_rate": 65,
+      "eol_collection_rate": 80,
+      "recycled_content_global_avg": 35,
+      "recycled_content_eu": 45,
+      "material_yield_primary": 99,
+      "material_yield_secondary": 98,
+      "downcycling_rate": 2,
+      "infinite_recyclability": true,
+      "typical_product_lifespan_years": {
+        "building_wiring": 40,
+        "electronics": 5,
+        "automotive": 12,
+        "industrial_equipment": 25
+      },
+      "reuse_potential": {
+        "cables": 0.3,
+        "electronics": 0.1,
+        "plumbing": 0.4
+      },
+      "notes": "High value drives strong recycling economics"
+    },
+    "zinc": {
+      "global_recycling_rate": 60,
+      "eol_collection_rate": 70,
+      "recycled_content_global_avg": 30,
+      "recycled_content_eu": 35,
+      "material_yield_primary": 95,
+      "material_yield_secondary": 90,
+      "downcycling_rate": 10,
+      "infinite_recyclability": true,
+      "typical_product_lifespan_years": {
+        "galvanized_steel": 30,
+        "die_casting": 15,
+        "brass_products": 20
+      },
+      "notes": "Often recycled as part of steel recycling"
+    },
+    "lead": {
+      "global_recycling_rate": 95,
+      "eol_collection_rate": 99,
+      "recycled_content_global_avg": 60,
+      "recycled_content_eu": 75,
+      "material_yield_primary": 95,
+      "material_yield_secondary": 97,
+      "downcycling_rate": 1,
+      "infinite_recyclability": true,
+      "typical_product_lifespan_years": {
+        "batteries": 5,
+        "building_materials": 50
+      },
+      "notes": "Highest recycling rate of any material due to battery regulations"
+    },
+    "nickel": {
+      "global_recycling_rate": 68,
+      "eol_collection_rate": 75,
+      "recycled_content_global_avg": 40,
+      "recycled_content_eu": 50,
+      "material_yield_primary": 95,
+      "material_yield_secondary": 93,
+      "downcycling_rate": 5,
+      "infinite_recyclability": true,
+      "typical_product_lifespan_years": {
+        "stainless_steel": 25,
+        "batteries": 8,
+        "superalloys": 30
+      },
+      "notes": "Critical for stainless steel and battery applications"
+    },
+    "titanium": {
+      "global_recycling_rate": 50,
+      "eol_collection_rate": 60,
+      "recycled_content_global_avg": 25,
+      "recycled_content_eu": 30,
+      "material_yield_primary": 90,
+      "material_yield_secondary": 85,
+      "downcycling_rate": 15,
+      "infinite_recyclability": true,
+      "typical_product_lifespan_years": {
+        "aerospace": 30,
+        "medical_implants": 25,
+        "industrial_equipment": 20
+      },
+      "notes": "Challenging to recycle due to oxidation sensitivity"
+    }
+  },
+  "industry_benchmarks": {
+    "mci_ratings": {
+      "excellent": {"min": 0.8, "max": 1.0, "description": "Leading circular economy performer"},
+      "good": {"min": 0.6, "max": 0.8, "description": "Above average circularity"},
+      "moderate": {"min": 0.4, "max": 0.6, "description": "Average circular performance"},
+      "low": {"min": 0.2, "max": 0.4, "description": "Limited circular practices"},
+      "very_low": {"min": 0.0, "max": 0.2, "description": "Predominantly linear model"}
+    },
+    "resource_efficiency_targets": {
+      "aluminium_recycling": {
+        "current_best": 95,
+        "industry_average": 88,
+        "minimum_acceptable": 80
+      },
+      "steel_recycling": {
+        "current_best": 98,
+        "industry_average": 92,
+        "minimum_acceptable": 85
+      },
+      "copper_recycling": {
+        "current_best": 99,
+        "industry_average": 95,
+        "minimum_acceptable": 90
+      }
+    },
+    "circular_economy_strategies": {
+      "r_strategies": [
+        {"name": "Refuse", "priority": 1, "description": "Prevent use of raw materials"},
+        {"name": "Rethink", "priority": 2, "description": "Make product use more intensive"},
+        {"name": "Reduce", "priority": 3, "description": "Increase efficiency in manufacturing"},
+        {"name": "Reuse", "priority": 4, "description": "Reuse product by another consumer"},
+        {"name": "Repair", "priority": 5, "description": "Repair and maintenance of product"},
+        {"name": "Refurbish", "priority": 6, "description": "Restore old product"},
+        {"name": "Remanufacture", "priority": 7, "description": "Use parts in new product"},
+        {"name": "Repurpose", "priority": 8, "description": "Use product for different purpose"},
+        {"name": "Recycle", "priority": 9, "description": "Process materials for same quality"},
+        {"name": "Recover", "priority": 10, "description": "Incineration with energy recovery"}
+      ]
+    }
+  },
+  "regional_factors": {
+    "europe": {
+      "collection_efficiency_multiplier": 1.1,
+      "recycling_infrastructure_rating": "excellent",
+      "policy_support_rating": "high",
+      "notes": "Strong EPR schemes and recycling mandates"
+    },
+    "north_america": {
+      "collection_efficiency_multiplier": 0.95,
+      "recycling_infrastructure_rating": "good",
+      "policy_support_rating": "moderate",
+      "notes": "Variable by state/province"
+    },
+    "asia_developed": {
+      "collection_efficiency_multiplier": 1.0,
+      "recycling_infrastructure_rating": "good",
+      "policy_support_rating": "moderate",
+      "notes": "Japan, South Korea, Taiwan"
+    },
+    "asia_developing": {
+      "collection_efficiency_multiplier": 0.7,
+      "recycling_infrastructure_rating": "moderate",
+      "policy_support_rating": "low",
+      "notes": "Rapidly improving infrastructure"
+    },
+    "global_average": {
+      "collection_efficiency_multiplier": 0.85,
+      "recycling_infrastructure_rating": "moderate",
+      "policy_support_rating": "moderate"
+    }
+  }
+}

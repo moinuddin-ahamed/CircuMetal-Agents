@@ -1,0 +1,178 @@
+{
+  "metadata": {
+    "source": "ASM Handbook, MatWeb, Literature",
+    "version": "1.0",
+    "last_updated": "2025-01-01"
+  },
+  "metals": {
+    "aluminium": {
+      "symbol": "Al",
+      "atomic_number": 13,
+      "density_kg_m3": 2700,
+      "melting_point_c": 660,
+      "boiling_point_c": 2519,
+      "specific_heat_j_kg_k": 897,
+      "thermal_conductivity_w_m_k": 237,
+      "electrical_resistivity_ohm_m": 2.65e-8,
+      "youngs_modulus_gpa": 70,
+      "yield_strength_mpa": {"min": 35, "max": 500, "typical": 270},
+      "tensile_strength_mpa": {"min": 90, "max": 570, "typical": 310},
+      "corrosion_resistance": "excellent",
+      "machinability": "good",
+      "weldability": "good",
+      "common_alloying_elements": ["Cu", "Mg", "Si", "Zn", "Mn"],
+      "process_parameters": {
+        "casting_temperature_c": {"min": 680, "max": 750},
+        "extrusion_temperature_c": {"min": 350, "max": 500},
+        "annealing_temperature_c": {"min": 300, "max": 400},
+        "melting_energy_mj_kg": 1.1
+      },
+      "scrap_grades": {
+        "new_scrap": {"purity": 99, "price_factor": 0.95},
+        "old_scrap_sorted": {"purity": 95, "price_factor": 0.85},
+        "old_scrap_mixed": {"purity": 80, "price_factor": 0.65},
+        "dross": {"purity": 50, "price_factor": 0.30}
+      }
+    },
+    "steel_carbon": {
+      "symbol": "Fe-C",
+      "density_kg_m3": 7850,
+      "melting_point_c": 1425,
+      "boiling_point_c": 2862,
+      "specific_heat_j_kg_k": 502,
+      "thermal_conductivity_w_m_k": 50,
+      "electrical_resistivity_ohm_m": 1.43e-7,
+      "youngs_modulus_gpa": 200,
+      "yield_strength_mpa": {"min": 250, "max": 1500, "typical": 350},
+      "tensile_strength_mpa": {"min": 400, "max": 2000, "typical": 500},
+      "corrosion_resistance": "poor",
+      "machinability": "good",
+      "weldability": "good",
+      "common_grades": ["A36", "1018", "1045", "4140", "4340"],
+      "process_parameters": {
+        "bof_temperature_c": {"min": 1600, "max": 1700},
+        "eaf_temperature_c": {"min": 1550, "max": 1650},
+        "hot_rolling_temperature_c": {"min": 900, "max": 1250},
+        "melting_energy_mj_kg": 1.4
+      },
+      "scrap_grades": {
+        "heavy_melting_steel_1": {"description": "HMS 1, >6mm thick", "price_factor": 1.0},
+        "heavy_melting_steel_2": {"description": "HMS 2, mixed", "price_factor": 0.9},
+        "shredded_scrap": {"description": "Auto shredder output", "price_factor": 0.85},
+        "turnings": {"description": "Machining turnings", "price_factor": 0.7}
+      }
+    },
+    "stainless_steel_304": {
+      "symbol": "Fe-Cr-Ni",
+      "composition": {"Fe": "balance", "Cr": "18-20%", "Ni": "8-10.5%", "C": "<0.08%"},
+      "density_kg_m3": 8000,
+      "melting_point_c": 1400,
+      "specific_heat_j_kg_k": 500,
+      "thermal_conductivity_w_m_k": 16,
+      "youngs_modulus_gpa": 193,
+      "yield_strength_mpa": {"min": 205, "max": 310, "typical": 215},
+      "tensile_strength_mpa": {"min": 515, "max": 620, "typical": 505},
+      "corrosion_resistance": "excellent",
+      "machinability": "moderate",
+      "weldability": "good",
+      "process_parameters": {
+        "annealing_temperature_c": {"min": 1010, "max": 1120},
+        "melting_energy_mj_kg": 1.6
+      }
+    },
+    "copper": {
+      "symbol": "Cu",
+      "atomic_number": 29,
+      "density_kg_m3": 8960,
+      "melting_point_c": 1085,
+      "boiling_point_c": 2562,
+      "specific_heat_j_kg_k": 385,
+      "thermal_conductivity_w_m_k": 401,
+      "electrical_resistivity_ohm_m": 1.68e-8,
+      "youngs_modulus_gpa": 130,
+      "yield_strength_mpa": {"min": 33, "max": 455, "typical": 70},
+      "tensile_strength_mpa": {"min": 210, "max": 455, "typical": 220},
+      "corrosion_resistance": "excellent",
+      "machinability": "good",
+      "weldability": "good",
+      "process_parameters": {
+        "casting_temperature_c": {"min": 1100, "max": 1200},
+        "annealing_temperature_c": {"min": 200, "max": 650},
+        "melting_energy_mj_kg": 0.5
+      },
+      "scrap_grades": {
+        "bare_bright": {"purity": 99.9, "price_factor": 1.0},
+        "no1_copper": {"purity": 98, "price_factor": 0.95},
+        "no2_copper": {"purity": 94, "price_factor": 0.85},
+        "insulated_wire": {"purity": 75, "price_factor": 0.60}
+      }
+    },
+    "zinc": {
+      "symbol": "Zn",
+      "atomic_number": 30,
+      "density_kg_m3": 7140,
+      "melting_point_c": 420,
+      "boiling_point_c": 907,
+      "specific_heat_j_kg_k": 388,
+      "thermal_conductivity_w_m_k": 116,
+      "electrical_resistivity_ohm_m": 5.9e-8,
+      "youngs_modulus_gpa": 108,
+      "corrosion_resistance": "good",
+      "process_parameters": {
+        "galvanizing_temperature_c": {"min": 450, "max": 470},
+        "melting_energy_mj_kg": 0.4
+      }
+    },
+    "nickel": {
+      "symbol": "Ni",
+      "atomic_number": 28,
+      "density_kg_m3": 8908,
+      "melting_point_c": 1455,
+      "boiling_point_c": 2913,
+      "specific_heat_j_kg_k": 444,
+      "thermal_conductivity_w_m_k": 91,
+      "electrical_resistivity_ohm_m": 6.99e-8,
+      "youngs_modulus_gpa": 200,
+      "yield_strength_mpa": {"min": 59, "max": 690, "typical": 148},
+      "tensile_strength_mpa": {"min": 317, "max": 758, "typical": 462},
+      "corrosion_resistance": "excellent",
+      "process_parameters": {
+        "melting_energy_mj_kg": 1.8
+      }
+    },
+    "titanium": {
+      "symbol": "Ti",
+      "atomic_number": 22,
+      "density_kg_m3": 4506,
+      "melting_point_c": 1668,
+      "boiling_point_c": 3287,
+      "specific_heat_j_kg_k": 523,
+      "thermal_conductivity_w_m_k": 22,
+      "electrical_resistivity_ohm_m": 4.2e-7,
+      "youngs_modulus_gpa": 116,
+      "yield_strength_mpa": {"min": 140, "max": 1100, "typical": 880},
+      "tensile_strength_mpa": {"min": 235, "max": 1200, "typical": 950},
+      "corrosion_resistance": "excellent",
+      "machinability": "poor",
+      "weldability": "requires_inert_atmosphere",
+      "process_parameters": {
+        "melting_energy_mj_kg": 3.0
+      }
+    }
+  },
+  "process_efficiency": {
+    "melting_furnaces": {
+      "reverberatory": {"thermal_efficiency": 0.35, "melt_loss": 0.05},
+      "rotary": {"thermal_efficiency": 0.45, "melt_loss": 0.03},
+      "electric_induction": {"thermal_efficiency": 0.75, "melt_loss": 0.01},
+      "electric_arc": {"thermal_efficiency": 0.65, "melt_loss": 0.02},
+      "plasma": {"thermal_efficiency": 0.80, "melt_loss": 0.005}
+    },
+    "casting_methods": {
+      "sand_casting": {"yield": 0.70, "tolerance_mm": 2.0},
+      "die_casting": {"yield": 0.85, "tolerance_mm": 0.5},
+      "investment_casting": {"yield": 0.75, "tolerance_mm": 0.3},
+      "continuous_casting": {"yield": 0.95, "tolerance_mm": 1.0}
+    }
+  }
+}

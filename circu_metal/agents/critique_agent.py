@@ -5,14 +5,6 @@ from google.adk.agents import Agent
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types
-
-import os
-import json
-import asyncio
-from google.adk.agents import Agent
-from google.adk.runners import Runner
-from google.adk.sessions import InMemorySessionService
-from google.genai import types
 import uuid
 from circu_metal.utils.retry import run_with_retry
 
@@ -42,7 +34,7 @@ class CritiqueAgent(Agent):
             content = types.Content(role='user', parts=[types.Part(text=input_str)])
             
             final_text = ""
-            async for event in runner.run_async(user_id="user", session_id="session", new_message=content):
+            async for event in runner.run_async(user_id="user", session_id=session_id, new_message=content):
                 if hasattr(event, 'content') and event.content and event.content.parts:
                     for part in event.content.parts:
                         if part.text:

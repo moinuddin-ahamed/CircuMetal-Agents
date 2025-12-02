@@ -1,0 +1,330 @@
+{
+  "metadata": {
+    "source": "Compiled from IPCC 2021, Ecoinvent 3.8, World Steel Association, International Aluminium Institute",
+    "version": "1.0",
+    "last_updated": "2025-01-01",
+    "units": {
+      "emission_factor": "kg CO2e per unit specified",
+      "energy_intensity": "MJ per unit specified"
+    }
+  },
+  "materials": {
+    "metals": {
+      "aluminium": {
+        "primary_production": {
+          "emission_factor": 16.5,
+          "unit": "kg",
+          "energy_intensity": 170,
+          "source": "International Aluminium Institute 2023"
+        },
+        "secondary_recycled": {
+          "emission_factor": 0.5,
+          "unit": "kg",
+          "energy_intensity": 10,
+          "source": "World Aluminium 2023"
+        },
+        "scrap_processing": {
+          "emission_factor": 0.3,
+          "unit": "kg",
+          "energy_intensity": 5,
+          "source": "Ecoinvent 3.8"
+        }
+      },
+      "steel": {
+        "primary_bof": {
+          "emission_factor": 2.1,
+          "unit": "kg",
+          "energy_intensity": 25,
+          "source": "World Steel Association 2023"
+        },
+        "primary_eaf": {
+          "emission_factor": 0.6,
+          "unit": "kg",
+          "energy_intensity": 8,
+          "source": "World Steel Association 2023"
+        },
+        "secondary_recycled": {
+          "emission_factor": 0.4,
+          "unit": "kg",
+          "energy_intensity": 6,
+          "source": "World Steel Association 2023"
+        },
+        "scrap": {
+          "emission_factor": 0.1,
+          "unit": "kg",
+          "energy_intensity": 1,
+          "source": "Ecoinvent 3.8"
+        }
+      },
+      "copper": {
+        "primary_production": {
+          "emission_factor": 4.0,
+          "unit": "kg",
+          "energy_intensity": 50,
+          "source": "International Copper Association"
+        },
+        "secondary_recycled": {
+          "emission_factor": 0.5,
+          "unit": "kg",
+          "energy_intensity": 6,
+          "source": "Ecoinvent 3.8"
+        }
+      },
+      "zinc": {
+        "primary_production": {
+          "emission_factor": 3.1,
+          "unit": "kg",
+          "energy_intensity": 40,
+          "source": "International Zinc Association"
+        },
+        "secondary_recycled": {
+          "emission_factor": 0.8,
+          "unit": "kg",
+          "energy_intensity": 10,
+          "source": "Ecoinvent 3.8"
+        }
+      },
+      "lead": {
+        "primary_production": {
+          "emission_factor": 2.5,
+          "unit": "kg",
+          "energy_intensity": 30,
+          "source": "International Lead Association"
+        },
+        "secondary_recycled": {
+          "emission_factor": 0.5,
+          "unit": "kg",
+          "energy_intensity": 5,
+          "source": "Ecoinvent 3.8"
+        }
+      },
+      "nickel": {
+        "primary_production": {
+          "emission_factor": 12.0,
+          "unit": "kg",
+          "energy_intensity": 150,
+          "source": "Nickel Institute"
+        },
+        "secondary_recycled": {
+          "emission_factor": 1.5,
+          "unit": "kg",
+          "energy_intensity": 20,
+          "source": "Ecoinvent 3.8"
+        }
+      },
+      "titanium": {
+        "primary_production": {
+          "emission_factor": 35.0,
+          "unit": "kg",
+          "energy_intensity": 400,
+          "source": "Literature estimates"
+        },
+        "secondary_recycled": {
+          "emission_factor": 5.0,
+          "unit": "kg",
+          "energy_intensity": 50,
+          "source": "Literature estimates"
+        }
+      }
+    },
+    "alloys": {
+      "stainless_steel_304": {
+        "primary_production": {
+          "emission_factor": 6.5,
+          "unit": "kg",
+          "energy_intensity": 75,
+          "source": "Worldstainless 2023"
+        }
+      },
+      "brass": {
+        "primary_production": {
+          "emission_factor": 3.5,
+          "unit": "kg",
+          "energy_intensity": 40,
+          "source": "Copper Alliance"
+        }
+      },
+      "bronze": {
+        "primary_production": {
+          "emission_factor": 4.0,
+          "unit": "kg",
+          "energy_intensity": 45,
+          "source": "Literature estimates"
+        }
+      }
+    },
+    "consumables": {
+      "flux_aluminum": {
+        "emission_factor": 1.2,
+        "unit": "kg",
+        "source": "Ecoinvent 3.8"
+      },
+      "refractory_materials": {
+        "emission_factor": 1.0,
+        "unit": "kg",
+        "source": "Ecoinvent 3.8"
+      },
+      "lubricants": {
+        "emission_factor": 3.0,
+        "unit": "kg",
+        "source": "Ecoinvent 3.8"
+      }
+    }
+  },
+  "energy": {
+    "electricity": {
+      "grid_world_average": {
+        "emission_factor": 0.5,
+        "unit": "kWh",
+        "source": "IEA 2023"
+      },
+      "grid_europe": {
+        "emission_factor": 0.3,
+        "unit": "kWh",
+        "source": "EEA 2023"
+      },
+      "grid_usa": {
+        "emission_factor": 0.4,
+        "unit": "kWh",
+        "source": "EPA eGRID 2023"
+      },
+      "grid_china": {
+        "emission_factor": 0.6,
+        "unit": "kWh",
+        "source": "IEA 2023"
+      },
+      "grid_india": {
+        "emission_factor": 0.7,
+        "unit": "kWh",
+        "source": "CEA India 2023"
+      },
+      "renewable_solar": {
+        "emission_factor": 0.04,
+        "unit": "kWh",
+        "source": "IPCC 2021"
+      },
+      "renewable_wind": {
+        "emission_factor": 0.01,
+        "unit": "kWh",
+        "source": "IPCC 2021"
+      },
+      "renewable_hydro": {
+        "emission_factor": 0.02,
+        "unit": "kWh",
+        "source": "IPCC 2021"
+      },
+      "nuclear": {
+        "emission_factor": 0.01,
+        "unit": "kWh",
+        "source": "IPCC 2021"
+      }
+    },
+    "fuels": {
+      "natural_gas": {
+        "emission_factor": 2.0,
+        "unit": "m3",
+        "energy_content_mj": 38,
+        "source": "IPCC 2021"
+      },
+      "diesel": {
+        "emission_factor": 2.7,
+        "unit": "liter",
+        "energy_content_mj": 36,
+        "source": "IPCC 2021"
+      },
+      "heavy_fuel_oil": {
+        "emission_factor": 3.1,
+        "unit": "liter",
+        "energy_content_mj": 40,
+        "source": "IPCC 2021"
+      },
+      "coal": {
+        "emission_factor": 2.4,
+        "unit": "kg",
+        "energy_content_mj": 24,
+        "source": "IPCC 2021"
+      },
+      "coke": {
+        "emission_factor": 3.0,
+        "unit": "kg",
+        "energy_content_mj": 28,
+        "source": "IPCC 2021"
+      },
+      "lpg": {
+        "emission_factor": 1.6,
+        "unit": "liter",
+        "energy_content_mj": 26,
+        "source": "IPCC 2021"
+      },
+      "hydrogen_grey": {
+        "emission_factor": 10.0,
+        "unit": "kg",
+        "energy_content_mj": 120,
+        "source": "IEA 2023"
+      },
+      "hydrogen_green": {
+        "emission_factor": 0.5,
+        "unit": "kg",
+        "energy_content_mj": 120,
+        "source": "IEA 2023"
+      }
+    }
+  },
+  "transport": {
+    "road": {
+      "truck_diesel": {
+        "emission_factor": 0.1,
+        "unit": "tkm",
+        "source": "Ecoinvent 3.8"
+      },
+      "truck_electric": {
+        "emission_factor": 0.03,
+        "unit": "tkm",
+        "source": "Literature estimates"
+      }
+    },
+    "rail": {
+      "freight_diesel": {
+        "emission_factor": 0.03,
+        "unit": "tkm",
+        "source": "Ecoinvent 3.8"
+      },
+      "freight_electric": {
+        "emission_factor": 0.01,
+        "unit": "tkm",
+        "source": "Ecoinvent 3.8"
+      }
+    },
+    "sea": {
+      "container_ship": {
+        "emission_factor": 0.01,
+        "unit": "tkm",
+        "source": "IMO 2023"
+      },
+      "bulk_carrier": {
+        "emission_factor": 0.008,
+        "unit": "tkm",
+        "source": "IMO 2023"
+      }
+    },
+    "air": {
+      "freight_aircraft": {
+        "emission_factor": 1.0,
+        "unit": "tkm",
+        "source": "IATA 2023"
+      }
+    }
+  },
+  "water": {
+    "municipal_supply": {
+      "emission_factor": 0.0003,
+      "unit": "liter",
+      "source": "Ecoinvent 3.8"
+    },
+    "industrial_cooling": {
+      "consumption_rate": 5,
+      "unit": "m3/MWh",
+      "source": "Literature"
+    }
+  }
+}

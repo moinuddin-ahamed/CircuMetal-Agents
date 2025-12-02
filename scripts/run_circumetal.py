@@ -78,6 +78,19 @@ def main():
                 with open("output/generate_sankey.py", "w") as f:
                     f.write(sankey_code)
                 print("Saved failed Sankey code to output/generate_sankey.py")
+        
+        # Generate Pathway Comparison Chart
+        pathway_code = vis_data.get('pathway_comparison_code', "")
+        if pathway_code:
+            print("Generating Pathway Comparison Chart...")
+            try:
+                exec(pathway_code, {'__name__': '__main__'})
+                print("Pathway comparison chart generated (check output/pathway_comparison.html).")
+            except Exception as e:
+                print(f"Failed to generate Pathway Comparison chart: {e}")
+                with open("output/generate_pathway_comparison.py", "w") as f:
+                    f.write(pathway_code)
+                print("Saved failed Pathway Comparison code to output/generate_pathway_comparison.py")
 
     # Print summary
     print("\nAnalysis Complete.")

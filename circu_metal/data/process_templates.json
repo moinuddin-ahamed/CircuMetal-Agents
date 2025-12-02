@@ -1,0 +1,225 @@
+{
+  "metadata": {
+    "source": "Industry case studies, Academic literature, Best practice reports",
+    "version": "1.0",
+    "last_updated": "2025-01-01",
+    "description": "Reference LCA data for common metallurgical processes"
+  },
+  "processes": {
+    "aluminium_secondary_recycling": {
+      "description": "Recycling of aluminium scrap to produce secondary aluminium ingots",
+      "functional_unit": "1 ton of secondary aluminium ingot",
+      "system_boundary": "gate-to-gate",
+      "inputs": {
+        "aluminium_scrap": {"amount": 1050, "unit": "kg", "note": "Accounts for 5% melt loss"},
+        "flux": {"amount": 20, "unit": "kg"},
+        "natural_gas": {"amount": 80, "unit": "m3"},
+        "electricity": {"amount": 150, "unit": "kWh"},
+        "water": {"amount": 500, "unit": "liter"}
+      },
+      "outputs": {
+        "aluminium_ingot": {"amount": 1000, "unit": "kg"},
+        "dross": {"amount": 50, "unit": "kg"},
+        "salt_slag": {"amount": 30, "unit": "kg"},
+        "co2_direct": {"amount": 160, "unit": "kg"}
+      },
+      "environmental_impacts": {
+        "gwp_100": {"value": 450, "unit": "kg CO2e", "breakdown": {"materials": 50, "energy": 350, "process": 50}},
+        "energy_demand": {"value": 4500, "unit": "MJ"},
+        "water_consumption": {"value": 0.5, "unit": "m3"}
+      },
+      "circularity_metrics": {
+        "recycled_content": 100,
+        "mci": 0.85,
+        "resource_efficiency": 95.2
+      }
+    },
+    "aluminium_primary_production": {
+      "description": "Primary aluminium production via Hall-Héroult process",
+      "functional_unit": "1 ton of primary aluminium ingot",
+      "system_boundary": "cradle-to-gate",
+      "inputs": {
+        "bauxite": {"amount": 5000, "unit": "kg"},
+        "caustic_soda": {"amount": 100, "unit": "kg"},
+        "carbon_anodes": {"amount": 450, "unit": "kg"},
+        "electricity": {"amount": 14000, "unit": "kWh"},
+        "natural_gas": {"amount": 200, "unit": "m3"}
+      },
+      "outputs": {
+        "aluminium_ingot": {"amount": 1000, "unit": "kg"},
+        "red_mud": {"amount": 2000, "unit": "kg"},
+        "co2_direct": {"amount": 1500, "unit": "kg"},
+        "pfc_emissions": {"amount": 0.5, "unit": "kg CO2e"}
+      },
+      "environmental_impacts": {
+        "gwp_100": {"value": 16500, "unit": "kg CO2e", "breakdown": {"mining": 500, "refining": 2000, "smelting": 14000}},
+        "energy_demand": {"value": 180000, "unit": "MJ"},
+        "water_consumption": {"value": 8, "unit": "m3"}
+      },
+      "circularity_metrics": {
+        "recycled_content": 0,
+        "mci": 0.1,
+        "resource_efficiency": 20
+      }
+    },
+    "steel_eaf_scrap": {
+      "description": "Electric Arc Furnace steel production from scrap",
+      "functional_unit": "1 ton of steel billet",
+      "system_boundary": "gate-to-gate",
+      "inputs": {
+        "steel_scrap": {"amount": 1100, "unit": "kg"},
+        "lime": {"amount": 40, "unit": "kg"},
+        "carbon_electrodes": {"amount": 3, "unit": "kg"},
+        "electricity": {"amount": 450, "unit": "kWh"},
+        "natural_gas": {"amount": 10, "unit": "m3"},
+        "oxygen": {"amount": 30, "unit": "m3"}
+      },
+      "outputs": {
+        "steel_billet": {"amount": 1000, "unit": "kg"},
+        "slag": {"amount": 100, "unit": "kg"},
+        "dust": {"amount": 15, "unit": "kg"},
+        "co2_direct": {"amount": 50, "unit": "kg"}
+      },
+      "environmental_impacts": {
+        "gwp_100": {"value": 400, "unit": "kg CO2e", "breakdown": {"materials": 120, "energy": 250, "process": 30}},
+        "energy_demand": {"value": 6500, "unit": "MJ"},
+        "water_consumption": {"value": 2.5, "unit": "m3"}
+      },
+      "circularity_metrics": {
+        "recycled_content": 100,
+        "mci": 0.88,
+        "resource_efficiency": 91
+      }
+    },
+    "steel_bof_primary": {
+      "description": "Basic Oxygen Furnace steel from iron ore",
+      "functional_unit": "1 ton of steel slab",
+      "system_boundary": "cradle-to-gate",
+      "inputs": {
+        "iron_ore": {"amount": 1600, "unit": "kg"},
+        "coal_coke": {"amount": 450, "unit": "kg"},
+        "limestone": {"amount": 150, "unit": "kg"},
+        "scrap_addition": {"amount": 150, "unit": "kg"},
+        "electricity": {"amount": 150, "unit": "kWh"},
+        "oxygen": {"amount": 55, "unit": "m3"}
+      },
+      "outputs": {
+        "steel_slab": {"amount": 1000, "unit": "kg"},
+        "blast_furnace_slag": {"amount": 250, "unit": "kg"},
+        "bof_slag": {"amount": 100, "unit": "kg"},
+        "co2_direct": {"amount": 1700, "unit": "kg"}
+      },
+      "environmental_impacts": {
+        "gwp_100": {"value": 2100, "unit": "kg CO2e", "breakdown": {"mining": 200, "ironmaking": 1500, "steelmaking": 400}},
+        "energy_demand": {"value": 25000, "unit": "MJ"},
+        "water_consumption": {"value": 5, "unit": "m3"}
+      },
+      "circularity_metrics": {
+        "recycled_content": 15,
+        "mci": 0.25,
+        "resource_efficiency": 62.5
+      }
+    },
+    "copper_secondary_smelting": {
+      "description": "Secondary copper smelting from scrap",
+      "functional_unit": "1 ton of copper cathode",
+      "system_boundary": "gate-to-gate",
+      "inputs": {
+        "copper_scrap": {"amount": 1020, "unit": "kg"},
+        "natural_gas": {"amount": 40, "unit": "m3"},
+        "electricity": {"amount": 300, "unit": "kWh"},
+        "oxygen": {"amount": 50, "unit": "m3"}
+      },
+      "outputs": {
+        "copper_cathode": {"amount": 1000, "unit": "kg"},
+        "slag": {"amount": 20, "unit": "kg"},
+        "co2_direct": {"amount": 80, "unit": "kg"}
+      },
+      "environmental_impacts": {
+        "gwp_100": {"value": 500, "unit": "kg CO2e"},
+        "energy_demand": {"value": 6000, "unit": "MJ"},
+        "water_consumption": {"value": 1, "unit": "m3"}
+      },
+      "circularity_metrics": {
+        "recycled_content": 100,
+        "mci": 0.90,
+        "resource_efficiency": 98
+      }
+    },
+    "lead_battery_recycling": {
+      "description": "Lead-acid battery recycling",
+      "functional_unit": "1 ton of secondary lead",
+      "system_boundary": "gate-to-gate",
+      "inputs": {
+        "used_batteries": {"amount": 1500, "unit": "kg"},
+        "flux": {"amount": 50, "unit": "kg"},
+        "natural_gas": {"amount": 60, "unit": "m3"},
+        "electricity": {"amount": 200, "unit": "kWh"}
+      },
+      "outputs": {
+        "lead_ingot": {"amount": 1000, "unit": "kg"},
+        "plastic_chips": {"amount": 100, "unit": "kg"},
+        "sodium_sulfate": {"amount": 200, "unit": "kg"},
+        "slag": {"amount": 150, "unit": "kg"}
+      },
+      "environmental_impacts": {
+        "gwp_100": {"value": 500, "unit": "kg CO2e"},
+        "energy_demand": {"value": 5500, "unit": "MJ"},
+        "water_consumption": {"value": 2, "unit": "m3"}
+      },
+      "circularity_metrics": {
+        "recycled_content": 100,
+        "mci": 0.92,
+        "resource_efficiency": 67
+      }
+    }
+  },
+  "comparison_baselines": {
+    "aluminium": {
+      "conventional_linear": {
+        "recycled_content": 0,
+        "energy_source": "grid_average",
+        "eol_scenario": "landfill",
+        "gwp_per_ton": 16500,
+        "mci": 0.1
+      },
+      "current_industry_average": {
+        "recycled_content": 33,
+        "energy_source": "grid_average",
+        "eol_scenario": "76% recycling",
+        "gwp_per_ton": 11300,
+        "mci": 0.45
+      },
+      "best_practice_circular": {
+        "recycled_content": 85,
+        "energy_source": "renewable",
+        "eol_scenario": "95% recycling",
+        "gwp_per_ton": 800,
+        "mci": 0.88
+      }
+    },
+    "steel": {
+      "conventional_linear": {
+        "recycled_content": 0,
+        "energy_source": "coal",
+        "eol_scenario": "landfill",
+        "gwp_per_ton": 2500,
+        "mci": 0.1
+      },
+      "current_industry_average": {
+        "recycled_content": 30,
+        "energy_source": "grid_average",
+        "eol_scenario": "85% recycling",
+        "gwp_per_ton": 1800,
+        "mci": 0.50
+      },
+      "best_practice_circular": {
+        "recycled_content": 100,
+        "energy_source": "renewable",
+        "eol_scenario": "98% recycling",
+        "gwp_per_ton": 250,
+        "mci": 0.95
+      }
+    }
+  }
+}
