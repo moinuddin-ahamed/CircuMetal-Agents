@@ -5,18 +5,22 @@ import {
   FileText, ArrowLeft, RefreshCw, Calendar, Clock,
   ChevronRight, Download, Eye, Loader2, Search,
   Recycle, Zap, Droplets, BarChart3, CheckCircle,
-  AlertCircle, Filter, SortAsc, SortDesc, FolderOpen
+  AlertCircle, Filter, SortAsc, SortDesc, FolderOpen,
+  Trash2, Edit, Plus, Save, X
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog"
 import {
   Select,
@@ -25,7 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 
 interface ReportsPageProps {
   onBack: () => void
@@ -73,6 +77,10 @@ export default function ReportsPage({ onBack }: ReportsPageProps) {
   const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest")
   const [selectedReport, setSelectedReport] = useState<Report | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isEditMode, setIsEditMode] = useState(false)
+  const [formData, setFormData] = useState<Partial<Report>>({})
+
+  const queryClient = useQueryClient()
 
   // Fetch reports from API
   const { data: reportsData, isLoading, error, refetch } = useQuery({
@@ -105,6 +113,61 @@ export default function ReportsPage({ onBack }: ReportsPageProps) {
     if (!projectId) return null
     return projectsMap.get(projectId) || null
   }
+
+  // Mutations
+  const deleteMutation = useMutation({
+    mutationFn: async (reportId: string) => {
+      const response = await fetch(`${API_URL}/api/reports/${reportId}`, {
+        method: "DELETE",
+      })
+      if (!response.ok) throw new Error("Failed to delete report")
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["reports"] })
+      setIsDialogOpen(false)
+    },
+  })
+
+  const updateMutation = useMutation({
+    mutationFn: async (report: Partial<Report>) => {
+      const response = await fetch(`${API_URL}/api/reports/${report.id || (report as any)._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(report),
+      })
+      if (!response.ok) throw new Error("Failed to update report")
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["reports"] })
+      setIsDialogOpen(false)
+      setIsEditMode(false)
+    },
+  })
+
+  const createMutation = useMutation({
+    mutationFn: async (report: Partial<Report>) => {
+      const response = await fetch(`${API_URL}/api/reports`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            ...report,
+            created_at: new Date().toISOString(),
+            lca_results: report.lca_results || { gwp_100: { value: 0, unit: "kg CO2e" } },
+            circularity_results: report.circularity_results || { mci: 0 },
+            compliance: report.compliance || { compliant: true, flags: [] }
+        }),
+      })
+      if (!response.ok) throw new Error("Failed to create report")
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["reports"] })
+      setIsDialogOpen(false)
+      setIsEditMode(false)
+    },
+  })
 
   const reports: Report[] = reportsData?.reports || []
 
@@ -145,7 +208,35 @@ export default function ReportsPage({ onBack }: ReportsPageProps) {
 
   const openReportDetail = (report: Report) => {
     setSelectedReport(report)
+    setFormData(report)
+    setIsEditMode(false)
     setIsDialogOpen(true)
+  }
+
+  const openCreateDialog = () => {
+    setSelectedReport(null)
+    setFormData({
+      material: "",
+      process_description: "",
+      location: "Europe",
+      input_amount: "1 ton"
+    })
+    setIsEditMode(true)
+    setIsDialogOpen(true)
+  }
+
+  const handleDelete = (reportId: string) => {
+    if (confirm("Are you sure you want to delete this report?")) {
+      deleteMutation.mutate(reportId)
+    }
+  }
+
+  const handleSave = () => {
+    if (selectedReport) {
+      updateMutation.mutate({ ...formData, id: selectedReport.id || (selectedReport as any)._id })
+    } else {
+      createMutation.mutate(formData)
+    }
   }
 
   const getMCIColor = (mci: number) => {
@@ -182,9 +273,10 @@ export default function ReportsPage({ onBack }: ReportsPageProps) {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Badge variant="outline" className="text-sm py-1.5 px-4 bg-white border-emerald-200 text-emerald-700 font-medium">
-              {reports.length} Reports
-            </Badge>
+            <Button onClick={openCreateDialog} className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2">
+              <Plus className="w-4 h-4" />
+              New Report
+            </Button>
             <Button variant="outline" onClick={() => refetch()} className="gap-2 border-slate-200 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700 rounded-xl transition-all">
               <RefreshCw className="w-4 h-4" />
               Refresh
@@ -261,8 +353,8 @@ export default function ReportsPage({ onBack }: ReportsPageProps) {
           <div className="grid gap-4">
             {filteredReports.map((report) => (
               <Card 
-                key={report.id} 
-                className="p-5 bg-card border-border hover:border-primary/50 transition-colors cursor-pointer"
+                key={report.id || (report as any)._id} 
+                className="p-5 bg-card border-border hover:border-primary/50 transition-colors cursor-pointer group"
                 onClick={() => openReportDetail(report)}
               >
                 <div className="flex items-start justify-between">
@@ -270,7 +362,7 @@ export default function ReportsPage({ onBack }: ReportsPageProps) {
                     {/* Header Row */}
                     <div className="flex items-center gap-3 mb-3 flex-wrap">
                       <Badge variant="outline" className="font-mono text-xs">
-                        {report.run_id}
+                        {report.run_id || "MANUAL"}
                       </Badge>
                       {report.project_id && getProjectName(report.project_id) && (
                         <Badge variant="secondary" className="text-xs">
@@ -281,10 +373,6 @@ export default function ReportsPage({ onBack }: ReportsPageProps) {
                       <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                         <Calendar className="w-3.5 h-3.5" />
                         {formatDate(report.created_at)}
-                      </div>
-                      <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                        <Clock className="w-3.5 h-3.5" />
-                        {formatTime(report.created_at)}
                       </div>
                       {report.compliance?.compliant && (
                         <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
@@ -317,19 +405,6 @@ export default function ReportsPage({ onBack }: ReportsPageProps) {
                         </div>
                       </div>
 
-                      {/* Energy */}
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
-                          <BarChart3 className="w-4 h-4 text-blue-600" />
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">Energy</p>
-                          <p className="text-sm font-semibold">
-                            {report.lca_results?.energy_demand?.value || "N/A"} {report.lca_results?.energy_demand?.unit || ""}
-                          </p>
-                        </div>
-                      </div>
-
                       {/* MCI */}
                       <div className="flex items-center gap-2">
                         <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center">
@@ -342,225 +417,180 @@ export default function ReportsPage({ onBack }: ReportsPageProps) {
                           </p>
                         </div>
                       </div>
-
-                      {/* Location */}
-                      <div className="flex items-center gap-2 ml-auto">
-                        <Badge variant="secondary">
-                          {report.location || "Unknown"}
-                        </Badge>
-                        <Badge variant="secondary">
-                          {report.input_amount || "1 ton"}
-                        </Badge>
-                      </div>
                     </div>
                   </div>
 
-                  <ChevronRight className="w-5 h-5 text-muted-foreground ml-4" />
+                  <div className="flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); handleDelete(report.id || (report as any)._id) }}>
+                      <Trash2 className="w-4 h-4 text-red-500" />
+                    </Button>
+                    <ChevronRight className="w-5 h-5 text-muted-foreground ml-auto" />
+                  </div>
                 </div>
               </Card>
             ))}
           </div>
         )}
 
-        {/* Report Detail Dialog */}
+        {/* Report Detail/Edit Dialog */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-3">
                 <FileText className="w-5 h-5 text-primary" />
-                Report Details
-                {selectedReport && (
-                  <Badge variant="outline" className="font-mono text-xs ml-2">
-                    {selectedReport.run_id}
-                  </Badge>
-                )}
+                {isEditMode ? (selectedReport ? "Edit Report" : "New Report") : "Report Details"}
               </DialogTitle>
             </DialogHeader>
             
-            {selectedReport && (
-              <ScrollArea className="flex-1 pr-4">
-                <div className="space-y-6">
-                  {/* Overview */}
-                  <div>
-                    <h3 className="text-lg font-semibold mb-3">Overview</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      {selectedReport.project_id && getProjectName(selectedReport.project_id) && (
-                        <Card className="p-4 bg-primary/5 border-primary/20 col-span-2">
-                          <div className="flex items-center gap-2">
-                            <FolderOpen className="w-5 h-5 text-primary" />
-                            <div>
-                              <p className="text-sm text-muted-foreground">Linked Project</p>
-                              <p className="font-semibold text-primary">{getProjectName(selectedReport.project_id)}</p>
-                            </div>
-                          </div>
-                        </Card>
-                      )}
-                      <Card className="p-4 bg-muted/50">
-                        <p className="text-sm text-muted-foreground">Material</p>
-                        <p className="font-semibold">{selectedReport.material}</p>
-                      </Card>
-                      <Card className="p-4 bg-muted/50">
-                        <p className="text-sm text-muted-foreground">Input Amount</p>
-                        <p className="font-semibold">{selectedReport.input_amount}</p>
-                      </Card>
-                      <Card className="p-4 bg-muted/50">
-                        <p className="text-sm text-muted-foreground">Location</p>
-                        <p className="font-semibold">{selectedReport.location}</p>
-                      </Card>
-                      <Card className="p-4 bg-muted/50">
-                        <p className="text-sm text-muted-foreground">Generated</p>
-                        <p className="font-semibold">
-                          {formatDate(selectedReport.created_at)} at {formatTime(selectedReport.created_at)}
-                        </p>
-                      </Card>
+            <ScrollArea className="flex-1 pr-4">
+              {isEditMode ? (
+                <div className="space-y-4 py-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Material</Label>
+                      <Input 
+                        value={formData.material || ""} 
+                        onChange={(e) => setFormData({...formData, material: e.target.value})}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Location</Label>
+                      <Input 
+                        value={formData.location || ""} 
+                        onChange={(e) => setFormData({...formData, location: e.target.value})}
+                      />
                     </div>
                   </div>
-
-                  {/* Process Description */}
-                  <div>
-                    <h3 className="text-lg font-semibold mb-3">Process Description</h3>
-                    <Card className="p-4 bg-muted/50">
-                      <p className="text-foreground">{selectedReport.process_description}</p>
-                    </Card>
+                  <div className="space-y-2">
+                    <Label>Process Description</Label>
+                    <Textarea 
+                      value={formData.process_description || ""} 
+                      onChange={(e) => setFormData({...formData, process_description: e.target.value})}
+                    />
                   </div>
-
-                  {/* LCA Results */}
-                  <div>
-                    <h3 className="text-lg font-semibold mb-3">LCA Results</h3>
-                    <div className="grid grid-cols-3 gap-4">
-                      <Card className="p-4 bg-orange-50 border-orange-200">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Zap className="w-5 h-5 text-orange-600" />
-                          <p className="text-sm font-medium text-orange-800">Global Warming Potential</p>
-                        </div>
-                        <p className="text-2xl font-bold text-orange-900">
-                          {selectedReport.lca_results?.gwp_100?.value}
-                        </p>
-                        <p className="text-sm text-orange-700">
-                          {selectedReport.lca_results?.gwp_100?.unit}
-                        </p>
-                      </Card>
-                      <Card className="p-4 bg-blue-50 border-blue-200">
-                        <div className="flex items-center gap-2 mb-2">
-                          <BarChart3 className="w-5 h-5 text-blue-600" />
-                          <p className="text-sm font-medium text-blue-800">Energy Demand</p>
-                        </div>
-                        <p className="text-2xl font-bold text-blue-900">
-                          {selectedReport.lca_results?.energy_demand?.value}
-                        </p>
-                        <p className="text-sm text-blue-700">
-                          {selectedReport.lca_results?.energy_demand?.unit}
-                        </p>
-                      </Card>
-                      <Card className="p-4 bg-cyan-50 border-cyan-200">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Droplets className="w-5 h-5 text-cyan-600" />
-                          <p className="text-sm font-medium text-cyan-800">Water Consumption</p>
-                        </div>
-                        <p className="text-2xl font-bold text-cyan-900">
-                          {selectedReport.lca_results?.water_consumption?.value}
-                        </p>
-                        <p className="text-sm text-cyan-700">
-                          {selectedReport.lca_results?.water_consumption?.unit}
-                        </p>
-                      </Card>
-                    </div>
-                  </div>
-
-                  {/* Circularity Metrics */}
-                  <div>
-                    <h3 className="text-lg font-semibold mb-3">Circularity Metrics</h3>
-                    <div className="grid grid-cols-4 gap-4">
-                      <Card className="p-4 bg-green-50 border-green-200 text-center">
-                        <Recycle className="w-6 h-6 text-green-600 mx-auto mb-2" />
-                        <p className="text-2xl font-bold text-green-900">
-                          {selectedReport.circularity_results?.mci?.toFixed(2)}
-                        </p>
-                        <p className="text-xs text-green-700">MCI Score</p>
-                      </Card>
-                      <Card className="p-4 bg-muted/50 text-center">
-                        <p className="text-2xl font-bold text-foreground">
-                          {selectedReport.circularity_results?.recycled_content}%
-                        </p>
-                        <p className="text-xs text-muted-foreground">Recycled Content</p>
-                      </Card>
-                      <Card className="p-4 bg-muted/50 text-center">
-                        <p className="text-2xl font-bold text-foreground">
-                          {selectedReport.circularity_results?.eol_recycling_rate}%
-                        </p>
-                        <p className="text-xs text-muted-foreground">EOL Recycling Rate</p>
-                      </Card>
-                      <Card className="p-4 bg-muted/50 text-center">
-                        <p className="text-2xl font-bold text-foreground">
-                          {selectedReport.circularity_results?.resource_efficiency}%
-                        </p>
-                        <p className="text-xs text-muted-foreground">Resource Efficiency</p>
-                      </Card>
-                    </div>
-                  </div>
-
-                  {/* Scenarios */}
-                  {selectedReport.scenarios && selectedReport.scenarios.length > 0 && (
-                    <div>
-                      <h3 className="text-lg font-semibold mb-3">Scenarios</h3>
-                      <div className="space-y-2">
-                        {selectedReport.scenarios.map((scenario, idx) => (
-                          <Card key={idx} className="p-3 bg-muted/50">
-                            <div className="flex items-start justify-between">
-                              <div>
-                                <p className="font-medium text-foreground">{scenario.scenario_name}</p>
-                                <p className="text-sm text-muted-foreground">{scenario.description}</p>
-                              </div>
-                              <Badge variant="outline" className="text-xs whitespace-nowrap">
-                                {scenario.predicted_impact_reduction}
-                              </Badge>
-                            </div>
-                          </Card>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Compliance */}
-                  <div>
-                    <h3 className="text-lg font-semibold mb-3">Compliance Status</h3>
-                    <Card className={`p-4 ${selectedReport.compliance?.compliant ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
-                      <div className="flex items-center gap-3">
-                        {selectedReport.compliance?.compliant ? (
-                          <>
-                            <CheckCircle className="w-6 h-6 text-green-600" />
-                            <div>
-                              <p className="font-semibold text-green-800">Compliant</p>
-                              <p className="text-sm text-green-700">
-                                This process meets all regulatory requirements
-                              </p>
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            <AlertCircle className="w-6 h-6 text-red-600" />
-                            <div>
-                              <p className="font-semibold text-red-800">Non-Compliant</p>
-                              <p className="text-sm text-red-700">
-                                Review flagged issues for compliance
-                              </p>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    </Card>
-                  </div>
-
-                  {/* Full Report Link */}
-                  <div className="pt-4 border-t">
-                    <Button variant="outline" className="w-full gap-2">
-                      <Eye className="w-4 h-4" />
-                      View Full Markdown Report
-                    </Button>
+                  <div className="space-y-2">
+                    <Label>Input Amount</Label>
+                    <Input 
+                      value={formData.input_amount || ""} 
+                      onChange={(e) => setFormData({...formData, input_amount: e.target.value})}
+                    />
                   </div>
                 </div>
-              </ScrollArea>
-            )}
+              ) : (
+                selectedReport && (
+                  <div className="space-y-6">
+                    {/* Overview */}
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3">Overview</h3>
+                      <div className="grid grid-cols-2 gap-4">
+                        {selectedReport.project_id && getProjectName(selectedReport.project_id) && (
+                          <Card className="p-4 bg-primary/5 border-primary/20 col-span-2">
+                            <div className="flex items-center gap-2">
+                              <FolderOpen className="w-5 h-5 text-primary" />
+                              <div>
+                                <p className="text-sm text-muted-foreground">Linked Project</p>
+                                <p className="font-semibold text-primary">{getProjectName(selectedReport.project_id)}</p>
+                              </div>
+                            </div>
+                          </Card>
+                        )}
+                        <Card className="p-4 bg-muted/50">
+                          <p className="text-sm text-muted-foreground">Material</p>
+                          <p className="font-semibold">{selectedReport.material}</p>
+                        </Card>
+                        <Card className="p-4 bg-muted/50">
+                          <p className="text-sm text-muted-foreground">Input Amount</p>
+                          <p className="font-semibold">{selectedReport.input_amount}</p>
+                        </Card>
+                        <Card className="p-4 bg-muted/50">
+                          <p className="text-sm text-muted-foreground">Location</p>
+                          <p className="font-semibold">{selectedReport.location}</p>
+                        </Card>
+                        <Card className="p-4 bg-muted/50">
+                          <p className="text-sm text-muted-foreground">Generated</p>
+                          <p className="font-semibold">
+                            {formatDate(selectedReport.created_at)} at {formatTime(selectedReport.created_at)}
+                          </p>
+                        </Card>
+                      </div>
+                    </div>
+
+                    {/* Process Description */}
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3">Process Description</h3>
+                      <Card className="p-4 bg-muted/50">
+                        <p className="text-foreground">{selectedReport.process_description}</p>
+                      </Card>
+                    </div>
+
+                    {/* LCA Results */}
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3">LCA Results</h3>
+                      <div className="grid grid-cols-3 gap-4">
+                        <Card className="p-4 bg-orange-50 border-orange-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Zap className="w-5 h-5 text-orange-600" />
+                            <p className="text-sm font-medium text-orange-800">Global Warming Potential</p>
+                          </div>
+                          <p className="text-2xl font-bold text-orange-900">
+                            {selectedReport.lca_results?.gwp_100?.value}
+                          </p>
+                          <p className="text-sm text-orange-700">
+                            {selectedReport.lca_results?.gwp_100?.unit}
+                          </p>
+                        </Card>
+                        <Card className="p-4 bg-blue-50 border-blue-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <BarChart3 className="w-5 h-5 text-blue-600" />
+                            <p className="text-sm font-medium text-blue-800">Energy Demand</p>
+                          </div>
+                          <p className="text-2xl font-bold text-blue-900">
+                            {selectedReport.lca_results?.energy_demand?.value}
+                          </p>
+                          <p className="text-sm text-blue-700">
+                            {selectedReport.lca_results?.energy_demand?.unit}
+                          </p>
+                        </Card>
+                        <Card className="p-4 bg-cyan-50 border-cyan-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Droplets className="w-5 h-5 text-cyan-600" />
+                            <p className="text-sm font-medium text-cyan-800">Water Consumption</p>
+                          </div>
+                          <p className="text-2xl font-bold text-cyan-900">
+                            {selectedReport.lca_results?.water_consumption?.value}
+                          </p>
+                          <p className="text-sm text-cyan-700">
+                            {selectedReport.lca_results?.water_consumption?.unit}
+                          </p>
+                        </Card>
+                      </div>
+                    </div>
+                  </div>
+                )
+              )}
+            </ScrollArea>
+
+            <DialogFooter className="mt-4">
+              {isEditMode ? (
+                <>
+                  <Button variant="outline" onClick={() => setIsEditMode(false)}>Cancel</Button>
+                  <Button onClick={handleSave} disabled={createMutation.isPending || updateMutation.isPending}>
+                    {createMutation.isPending || updateMutation.isPending ? (
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    ) : <Save className="w-4 h-4 mr-2" />}
+                    Save Report
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Close</Button>
+                  <Button onClick={() => setIsEditMode(true)}>
+                    <Edit className="w-4 h-4 mr-2" />
+                    Edit Report
+                  </Button>
+                </>
+              )}
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>

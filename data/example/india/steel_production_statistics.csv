@@ -1,0 +1,14 @@
+year,product,production_mt,consumption_mt,exports_mt,imports_mt,crude_steel_equivalent,recycled_content_pct
+2023,Crude Steel,142.3,128.5,8.2,5.8,142.3,22
+2023,Pig Iron,5.8,5.2,0.4,0.2,6.5,0
+2023,Sponge Iron (DRI),42.5,41.8,0.5,0.1,38.2,0
+2023,Finished Steel,125.8,118.2,7.5,4.8,138.4,22
+2022,Crude Steel,134.2,122.1,7.8,5.2,134.2,21
+2022,Pig Iron,5.5,5.0,0.3,0.2,6.2,0
+2022,Sponge Iron (DRI),40.2,39.5,0.5,0.1,36.2,0
+2022,Finished Steel,118.5,112.3,7.0,4.5,130.4,21
+2021,Crude Steel,118.2,108.5,6.5,4.8,118.2,20
+2021,Pig Iron,5.2,4.8,0.3,0.2,5.8,0
+2021,Finished Steel,104.8,98.5,6.0,4.2,115.3,20
+2020,Crude Steel,100.3,92.5,5.2,4.5,100.3,19
+2020,Finished Steel,88.5,82.3,5.0,4.0,97.4,19

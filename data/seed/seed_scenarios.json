@@ -1,0 +1,159 @@
+[
+  {
+    "_id": "scenario_steel_baseline_01",
+    "project_id": "proj_demo_steel_01",
+    "name": "BF-BOF Baseline",
+    "description": "Conventional blast furnace - basic oxygen furnace route for steel production",
+    "scenario_type": "baseline",
+    "metal_type": "iron_steel",
+    "created_at": "2025-01-15T10:30:00Z",
+    "parameters": {
+      "production_volume_tpa": 3000000,
+      "process_route": "BF-BOF",
+      "ore_grade": 0.62,
+      "recycled_content": 0.15,
+      "energy_source": {
+        "coal": 0.75,
+        "natural_gas": 0.15,
+        "electricity_grid": 0.10
+      },
+      "transport_distance_km": 250,
+      "waste_treatment": "landfill"
+    },
+    "inventory_refs": ["inv_steel_mining_baseline", "inv_steel_smelting_baseline", "inv_steel_rolling_baseline"],
+    "results": {
+      "total_gwp": 2.1,
+      "total_gwp_unit": "tCO2e/tonne steel",
+      "circularity_score": 0.18,
+      "breakdown": {
+        "mining": 0.15,
+        "smelting": 1.65,
+        "rolling": 0.20,
+        "transport": 0.10
+      }
+    }
+  },
+  {
+    "_id": "scenario_steel_circular_01",
+    "project_id": "proj_demo_steel_01",
+    "name": "EAF Circular",
+    "description": "Electric arc furnace route with high scrap content and renewable energy",
+    "scenario_type": "circular",
+    "metal_type": "iron_steel",
+    "created_at": "2025-01-15T11:00:00Z",
+    "parameters": {
+      "production_volume_tpa": 3000000,
+      "process_route": "EAF",
+      "recycled_content": 0.85,
+      "energy_source": {
+        "electricity_grid": 0.60,
+        "renewable": 0.35,
+        "natural_gas": 0.05
+      },
+      "transport_distance_km": 150,
+      "waste_treatment": "recycling",
+      "circular_interventions": [
+        "scrap_maximization",
+        "renewable_energy",
+        "waste_heat_recovery",
+        "byproduct_valorization"
+      ]
+    },
+    "inventory_refs": ["inv_steel_scrap_circular", "inv_steel_eaf_circular", "inv_steel_rolling_circular"],
+    "results": {
+      "total_gwp": 0.45,
+      "total_gwp_unit": "tCO2e/tonne steel",
+      "circularity_score": 0.82,
+      "breakdown": {
+        "scrap_processing": 0.08,
+        "smelting": 0.28,
+        "rolling": 0.05,
+        "transport": 0.04
+      }
+    },
+    "comparison": {
+      "baseline_id": "scenario_steel_baseline_01",
+      "gwp_reduction": 0.786,
+      "gwp_reduction_absolute": 1.65,
+      "circularity_improvement": 0.64
+    }
+  },
+  {
+    "_id": "scenario_aluminium_baseline_01",
+    "project_id": "proj_demo_aluminium_01",
+    "name": "Primary Aluminium Baseline",
+    "description": "Conventional Hall-Héroult process with coal-fired power",
+    "scenario_type": "baseline",
+    "metal_type": "aluminium",
+    "created_at": "2025-01-17T10:00:00Z",
+    "parameters": {
+      "production_volume_tpa": 500000,
+      "process_route": "Hall-Heroult",
+      "ore_type": "bauxite",
+      "alumina_ratio": 1.93,
+      "recycled_content": 0.0,
+      "energy_source": {
+        "coal_power": 0.85,
+        "grid_mix": 0.15
+      },
+      "anode_type": "prebaked",
+      "transport_distance_km": 400
+    },
+    "inventory_refs": ["inv_bauxite_mining_baseline", "inv_alumina_refining_baseline", "inv_aluminium_smelting_baseline"],
+    "results": {
+      "total_gwp": 16.5,
+      "total_gwp_unit": "tCO2e/tonne aluminium",
+      "circularity_score": 0.05,
+      "breakdown": {
+        "bauxite_mining": 0.3,
+        "alumina_refining": 2.8,
+        "electrolysis": 12.0,
+        "anode_consumption": 1.2,
+        "transport": 0.2
+      }
+    }
+  },
+  {
+    "_id": "scenario_aluminium_circular_01",
+    "project_id": "proj_demo_aluminium_01",
+    "name": "Circular Aluminium",
+    "description": "Secondary aluminium with renewable energy and closed-loop recycling",
+    "scenario_type": "circular",
+    "metal_type": "aluminium",
+    "created_at": "2025-01-17T11:00:00Z",
+    "parameters": {
+      "production_volume_tpa": 500000,
+      "process_route": "Secondary_EAF",
+      "recycled_content": 0.90,
+      "energy_source": {
+        "renewable": 0.70,
+        "grid_mix": 0.30
+      },
+      "transport_distance_km": 100,
+      "circular_interventions": [
+        "scrap_recycling",
+        "renewable_energy",
+        "closed_loop_collection",
+        "alloy_optimization"
+      ]
+    },
+    "inventory_refs": ["inv_aluminium_scrap_collection", "inv_aluminium_remelting_circular"],
+    "results": {
+      "total_gwp": 0.8,
+      "total_gwp_unit": "tCO2e/tonne aluminium",
+      "circularity_score": 0.88,
+      "breakdown": {
+        "scrap_collection": 0.15,
+        "sorting_processing": 0.10,
+        "remelting": 0.45,
+        "transport": 0.10
+      }
+    },
+    "comparison": {
+      "baseline_id": "scenario_aluminium_baseline_01",
+      "gwp_reduction": 0.952,
+      "gwp_reduction_absolute": 15.7,
+      "circularity_improvement": 0.83
+    }
+  }
+]

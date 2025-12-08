@@ -19,6 +19,13 @@ import InventoryManagementPage from "@/components/pages/inventory-management-pag
 import ProjectManagementPage from "@/components/pages/project-management-page"
 import AgentsInterface from "@/components/pages/agents-interface"
 import ReportsPage from "@/components/pages/reports-page"
+import LifeCycleExplorer from "@/components/pages/life-cycle-explorer"
+import OreLibrary from "@/components/pages/ore-library"
+import TradingFloor from "@/components/pages/trading-floor"
+import ComplianceCredits from "@/components/pages/compliance-credits"
+import InventoryLogistics from "@/components/pages/inventory-logistics"
+import VisualizationPage from "@/components/pages/visualization-page"
+import SankeyPage from "@/components/pages/sankey-page"
 import { useState } from "react"
 
 export default function DashboardLayout() {
@@ -30,12 +37,38 @@ export default function DashboardLayout() {
   const [editingInventoryId, setEditingInventoryId] = useState<string | null>(null)
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null)
 
+  const handleNavigate = (view: any) => {
+    // Clear current project when navigating to main dashboard or projects list
+    if (view === 'dashboard' || view === 'projects') {
+      setCurrentProject(null)
+    }
+    setCurrentView(view)
+  }
+
   const renderView = () => {
     switch (currentView) {
       case "new-assessment":
-        return <NewAssessmentWizard onComplete={() => setCurrentView("dashboard")} />
+        return <NewAssessmentWizard project={currentProject || undefined} onComplete={() => setCurrentView("dashboard")} />
+      
+      case "projects":
+        return (
+          <ProjectsPage 
+            projects={projects} 
+            onSelectProject={(p) => {
+              setCurrentProject(p)
+              setCurrentView("project-detail")
+            }}
+            onNavigate={handleNavigate}
+          />
+        )
+
+      case "reports":
+        return <ReportsPage onBack={() => handleNavigate("dashboard")} />
       
       case "inventory":
+        return <InventoryLogistics onNavigate={handleNavigate} />
+
+      case "new-inventory":
         return (
           <InventoryInputPage
             projectId={currentProject?.id || selectedProjectId || undefined}
@@ -44,7 +77,7 @@ export default function DashboardLayout() {
               // Navigate to scenario builder with the inventory
               setCurrentView("scenario" as any)
             }}
-            onBack={() => setCurrentView("dashboard")}
+            onBack={() => handleNavigate("dashboard")}
           />
         )
       
@@ -62,7 +95,7 @@ export default function DashboardLayout() {
               setCurrentInventoryId(inventoryId)
               setCurrentView("scenario" as any)
             }}
-            onBack={() => setCurrentView("dashboard")}
+            onBack={() => handleNavigate("dashboard")}
           />
         )
       
@@ -81,21 +114,21 @@ export default function DashboardLayout() {
               setSelectedProjectId(projectId)
               setCurrentView("reports")
             }}
-            onBack={() => setCurrentView("dashboard")}
+            onBack={() => handleNavigate("dashboard")}
           />
         )
       
       case "agents":
         return (
           <AgentsInterface
-            onBack={() => setCurrentView("dashboard")}
+            onBack={() => handleNavigate("dashboard")}
           />
         )
       
       case "lca-reports":
         return (
           <ReportsPage
-            onBack={() => setCurrentView("dashboard")}
+            onBack={() => handleNavigate("dashboard")}
           />
         )
       
@@ -114,7 +147,7 @@ export default function DashboardLayout() {
             />
           )
         }
-        return <ScenarioEditor onNavigate={setCurrentView} />
+        return <ScenarioEditor onNavigate={handleNavigate} />
       
       case "run-results":
         return currentRunId ? (
@@ -122,33 +155,30 @@ export default function DashboardLayout() {
             runId={currentRunId}
             onBack={() => {
               setCurrentRunId(null)
-              setCurrentView("dashboard")
+              handleNavigate("dashboard")
             }}
           />
         ) : (
-          <Dashboard projects={projects} onNavigate={setCurrentView} onSelectProject={setCurrentProject} />
+          <Dashboard projects={projects} onNavigate={handleNavigate} onSelectProject={setCurrentProject} />
         )
-      
-      case "projects":
-        return <ProjectsPage projects={projects} onSelectProject={setCurrentProject} onNavigate={setCurrentView} />
       
       case "project-detail":
         return currentProject ? (
           <ProjectDetailPage
             project={currentProject}
-            onNavigate={setCurrentView}
+            onNavigate={handleNavigate}
             onSelectScenario={() => {}}
             onCreateScenario={() => setCurrentView("new-assessment")}
           />
         ) : (
-          <Dashboard projects={projects} onNavigate={setCurrentView} onSelectProject={setCurrentProject} />
+          <Dashboard projects={projects} onNavigate={handleNavigate} onSelectProject={setCurrentProject} />
         )
       
       case "results":
-        return <ResultsView onNavigate={setCurrentView} />
+        return <ResultsView onNavigate={handleNavigate} />
       
       case "comparison":
-        return <ComparisonView onNavigate={setCurrentView} />
+        return <ComparisonView onNavigate={handleNavigate} />
       
       case "reports":
         return <AIPredictionLog />
@@ -163,15 +193,33 @@ export default function DashboardLayout() {
             <p className="text-muted-foreground">Documentation coming soon...</p>
           </div>
         )
+
+      case "explorer":
+        return <LifeCycleExplorer />
+      
+      case "library":
+        return <OreLibrary />
+      
+      case "trading":
+        return <TradingFloor />
+      
+      case "compliance":
+        return <ComplianceCredits />
+      
+      case "visualization":
+        return <VisualizationPage />
+      
+      case "sankey":
+        return <SankeyPage />
       
       default:
-        return <Dashboard projects={projects} onNavigate={setCurrentView} onSelectProject={setCurrentProject} />
+        return <Dashboard projects={projects} onNavigate={handleNavigate} onSelectProject={setCurrentProject} />
     }
   }
 
   return (
     <div className="flex h-screen bg-background">
-      <Sidebar currentView={currentView} onNavigate={setCurrentView} />
+      <Sidebar currentView={currentView} onNavigate={handleNavigate} />
       <div className="flex-1 flex flex-col overflow-hidden">
         <TopBar />
         <main className="flex-1 overflow-auto">{renderView()}</main>

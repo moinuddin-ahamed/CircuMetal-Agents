@@ -1,0 +1,84 @@
+[
+  {
+    "_id": "proj_demo_steel_01",
+    "name": "Steel Manufacturing LCA - Odisha",
+    "description": "Life Cycle Assessment of integrated steel plant operations in Odisha, India. Comparing baseline (BF-BOF) vs circular (EAF with scrap) scenarios.",
+    "region": "Odisha",
+    "country": "India",
+    "metal_type": "iron_steel",
+    "process_route": "integrated",
+    "created_at": "2025-01-15T10:00:00Z",
+    "updated_at": "2025-01-15T10:00:00Z",
+    "owner_id": "demo_user_gov",
+    "status": "active",
+    "tags": ["demo", "steel", "BF-BOF", "EAF", "circular", "odisha"],
+    "metadata": {
+      "plant_capacity_tpa": 3000000,
+      "commissioning_year": 2015,
+      "grid_region": "Eastern India",
+      "baseline_scenario": "scenario_steel_baseline_01",
+      "circular_scenario": "scenario_steel_circular_01"
+    }
+  },
+  {
+    "_id": "proj_demo_steel_02",
+    "name": "Steel Manufacturing LCA - Karnataka",
+    "description": "LCA comparison of steel production pathways in Karnataka with focus on renewable energy integration.",
+    "region": "Karnataka",
+    "country": "India",
+    "metal_type": "iron_steel",
+    "process_route": "semi_integrated",
+    "created_at": "2025-01-16T08:30:00Z",
+    "updated_at": "2025-01-16T08:30:00Z",
+    "owner_id": "demo_user_gov",
+    "status": "active",
+    "tags": ["demo", "steel", "renewable", "karnataka"],
+    "metadata": {
+      "plant_capacity_tpa": 1500000,
+      "commissioning_year": 2018,
+      "grid_region": "Southern India",
+      "renewable_share": 0.35
+    }
+  },
+  {
+    "_id": "proj_demo_aluminium_01",
+    "name": "Aluminium Smelter LCA - Gujarat",
+    "description": "Life Cycle Assessment of aluminium production from bauxite mining to primary smelting in Gujarat.",
+    "region": "Gujarat",
+    "country": "India",
+    "metal_type": "aluminium",
+    "process_route": "primary",
+    "created_at": "2025-01-17T09:15:00Z",
+    "updated_at": "2025-01-17T09:15:00Z",
+    "owner_id": "demo_user_gov",
+    "status": "active",
+    "tags": ["demo", "aluminium", "bauxite", "smelting", "gujarat"],
+    "metadata": {
+      "plant_capacity_tpa": 500000,
+      "commissioning_year": 2012,
+      "grid_region": "Western India",
+      "baseline_scenario": "scenario_aluminium_baseline_01",
+      "circular_scenario": "scenario_aluminium_circular_01"
+    }
+  },
+  {
+    "_id": "proj_demo_aluminium_02",
+    "name": "Secondary Aluminium Recycling - Maharashtra",
+    "description": "Circular economy focused LCA of secondary aluminium production from scrap recycling.",
+    "region": "Maharashtra",
+    "country": "India",
+    "metal_type": "aluminium",
+    "process_route": "secondary",
+    "created_at": "2025-01-18T11:00:00Z",
+    "updated_at": "2025-01-18T11:00:00Z",
+    "owner_id": "demo_user_gov",
+    "status": "active",
+    "tags": ["demo", "aluminium", "recycling", "secondary", "circular", "maharashtra"],
+    "metadata": {
+      "plant_capacity_tpa": 100000,
+      "commissioning_year": 2020,
+      "grid_region": "Western India",
+      "recycled_content": 0.95
+    }
+  }
+]

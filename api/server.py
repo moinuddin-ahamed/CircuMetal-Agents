@@ -19,6 +19,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from dotenv import load_dotenv
 
@@ -29,11 +30,12 @@ from circu_metal.utils.io import save_json, write_report_markdown
 
 # Import database module
 from api.database import (
-    get_database, close_database,
+    get_database, close_database, initialize_indexes,
     create_inventory, get_inventory, get_inventories_by_project, update_inventory, delete_inventory,
     create_run, get_run, update_run, update_run_status, add_run_log, set_run_result, get_runs_by_project, get_recent_runs,
-    create_project, get_project, get_projects, update_project, delete_project,
-    create_report, get_report, get_report_by_run_id, get_reports, delete_report
+    create_project, get_project, get_projects, update_project, delete_project, add_scenario,
+    create_report, get_report, get_report_by_run_id, get_reports, update_report, delete_report,
+    save_visualization, get_visualizations, get_latest_visualization
 )
 
 # Import Pydantic models
@@ -41,16 +43,21 @@ from api.models import (
     InventoryInput, InventoryData, ScenarioConfig,
     StartRunRequest, RunStatus, RunResult,
     ImpactScores, CircularityMetrics,
-    InventoryResponse, RunResponse, RunStatusResponse, RunResultResponse
+    InventoryResponse, RunResponse, RunStatusResponse, RunResultResponse,
+    CreateVisualizationRequest, Visualization
 )
+
+# Import dashboard router
+from api.dashboard_routes import dashboard_router
 
 
 # Lifespan context manager for startup/shutdown
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: Initialize database connection
+    # Startup: Initialize database connection and indexes
     await get_database()
-    print("MongoDB connected")
+    await initialize_indexes()
+    print("MongoDB connected and indexes initialized")
     yield
     # Shutdown: Close database connection
     await close_database()
@@ -72,6 +79,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include dashboard routes
+app.include_router(dashboard_router)
+
+# Mount static files for dashboard
+static_dir = os.path.join(os.path.dirname(__file__), "static")
+if os.path.exists(static_dir):
+    app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 # Store for tracking analysis jobs
 analysis_jobs: Dict[str, Dict[str, Any]] = {}
@@ -705,7 +720,23 @@ def run_orchestration_task(run_id: str, user_input: dict):
         add_orchestration_log(run_id, "VisualizationAgent", "info", "Generating Sankey diagrams and charts...")
         
         visualization_agent = VisualizationAgent()
-        res7 = visualization_agent.handle(context)
+        # VisualizationAgent has async handle(), so run it in an event loop
+        import inspect
+        if inspect.iscoroutinefunction(visualization_agent.handle):
+            import asyncio
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            try:
+                # Add project_id to context for visualization saving
+                viz_context = context.copy()
+                viz_context["project_id"] = user_input.get("project_id")
+                viz_context["project_name"] = user_input.get("project_name", "Unknown")
+                viz_context["action"] = "generate"
+                res7 = loop.run_until_complete(visualization_agent.handle(viz_context))
+            finally:
+                loop.close()
+        else:
+            res7 = visualization_agent.handle(context)
         history['visualization_agent'] = res7
         
         if res7.get('status') == 'success':
@@ -871,9 +902,9 @@ async def list_orchestration_runs():
 # ----------------------------------------------------------------------------
 
 @app.get("/api/reports")
-async def list_reports(limit: int = 50):
+async def list_reports(limit: int = 50, project_id: Optional[str] = None):
     """Get all saved reports from MongoDB"""
-    reports = await get_reports(limit)
+    reports = await get_reports(limit, project_id)
     return {
         "success": True,
         "reports": reports,
@@ -1265,12 +1296,22 @@ async def execute_run_task(run_id: str, inventory_data: dict, scenario_config: d
     8. ComplianceAgent - Check regulatory compliance
     """
     try:
+        # Get project info
+        project_id = inventory_data.get("project_id")
+        project_name = "Unknown Project"
+        if project_id:
+            project = await get_project(project_id)
+            if project:
+                project_name = project.get("name", "Unknown Project")
+
         # Update status to running
         await update_run_status(run_id, "running", progress=0, current_agent="DataAgent")
         await add_run_log(run_id, "system", "info", "Starting analysis run")
         
         # Prepare user input for orchestrator
         user_input = {
+            "project_id": project_id,
+            "project_name": project_name,
             "process_description": inventory_data.get("description", "Material processing"),
             "input_amount": "1 ton",
             "material": inventory_data.get("items", [{}])[0].get("name", "Unknown Material"),
@@ -1301,7 +1342,7 @@ async def execute_run_task(run_id: str, inventory_data: dict, scenario_config: d
         await add_run_log(run_id, "DataAgent", "info", "Processing inventory data")
         
         # Run the full orchestration
-        result = orchestrator.run(user_input)
+        result = await orchestrator.run(user_input)
         
         # Extract key results
         lca_result = result.get("lca_agent", {}).get("data", {})
@@ -1354,6 +1395,22 @@ async def execute_run_task(run_id: str, inventory_data: dict, scenario_config: d
                 explain_result["report_markdown"],
                 f"output/report_{run_id}.md"
             )
+            
+            # Save report to database
+            # Ensure we are in the right loop context or handle errors gracefully
+            try:
+                report_data = {
+                    "run_id": run_id,
+                    "project_id": inventory_data.get("project_id"),
+                    "title": f"LCA Report - {inventory_data.get('name', 'Analysis')}",
+                    "content": explain_result["report_markdown"],
+                    "format": "markdown",
+                    "sections": explain_result.get("sections", {}),
+                    "created_at": datetime.utcnow()
+                }
+                await create_report(report_data)
+            except Exception as e:
+                await add_run_log(run_id, "system", "error", f"Failed to save report to DB: {str(e)}")
         
     except Exception as e:
         error_msg = str(e)
@@ -1380,7 +1437,7 @@ async def start_run(request: StartRunRequest, background_tasks: BackgroundTasks)
     # Create run record
     run_doc = {
         "inventory_id": request.inventory_id,
-        "project_id": None,
+        "project_id": inventory_data.get("project_id") or request.project_id,
         "name": f"Run {datetime.now().strftime('%Y-%m-%d %H:%M')}",
         "scenario_config": {},
         "metadata": {}
@@ -1388,6 +1445,10 @@ async def start_run(request: StartRunRequest, background_tasks: BackgroundTasks)
     
     run_record = await create_run(run_doc)
     run_id = run_record["id"]
+    
+    # Ensure project_id is in inventory_data for the background task
+    if request.project_id:
+        inventory_data["project_id"] = request.project_id
     
     # Start background task
     background_tasks.add_task(
@@ -1540,6 +1601,32 @@ async def update_project_endpoint(project_id: str, data: dict):
     return {"success": True, "project": result}
 
 
+class CreateScenarioRequest(BaseModel):
+    project_id: str
+    name: str
+    route_type: str
+    is_baseline: bool = False
+    description: Optional[str] = None
+
+
+@app.post("/api/scenarios")
+async def create_scenario_endpoint(data: CreateScenarioRequest):
+    """Create a new scenario for a project"""
+    # Convert to dict
+    scenario_data = data.dict(exclude={"project_id"})
+    
+    # Add default stages based on route_type (optional, but good for UX)
+    # For now, just empty stages
+    scenario_data["stages"] = []
+    
+    result = await add_scenario(data.project_id, scenario_data)
+    
+    if not result:
+        raise HTTPException(status_code=404, detail="Project not found")
+        
+    return {"success": True, "project": result}
+
+
 @app.delete("/api/projects/{project_id}")
 async def delete_project_endpoint(project_id: str):
     """Delete a project and all associated data"""
@@ -1549,6 +1636,93 @@ async def delete_project_endpoint(project_id: str):
         raise HTTPException(status_code=404, detail="Project not found")
     
     return {"success": True, "message": "Project deleted successfully"}
+
+
+# ============================================================================
+# Report Endpoints (MongoDB)
+# ============================================================================
+
+@app.post("/api/reports")
+async def create_report_endpoint(data: dict):
+    """Create a new report"""
+    result = await create_report(data)
+    return {"success": True, "report": result}
+
+
+@app.get("/api/reports")
+async def get_reports_endpoint(limit: int = 50):
+    """Get all reports"""
+    reports = await get_reports(limit)
+    return {"reports": reports}
+
+
+@app.get("/api/reports/{report_id}")
+async def get_report_endpoint(report_id: str):
+    """Get a report by ID"""
+    report = await get_report(report_id)
+    
+    if not report:
+        raise HTTPException(status_code=404, detail="Report not found")
+    
+    return report
+
+
+@app.put("/api/reports/{report_id}")
+async def update_report_endpoint(report_id: str, data: dict):
+    """Update a report"""
+    result = await update_report(report_id, data)
+    
+    if not result:
+        raise HTTPException(status_code=404, detail="Report not found")
+    
+    return {"success": True, "report": result}
+
+
+@app.delete("/api/reports/{report_id}")
+async def delete_report_endpoint(report_id: str):
+    """Delete a report"""
+    success = await delete_report(report_id)
+    
+    if not success:
+        raise HTTPException(status_code=404, detail="Report not found")
+    
+    return {"success": True, "message": "Report deleted successfully"}
+
+
+# ============================================================================
+# Visualization Endpoints
+# ============================================================================
+
+@app.post("/api/visualizations")
+async def create_visualization_endpoint(data: CreateVisualizationRequest):
+    """Save a generated visualization"""
+    result = await save_visualization(data.dict())
+    return {"success": True, "visualization": result}
+
+
+@app.get("/api/visualizations")
+async def get_visualizations_endpoint(
+    project_id: Optional[str] = None,
+    diagram_type: Optional[str] = None,
+    limit: int = 10
+):
+    """Get visualizations with filtering"""
+    visualizations = await get_visualizations(project_id, diagram_type, limit)
+    return {"visualizations": visualizations}
+
+
+@app.get("/api/visualizations/latest")
+async def get_latest_visualization_endpoint(
+    project_id: str,
+    diagram_type: str
+):
+    """Get the most recent visualization for a project and type"""
+    visualization = await get_latest_visualization(project_id, diagram_type)
+    
+    if not visualization:
+        raise HTTPException(status_code=404, detail="Visualization not found")
+    
+    return visualization
 
 
 # ============================================================================

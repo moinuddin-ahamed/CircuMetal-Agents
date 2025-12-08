@@ -5,17 +5,19 @@ Provides async MongoDB operations using motor (async MongoDB driver).
 """
 
 import os
+import asyncio
+import uuid
 from datetime import datetime
 from typing import Optional, Dict, Any, List
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase, AsyncIOMotorCollection
 from bson import ObjectId
 from dotenv import load_dotenv
+from contextvars import ContextVar
 
 load_dotenv()
 
-# MongoDB connection
-_client: Optional[AsyncIOMotorClient] = None
-_db: Optional[AsyncIOMotorDatabase] = None
+# Use context variables to store per-context (per-loop) client references
+_client_context: ContextVar[Optional[AsyncIOMotorClient]] = ContextVar('mongo_client', default=None)
 
 
 def get_mongo_uri() -> str:
@@ -28,36 +30,35 @@ def get_db_name() -> str:
     return os.getenv("MONGO_DB_NAME", "circumetal")
 
 
+def _get_or_create_client() -> AsyncIOMotorClient:
+    """
+    Get or create a MongoDB client for the current context.
+    Each asyncio event loop will get its own client.
+    """
+    client = _client_context.get()
+    if client is None:
+        client = AsyncIOMotorClient(get_mongo_uri())
+        _client_context.set(client)
+    return client
+
+
 async def get_database() -> AsyncIOMotorDatabase:
-    """Get or create MongoDB database connection"""
-    global _client, _db
-    
-    if _db is None:
-        _client = AsyncIOMotorClient(get_mongo_uri())
-        _db = _client[get_db_name()]
-        
-        # Initialize indexes
-        await initialize_indexes()
-    
-    return _db
+    """Get MongoDB database connection for the current context"""
+    client = _get_or_create_client()
+    return client[get_db_name()]
 
 
 async def close_database():
-    """Close MongoDB connection"""
-    global _client, _db
-    if _client:
-        _client.close()
-        _client = None
-        _db = None
+    """Close MongoDB connection for current context"""
+    client = _client_context.get()
+    if client:
+        client.close()
+        _client_context.set(None)
 
 
 async def initialize_indexes():
     """Create indexes for all collections"""
-    global _db
-    if _db is None:
-        return
-    
-    db = _db
+    db = await get_database()
     
     # Inventories indexes
     await db.inventories.create_index("project_id")
@@ -338,6 +339,31 @@ async def update_project(project_id: str, data: Dict[str, Any]) -> Optional[Dict
     return serialize_doc(result) if result else None
 
 
+async def add_scenario(project_id: str, scenario_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """Add a scenario to a project"""
+    collection = await get_collection("projects")
+    
+    # Generate ID for scenario if not present
+    if "id" not in scenario_data:
+        scenario_data["id"] = str(uuid.uuid4())
+    
+    # Ensure status is set
+    if "status" not in scenario_data:
+        scenario_data["status"] = "draft"
+        
+    # Ensure stages are initialized
+    if "stages" not in scenario_data:
+        scenario_data["stages"] = [] 
+        
+    result = await collection.find_one_and_update(
+        {"_id": ObjectId(project_id)},
+        {"$push": {"scenarios": scenario_data}, "$set": {"updated_at": datetime.utcnow()}},
+        return_document=True
+    )
+    
+    return serialize_doc(result) if result else None
+
+
 async def delete_project(project_id: str) -> bool:
     """Delete a project and associated data"""
     # Delete inventories
@@ -386,11 +412,30 @@ async def get_report_by_run_id(run_id: str) -> Optional[Dict[str, Any]]:
     return serialize_doc(doc) if doc else None
 
 
-async def get_reports(limit: int = 50) -> List[Dict[str, Any]]:
+async def get_reports(limit: int = 50, project_id: Optional[str] = None) -> List[Dict[str, Any]]:
     """Get all reports, sorted by creation date"""
     collection = await get_collection("reports")
-    cursor = collection.find().sort("created_at", -1).limit(limit)
+    query = {}
+    if project_id:
+        query["project_id"] = project_id
+        
+    cursor = collection.find(query).sort("created_at", -1).limit(limit)
     return [serialize_doc(doc) async for doc in cursor]
+
+
+async def update_report(report_id: str, data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """Update a report"""
+    collection = await get_collection("reports")
+    
+    data["updated_at"] = datetime.utcnow()
+    
+    result = await collection.find_one_and_update(
+        {"_id": ObjectId(report_id)},
+        {"$set": data},
+        return_document=True
+    )
+    
+    return serialize_doc(result) if result else None
 
 
 async def delete_report(report_id: str) -> bool:
@@ -398,3 +443,56 @@ async def delete_report(report_id: str) -> bool:
     collection = await get_collection("reports")
     result = await collection.delete_one({"_id": ObjectId(report_id)})
     return result.deleted_count > 0
+
+
+# ============================================================================
+# Visualization Operations
+# ============================================================================
+
+async def save_visualization(data: Dict[str, Any]) -> Dict[str, Any]:
+    """Save a generated visualization"""
+    collection = await get_collection("visualizations")
+    
+    # Ensure timestamp
+    if "timestamp" not in data:
+        data["timestamp"] = datetime.utcnow()
+        
+    result = await collection.insert_one(data)
+    data["_id"] = result.inserted_id
+    
+    return serialize_doc(data)
+
+
+async def get_visualizations(
+    project_id: Optional[str] = None,
+    diagram_type: Optional[str] = None,
+    limit: int = 10
+) -> List[Dict[str, Any]]:
+    """Get visualizations with filtering"""
+    collection = await get_collection("visualizations")
+    
+    query = {}
+    if project_id:
+        query["project_id"] = project_id
+    if diagram_type:
+        query["diagram_type"] = diagram_type
+        
+    # Sort by timestamp descending (newest first)
+    cursor = collection.find(query).sort("timestamp", -1).limit(limit)
+    return [serialize_doc(doc) async for doc in cursor]
+
+
+async def get_latest_visualization(
+    project_id: str,
+    diagram_type: str
+) -> Optional[Dict[str, Any]]:
+    """Get the most recent visualization for a project and type"""
+    collection = await get_collection("visualizations")
+    
+    query = {
+        "project_id": project_id,
+        "diagram_type": diagram_type
+    }
+    
+    doc = await collection.find_one(query, sort=[("timestamp", -1)])
+    return serialize_doc(doc) if doc else None

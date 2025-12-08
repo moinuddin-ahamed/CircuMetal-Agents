@@ -1,6 +1,6 @@
 "use client"
 
-import { LayoutDashboard, Plus, FileText, Folder, Settings, HelpCircle, Package, Bot, Database, BarChart3, ClipboardList, Leaf } from "lucide-react"
+import { LayoutDashboard, Plus, FileText, Folder, Settings, HelpCircle, Package, Bot, Database, BarChart3, ClipboardList, Leaf, Globe, Library, TrendingUp, Truck, ShieldCheck } from "lucide-react"
 
 interface SidebarProps {
   currentView: string
@@ -10,17 +10,17 @@ interface SidebarProps {
 export default function Sidebar({ currentView, onNavigate }: SidebarProps) {
   const navItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { id: "projects", label: "Projects", icon: Folder },
+    { id: "visualization", label: "Visualization", icon: BarChart3 },
+    { id: "sankey", label: "Sankey Diagrams", icon: ClipboardList },
+    { id: "reports", label: "Reports", icon: FileText },
+    { id: "explorer", label: "Life Cycle Explorer", icon: Globe },
+    { id: "library", label: "Ore Library", icon: Library },
+    { id: "agents", label: "Agents & Predictions", icon: Bot },
+    { id: "trading", label: "Trading Floor", icon: TrendingUp },
+    { id: "inventory", label: "Inventory & Logistics", icon: Truck },
+    { id: "compliance", label: "Compliance & Credits", icon: ShieldCheck },
     { id: "separator1", label: "" },
-    { id: "project-management", label: "Projects", icon: Folder },
-    { id: "inventory-management", label: "Inventories", icon: Database },
-    { id: "lca-reports", label: "LCA Reports", icon: ClipboardList },
-    { id: "separator2", label: "" },
-    { id: "inventory", label: "New Inventory", icon: Package },
-    { id: "new-assessment", label: "New Assessment", icon: Plus },
-    { id: "separator3", label: "" },
-    { id: "agents", label: "AI Agents", icon: Bot },
-    { id: "reports", label: "Analysis Logs", icon: BarChart3 },
-    { id: "separator4", label: "" },
     { id: "settings", label: "Settings", icon: Settings },
     { id: "help", label: "Help & Docs", icon: HelpCircle },
   ]
@@ -34,7 +34,7 @@ export default function Sidebar({ currentView, onNavigate }: SidebarProps) {
             <Leaf className="w-5 h-5 text-white" />
           </div>
           <div>
-            <span className="font-bold text-slate-800 text-lg tracking-tight">CircuMet</span>
+            <span className="font-bold text-slate-800 text-lg tracking-tight">CircuMetal</span>
             <p className="text-xs text-slate-400 font-medium">LCA Platform</p>
           </div>
         </div>

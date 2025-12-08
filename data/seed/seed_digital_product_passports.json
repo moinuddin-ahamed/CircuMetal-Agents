@@ -1,0 +1,165 @@
+[
+  {
+    "_id": "dpp_steel_rebar_demo",
+    "product_name": "TMT Rebar 500D",
+    "product_code": "TMT-500D-DEMO-001",
+    "manufacturer": "Demo Steel Ltd",
+    "manufacturing_date": "2025-01-20",
+    "batch_number": "BATCH-2025-001",
+    "quantity": 1000,
+    "quantity_unit": "tonnes",
+    "location": "Odisha, India",
+    "metal_type": "iron_steel",
+    "product_category": "construction",
+    "lifecycle_summary": {
+      "total_gwp": 1.85,
+      "gwp_unit": "tCO2e/tonne",
+      "circularity_score": 0.32,
+      "recycled_content": 0.20,
+      "recyclability": 1.0,
+      "expected_lifetime_years": 75
+    },
+    "bill_of_materials": [
+      {"material": "Iron Ore", "amount": 1.4, "unit": "tonne/tonne", "source": "Odisha Mines"},
+      {"material": "Coking Coal", "amount": 0.45, "unit": "tonne/tonne", "source": "Jharkhand"},
+      {"material": "Steel Scrap", "amount": 0.20, "unit": "tonne/tonne", "source": "Domestic Collection"},
+      {"material": "Limestone", "amount": 0.20, "unit": "tonne/tonne", "source": "Local Quarry"}
+    ],
+    "environmental_footprint": {
+      "gwp_breakdown": {
+        "raw_material_acquisition": 0.25,
+        "manufacturing": 1.45,
+        "transport": 0.10,
+        "end_of_life_credit": -0.05
+      },
+      "water_footprint_m3": 25.5,
+      "energy_consumption_gj": 18.2,
+      "waste_generated_kg": 150
+    },
+    "certifications": [
+      {"name": "BIS IS 1786:2008", "valid_until": "2026-12-31"},
+      {"name": "ISO 14001:2015", "valid_until": "2025-06-30"}
+    ],
+    "supply_chain_trace": [
+      {"stage": "Mining", "location": "Keonjhar, Odisha", "date": "2025-01-10"},
+      {"stage": "Smelting", "location": "Rourkela, Odisha", "date": "2025-01-15"},
+      {"stage": "Rolling", "location": "Rourkela, Odisha", "date": "2025-01-18"},
+      {"stage": "Dispatch", "location": "Rourkela, Odisha", "date": "2025-01-20"}
+    ],
+    "qr_code_url": "https://circumetal.gov.in/dpp/TMT-500D-DEMO-001",
+    "created_at": "2025-01-20T12:00:00Z",
+    "project_id": "proj_demo_steel_01",
+    "scenario_id": "scenario_steel_baseline_01"
+  },
+  {
+    "_id": "dpp_aluminium_sheet_demo",
+    "product_name": "Aluminium Sheet 3003-H14",
+    "product_code": "AL-SHEET-3003-DEMO-001",
+    "manufacturer": "Demo Aluminium Works",
+    "manufacturing_date": "2025-01-22",
+    "batch_number": "BATCH-AL-2025-001",
+    "quantity": 500,
+    "quantity_unit": "tonnes",
+    "location": "Gujarat, India",
+    "metal_type": "aluminium",
+    "product_category": "manufacturing",
+    "lifecycle_summary": {
+      "total_gwp": 12.8,
+      "gwp_unit": "tCO2e/tonne",
+      "circularity_score": 0.15,
+      "recycled_content": 0.10,
+      "recyclability": 0.98,
+      "expected_lifetime_years": 30
+    },
+    "bill_of_materials": [
+      {"material": "Primary Aluminium", "amount": 0.90, "unit": "tonne/tonne", "source": "Gujarat Smelter"},
+      {"material": "Recycled Aluminium", "amount": 0.10, "unit": "tonne/tonne", "source": "Domestic Scrap"},
+      {"material": "Alloying Elements", "amount": 0.02, "unit": "tonne/tonne", "source": "Various"}
+    ],
+    "environmental_footprint": {
+      "gwp_breakdown": {
+        "raw_material_acquisition": 11.5,
+        "manufacturing": 1.0,
+        "transport": 0.25,
+        "end_of_life_credit": -0.15
+      },
+      "water_footprint_m3": 85.0,
+      "energy_consumption_gj": 180.5,
+      "waste_generated_kg": 120
+    },
+    "certifications": [
+      {"name": "BIS IS 737:2008", "valid_until": "2026-06-30"},
+      {"name": "ISO 14001:2015", "valid_until": "2025-06-30"}
+    ],
+    "supply_chain_trace": [
+      {"stage": "Bauxite Mining", "location": "Kutch, Gujarat", "date": "2025-01-05"},
+      {"stage": "Alumina Refining", "location": "Muri, Jharkhand", "date": "2025-01-10"},
+      {"stage": "Smelting", "location": "Korba, Chhattisgarh", "date": "2025-01-15"},
+      {"stage": "Rolling", "location": "Silvassa, Gujarat", "date": "2025-01-20"},
+      {"stage": "Dispatch", "location": "Silvassa, Gujarat", "date": "2025-01-22"}
+    ],
+    "qr_code_url": "https://circumetal.gov.in/dpp/AL-SHEET-3003-DEMO-001",
+    "created_at": "2025-01-22T14:00:00Z",
+    "project_id": "proj_demo_aluminium_01",
+    "scenario_id": "scenario_aluminium_baseline_01"
+  },
+  {
+    "_id": "dpp_recycled_steel_demo",
+    "product_name": "Recycled Steel Billet",
+    "product_code": "REC-BILLET-DEMO-001",
+    "manufacturer": "Demo EAF Steel Ltd",
+    "manufacturing_date": "2025-01-25",
+    "batch_number": "BATCH-REC-2025-001",
+    "quantity": 2000,
+    "quantity_unit": "tonnes",
+    "location": "Maharashtra, India",
+    "metal_type": "iron_steel",
+    "product_category": "intermediate",
+    "lifecycle_summary": {
+      "total_gwp": 0.42,
+      "gwp_unit": "tCO2e/tonne",
+      "circularity_score": 0.88,
+      "recycled_content": 0.92,
+      "recyclability": 1.0,
+      "expected_lifetime_years": 50
+    },
+    "bill_of_materials": [
+      {"material": "HMS Scrap", "amount": 0.75, "unit": "tonne/tonne", "source": "Domestic Collection"},
+      {"material": "Shredded Scrap", "amount": 0.20, "unit": "tonne/tonne", "source": "Auto Recyclers"},
+      {"material": "DRI", "amount": 0.12, "unit": "tonne/tonne", "source": "Local DRI Plant"}
+    ],
+    "environmental_footprint": {
+      "gwp_breakdown": {
+        "scrap_collection": 0.05,
+        "scrap_processing": 0.08,
+        "eaf_melting": 0.25,
+        "casting": 0.04,
+        "avoided_emissions_credit": -0.10
+      },
+      "water_footprint_m3": 8.5,
+      "energy_consumption_gj": 5.2,
+      "waste_generated_kg": 85
+    },
+    "certifications": [
+      {"name": "BIS IS 2830:2012", "valid_until": "2026-12-31"},
+      {"name": "ISO 14001:2015", "valid_until": "2025-06-30"},
+      {"name": "Recycled Content Verified", "valid_until": "2025-12-31"}
+    ],
+    "circular_attributes": {
+      "recycled_input_sources": ["construction_demolition", "end_of_life_vehicles", "industrial_scrap"],
+      "collection_radius_km": 200,
+      "traceability_level": "high"
+    },
+    "supply_chain_trace": [
+      {"stage": "Scrap Collection", "location": "Mumbai Region", "date": "2025-01-15"},
+      {"stage": "Scrap Processing", "location": "Pune", "date": "2025-01-20"},
+      {"stage": "EAF Melting", "location": "Pune", "date": "2025-01-23"},
+      {"stage": "Casting", "location": "Pune", "date": "2025-01-24"},
+      {"stage": "Dispatch", "location": "Pune", "date": "2025-01-25"}
+    ],
+    "qr_code_url": "https://circumetal.gov.in/dpp/REC-BILLET-DEMO-001",
+    "created_at": "2025-01-25T10:00:00Z",
+    "project_id": "proj_demo_steel_01",
+    "scenario_id": "scenario_steel_circular_01"
+  }
+]

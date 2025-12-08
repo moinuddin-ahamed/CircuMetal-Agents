@@ -1,0 +1,16 @@
+state,district,mineral,mine_name,owner,latitude,longitude,reserve_mt,grade,status
+Odisha,Keonjhar,Iron Ore,Noamundi,TISCO,22.1567,85.5033,450,Fe 63%,Operating
+Odisha,Keonjhar,Iron Ore,Joda East,TISCO,22.2234,85.4125,380,Fe 62%,Operating
+Odisha,Sundargarh,Iron Ore,Barsuan,SAIL,22.2789,84.8567,520,Fe 64%,Operating
+Odisha,Keonjhar,Iron Ore,Bolani,SAIL,22.0456,85.4234,410,Fe 63%,Operating
+Chhattisgarh,Dantewada,Iron Ore,Bailadila-14,NMDC,18.7234,81.3456,850,Fe 66%,Operating
+Chhattisgarh,Dantewada,Iron Ore,Bailadila-11C,NMDC,18.6789,81.3234,720,Fe 65%,Operating
+Karnataka,Bellary,Iron Ore,Donimalai,NMDC,15.1234,76.8567,280,Fe 62%,Operating
+Karnataka,Bellary,Iron Ore,Kumaraswamy,NMDC,15.2345,76.7890,220,Fe 61%,Operating
+Jharkhand,West Singhbhum,Iron Ore,Chiria,SAIL,22.3456,85.2345,350,Fe 62%,Operating
+Jharkhand,West Singhbhum,Iron Ore,Gua,SAIL,22.2123,85.3567,290,Fe 61%,Operating
+Odisha,Koraput,Bauxite,Panchpatmali,NALCO,18.7890,82.9234,310,Al2O3 50%,Operating
+Gujarat,Kutch,Bauxite,Bhatia,Hindalco,23.1234,69.8567,180,Al2O3 46%,Operating
+Jharkhand,Lohardaga,Bauxite,Lohardaga,HINDALCO,23.4567,84.6789,145,Al2O3 48%,Operating
+Maharashtra,Kolhapur,Bauxite,Durgamanwadi,Hindalco,16.7890,74.2345,95,Al2O3 45%,Operating
+Chhattisgarh,Surguja,Bauxite,Mainpat,BALCO,23.2345,83.4567,220,Al2O3 49%,Operating

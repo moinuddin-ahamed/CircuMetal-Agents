@@ -118,6 +118,7 @@ class ScenarioConfig(BaseModel):
 class StartRunRequest(BaseModel):
     """Request to start a new analysis run"""
     inventory_id: str
+    project_id: Optional[str] = None
     scenarios: List[ScenarioConfig] = []
     
     # Optional direct inventory (if not using stored inventory)
@@ -305,3 +306,37 @@ class MaterialProperty(BaseModel):
     melting_point: Optional[float] = None
     recyclability_score: Optional[float] = None
     typical_applications: List[str] = []
+
+
+# ============================================================================
+# Visualization Models
+# ============================================================================
+
+class VisualizationType(str, Enum):
+    FLOWCHART = "flowchart"
+    SANKEY = "sankey"
+
+
+class Visualization(BaseModel):
+    """Visualization diagram data"""
+    id: Optional[str] = None
+    project_id: str
+    project_name: str
+    metal_name: str
+    ore_type: Optional[str] = None
+    diagram_type: VisualizationType
+    html_content: str
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    metadata: Dict[str, Any] = {}
+
+
+class CreateVisualizationRequest(BaseModel):
+    """Request to save a visualization"""
+    project_id: str
+    project_name: str
+    metal_name: str
+    ore_type: Optional[str] = None
+    diagram_type: VisualizationType
+    html_content: str
+    metadata: Optional[Dict[str, Any]] = {}
+

@@ -1,0 +1,257 @@
+[
+  {
+    "_id": "flow_iron_ore",
+    "name": "Iron Ore (Hematite)",
+    "code": "FLOW-FE-ORE-01",
+    "category": "intermediate",
+    "metal_type": "iron_steel",
+    "unit": "tonne",
+    "properties": {
+      "fe_content": 0.62,
+      "typical_moisture": 0.08,
+      "density_kg_m3": 2700
+    },
+    "emission_factors": {
+      "extraction_gwp": 45.0,
+      "unit": "kgCO2e/tonne"
+    }
+  },
+  {
+    "_id": "flow_steel_scrap",
+    "name": "Steel Scrap",
+    "code": "FLOW-FE-SCRAP-01",
+    "category": "recycled",
+    "metal_type": "iron_steel",
+    "unit": "tonne",
+    "properties": {
+      "fe_content": 0.98,
+      "recycled_content": 1.0,
+      "contamination_rate": 0.02
+    },
+    "emission_factors": {
+      "collection_gwp": 25.0,
+      "processing_gwp": 35.0,
+      "unit": "kgCO2e/tonne"
+    },
+    "circular_credit": {
+      "avoided_primary": 2100,
+      "unit": "kgCO2e/tonne"
+    }
+  },
+  {
+    "_id": "flow_hot_metal",
+    "name": "Hot Metal (Pig Iron)",
+    "code": "FLOW-FE-HM-01",
+    "category": "intermediate",
+    "metal_type": "iron_steel",
+    "unit": "tonne",
+    "properties": {
+      "fe_content": 0.94,
+      "carbon_content": 0.04,
+      "temperature_c": 1450
+    }
+  },
+  {
+    "_id": "flow_crude_steel",
+    "name": "Crude Steel",
+    "code": "FLOW-FE-CS-01",
+    "category": "intermediate",
+    "metal_type": "iron_steel",
+    "unit": "tonne",
+    "properties": {
+      "fe_content": 0.98,
+      "carbon_content": 0.015
+    }
+  },
+  {
+    "_id": "flow_finished_steel",
+    "name": "Finished Steel Product",
+    "code": "FLOW-FE-FIN-01",
+    "category": "product",
+    "metal_type": "iron_steel",
+    "unit": "tonne",
+    "properties": {
+      "recyclability": 1.0,
+      "typical_lifetime_years": 50
+    }
+  },
+  {
+    "_id": "flow_bf_slag",
+    "name": "Blast Furnace Slag",
+    "code": "FLOW-FE-BFSLAG-01",
+    "category": "byproduct",
+    "metal_type": "iron_steel",
+    "unit": "tonne",
+    "properties": {
+      "calcium_oxide": 0.40,
+      "silica": 0.35,
+      "alumina": 0.12
+    },
+    "circular_credit": {
+      "cement_replacement": 350,
+      "unit": "kgCO2e/tonne",
+      "note": "When used as GGBS in cement"
+    }
+  },
+  {
+    "_id": "flow_bauxite",
+    "name": "Bauxite Ore",
+    "code": "FLOW-AL-BAUX-01",
+    "category": "intermediate",
+    "metal_type": "aluminium",
+    "unit": "tonne",
+    "properties": {
+      "alumina_content": 0.48,
+      "silica_content": 0.08,
+      "moisture": 0.12
+    },
+    "emission_factors": {
+      "extraction_gwp": 35.0,
+      "unit": "kgCO2e/tonne"
+    }
+  },
+  {
+    "_id": "flow_alumina",
+    "name": "Alumina (Al2O3)",
+    "code": "FLOW-AL-ALUMINA-01",
+    "category": "intermediate",
+    "metal_type": "aluminium",
+    "unit": "tonne",
+    "properties": {
+      "purity": 0.985,
+      "calcined": true
+    }
+  },
+  {
+    "_id": "flow_primary_aluminium",
+    "name": "Primary Aluminium",
+    "code": "FLOW-AL-PRIM-01",
+    "category": "product",
+    "metal_type": "aluminium",
+    "unit": "tonne",
+    "properties": {
+      "purity": 0.995,
+      "recyclability": 1.0,
+      "typical_lifetime_years": 40
+    }
+  },
+  {
+    "_id": "flow_aluminium_scrap",
+    "name": "Aluminium Scrap",
+    "code": "FLOW-AL-SCRAP-01",
+    "category": "recycled",
+    "metal_type": "aluminium",
+    "unit": "tonne",
+    "properties": {
+      "al_content": 0.92,
+      "recycled_content": 1.0,
+      "contamination_rate": 0.05
+    },
+    "emission_factors": {
+      "collection_gwp": 20.0,
+      "processing_gwp": 50.0,
+      "unit": "kgCO2e/tonne"
+    },
+    "circular_credit": {
+      "avoided_primary": 16000,
+      "unit": "kgCO2e/tonne"
+    }
+  },
+  {
+    "_id": "flow_secondary_aluminium",
+    "name": "Secondary Aluminium",
+    "code": "FLOW-AL-SEC-01",
+    "category": "product",
+    "metal_type": "aluminium",
+    "unit": "tonne",
+    "properties": {
+      "purity": 0.98,
+      "recycled_content": 1.0,
+      "recyclability": 0.95
+    }
+  },
+  {
+    "_id": "flow_red_mud",
+    "name": "Red Mud (Bauxite Residue)",
+    "code": "FLOW-AL-REDMUD-01",
+    "category": "waste",
+    "metal_type": "aluminium",
+    "unit": "tonne",
+    "properties": {
+      "iron_oxide": 0.45,
+      "alumina_residual": 0.15,
+      "ph": 12.5,
+      "hazardous": true
+    },
+    "potential_valorization": {
+      "iron_recovery": true,
+      "rare_earth_recovery": true,
+      "construction_material": true
+    }
+  },
+  {
+    "_id": "flow_electricity_india_grid",
+    "name": "Electricity - India Grid Average",
+    "code": "FLOW-EN-GRID-IN",
+    "category": "energy",
+    "metal_type": null,
+    "unit": "kWh",
+    "properties": {
+      "carbon_intensity": 0.82,
+      "unit": "kgCO2e/kWh",
+      "year": 2023
+    },
+    "regional_factors": {
+      "northern": 0.78,
+      "eastern": 0.92,
+      "western": 0.75,
+      "southern": 0.70,
+      "northeastern": 0.60
+    }
+  },
+  {
+    "_id": "flow_electricity_renewable",
+    "name": "Electricity - Renewable",
+    "code": "FLOW-EN-RENEW-01",
+    "category": "energy",
+    "metal_type": null,
+    "unit": "kWh",
+    "properties": {
+      "carbon_intensity": 0.02,
+      "unit": "kgCO2e/kWh",
+      "source": "Solar/Wind average"
+    }
+  },
+  {
+    "_id": "flow_coking_coal",
+    "name": "Coking Coal",
+    "code": "FLOW-EN-COAL-01",
+    "category": "energy",
+    "metal_type": null,
+    "unit": "tonne",
+    "properties": {
+      "calorific_value_gj_t": 30,
+      "ash_content": 0.12,
+      "carbon_content": 0.85
+    },
+    "emission_factors": {
+      "combustion_gwp": 2900,
+      "unit": "kgCO2e/tonne"
+    }
+  },
+  {
+    "_id": "flow_natural_gas",
+    "name": "Natural Gas",
+    "code": "FLOW-EN-NG-01",
+    "category": "energy",
+    "metal_type": null,
+    "unit": "GJ",
+    "properties": {
+      "methane_content": 0.95
+    },
+    "emission_factors": {
+      "combustion_gwp": 56.1,
+      "unit": "kgCO2e/GJ"
+    }
+  }
+]

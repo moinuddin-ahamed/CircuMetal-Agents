@@ -1,0 +1,242 @@
+[
+  {
+    "_id": "proc_iron_ore_mining_odisha",
+    "name": "Iron Ore Mining - Odisha",
+    "code": "IN-ODI-IRON-MINE-01",
+    "stage": "extraction",
+    "metal_type": "iron_steel",
+    "location": "IN-Odisha",
+    "unit": "tonne",
+    "reference_flow": 1.0,
+    "description": "Open-pit iron ore mining operations in Keonjhar district, Odisha",
+    "inputs": [
+      {"name": "diesel", "amount": 3.5, "unit": "litre/tonne", "category": "energy"},
+      {"name": "electricity", "amount": 15.0, "unit": "kWh/tonne", "category": "energy"},
+      {"name": "explosives", "amount": 0.15, "unit": "kg/tonne", "category": "materials"},
+      {"name": "water", "amount": 500, "unit": "litre/tonne", "category": "resources"}
+    ],
+    "outputs": [
+      {"name": "iron_ore", "amount": 1.0, "unit": "tonne", "category": "product", "grade": 0.62},
+      {"name": "overburden", "amount": 1.5, "unit": "tonne", "category": "waste"},
+      {"name": "dust_emissions", "amount": 0.05, "unit": "kg/tonne", "category": "emission"}
+    ],
+    "emission_factors": {
+      "gwp": 45.0,
+      "gwp_unit": "kgCO2e/tonne",
+      "water_use": 500,
+      "water_unit": "litre/tonne"
+    },
+    "data_quality": "medium",
+    "source": "India Minerals Yearbook 2023",
+    "metadata": {
+      "ore_type": "hematite",
+      "average_depth_m": 80,
+      "stripping_ratio": 1.5
+    }
+  },
+  {
+    "_id": "proc_bf_ironmaking_odisha",
+    "name": "Blast Furnace Ironmaking - Odisha",
+    "code": "IN-ODI-BF-01",
+    "stage": "smelting",
+    "metal_type": "iron_steel",
+    "location": "IN-Odisha",
+    "unit": "tonne_hot_metal",
+    "reference_flow": 1.0,
+    "description": "Conventional blast furnace for pig iron production",
+    "inputs": [
+      {"name": "iron_ore", "amount": 1.6, "unit": "tonne/tonne", "category": "materials"},
+      {"name": "coking_coal", "amount": 0.55, "unit": "tonne/tonne", "category": "energy"},
+      {"name": "limestone", "amount": 0.25, "unit": "tonne/tonne", "category": "materials"},
+      {"name": "electricity", "amount": 50.0, "unit": "kWh/tonne", "category": "energy"}
+    ],
+    "outputs": [
+      {"name": "hot_metal", "amount": 1.0, "unit": "tonne", "category": "product"},
+      {"name": "bf_slag", "amount": 0.3, "unit": "tonne", "category": "byproduct"},
+      {"name": "bf_gas", "amount": 1500, "unit": "Nm3/tonne", "category": "byproduct"},
+      {"name": "co2_direct", "amount": 1200, "unit": "kg/tonne", "category": "emission"}
+    ],
+    "emission_factors": {
+      "gwp": 1650.0,
+      "gwp_unit": "kgCO2e/tonne",
+      "source": "IPCC Guidelines"
+    },
+    "data_quality": "high",
+    "source": "Steel Authority of India Ltd",
+    "metadata": {
+      "furnace_volume_m3": 4500,
+      "productivity_t_per_m3_day": 2.5
+    }
+  },
+  {
+    "_id": "proc_bof_steelmaking",
+    "name": "BOF Steelmaking",
+    "code": "IN-BOF-01",
+    "stage": "refining",
+    "metal_type": "iron_steel",
+    "location": "IN-Generic",
+    "unit": "tonne_crude_steel",
+    "reference_flow": 1.0,
+    "description": "Basic Oxygen Furnace steelmaking from hot metal",
+    "inputs": [
+      {"name": "hot_metal", "amount": 0.92, "unit": "tonne/tonne", "category": "materials"},
+      {"name": "steel_scrap", "amount": 0.15, "unit": "tonne/tonne", "category": "materials"},
+      {"name": "oxygen", "amount": 55, "unit": "Nm3/tonne", "category": "materials"},
+      {"name": "electricity", "amount": 25, "unit": "kWh/tonne", "category": "energy"}
+    ],
+    "outputs": [
+      {"name": "crude_steel", "amount": 1.0, "unit": "tonne", "category": "product"},
+      {"name": "bof_slag", "amount": 0.12, "unit": "tonne", "category": "byproduct"},
+      {"name": "co2_direct", "amount": 150, "unit": "kg/tonne", "category": "emission"}
+    ],
+    "emission_factors": {
+      "gwp": 180.0,
+      "gwp_unit": "kgCO2e/tonne"
+    },
+    "data_quality": "high"
+  },
+  {
+    "_id": "proc_eaf_steelmaking",
+    "name": "EAF Steelmaking",
+    "code": "IN-EAF-01",
+    "stage": "smelting",
+    "metal_type": "iron_steel",
+    "location": "IN-Generic",
+    "unit": "tonne_crude_steel",
+    "reference_flow": 1.0,
+    "description": "Electric Arc Furnace steelmaking from scrap",
+    "inputs": [
+      {"name": "steel_scrap", "amount": 1.05, "unit": "tonne/tonne", "category": "materials"},
+      {"name": "electricity", "amount": 450, "unit": "kWh/tonne", "category": "energy"},
+      {"name": "natural_gas", "amount": 8, "unit": "Nm3/tonne", "category": "energy"},
+      {"name": "graphite_electrodes", "amount": 2.5, "unit": "kg/tonne", "category": "materials"}
+    ],
+    "outputs": [
+      {"name": "crude_steel", "amount": 1.0, "unit": "tonne", "category": "product"},
+      {"name": "eaf_slag", "amount": 0.15, "unit": "tonne", "category": "byproduct"},
+      {"name": "co2_direct", "amount": 80, "unit": "kg/tonne", "category": "emission"}
+    ],
+    "emission_factors": {
+      "gwp": 280.0,
+      "gwp_unit": "kgCO2e/tonne",
+      "note": "Grid-dependent - assumes 0.82 kgCO2/kWh Indian grid average"
+    },
+    "data_quality": "high",
+    "circular_attributes": {
+      "recycled_input_fraction": 1.0,
+      "recyclability": 1.0
+    }
+  },
+  {
+    "_id": "proc_bauxite_mining_gujarat",
+    "name": "Bauxite Mining - Gujarat",
+    "code": "IN-GUJ-BAUX-MINE-01",
+    "stage": "extraction",
+    "metal_type": "aluminium",
+    "location": "IN-Gujarat",
+    "unit": "tonne",
+    "reference_flow": 1.0,
+    "description": "Surface mining of bauxite deposits in Kutch, Gujarat",
+    "inputs": [
+      {"name": "diesel", "amount": 2.5, "unit": "litre/tonne", "category": "energy"},
+      {"name": "electricity", "amount": 8.0, "unit": "kWh/tonne", "category": "energy"},
+      {"name": "water", "amount": 200, "unit": "litre/tonne", "category": "resources"}
+    ],
+    "outputs": [
+      {"name": "bauxite", "amount": 1.0, "unit": "tonne", "category": "product", "alumina_content": 0.48},
+      {"name": "topsoil", "amount": 0.5, "unit": "tonne", "category": "waste"}
+    ],
+    "emission_factors": {
+      "gwp": 35.0,
+      "gwp_unit": "kgCO2e/tonne"
+    },
+    "data_quality": "medium",
+    "source": "India Minerals Yearbook 2023"
+  },
+  {
+    "_id": "proc_alumina_refining_bayer",
+    "name": "Alumina Refining - Bayer Process",
+    "code": "IN-BAYER-01",
+    "stage": "refining",
+    "metal_type": "aluminium",
+    "location": "IN-Generic",
+    "unit": "tonne_alumina",
+    "reference_flow": 1.0,
+    "description": "Bayer process for alumina extraction from bauxite",
+    "inputs": [
+      {"name": "bauxite", "amount": 2.5, "unit": "tonne/tonne", "category": "materials"},
+      {"name": "caustic_soda", "amount": 80, "unit": "kg/tonne", "category": "materials"},
+      {"name": "steam", "amount": 10, "unit": "GJ/tonne", "category": "energy"},
+      {"name": "electricity", "amount": 200, "unit": "kWh/tonne", "category": "energy"}
+    ],
+    "outputs": [
+      {"name": "alumina", "amount": 1.0, "unit": "tonne", "category": "product", "purity": 0.985},
+      {"name": "red_mud", "amount": 1.5, "unit": "tonne", "category": "waste"}
+    ],
+    "emission_factors": {
+      "gwp": 850.0,
+      "gwp_unit": "kgCO2e/tonne"
+    },
+    "data_quality": "high"
+  },
+  {
+    "_id": "proc_aluminium_smelting_hallheroult",
+    "name": "Aluminium Smelting - Hall-Héroult",
+    "code": "IN-HALLHEROULT-01",
+    "stage": "smelting",
+    "metal_type": "aluminium",
+    "location": "IN-Generic",
+    "unit": "tonne_aluminium",
+    "reference_flow": 1.0,
+    "description": "Primary aluminium production via electrolysis",
+    "inputs": [
+      {"name": "alumina", "amount": 1.93, "unit": "tonne/tonne", "category": "materials"},
+      {"name": "electricity", "amount": 14500, "unit": "kWh/tonne", "category": "energy"},
+      {"name": "carbon_anode", "amount": 420, "unit": "kg/tonne", "category": "materials"},
+      {"name": "cryolite", "amount": 20, "unit": "kg/tonne", "category": "materials"}
+    ],
+    "outputs": [
+      {"name": "primary_aluminium", "amount": 1.0, "unit": "tonne", "category": "product", "purity": 0.995},
+      {"name": "co2_from_anode", "amount": 1500, "unit": "kg/tonne", "category": "emission"},
+      {"name": "pfc_emissions", "amount": 0.5, "unit": "kg/tonne", "category": "emission"}
+    ],
+    "emission_factors": {
+      "gwp": 12500.0,
+      "gwp_unit": "kgCO2e/tonne",
+      "note": "Highly electricity-dependent"
+    },
+    "data_quality": "high"
+  },
+  {
+    "_id": "proc_aluminium_remelting",
+    "name": "Secondary Aluminium Remelting",
+    "code": "IN-REMELT-01",
+    "stage": "recycling",
+    "metal_type": "aluminium",
+    "location": "IN-Generic",
+    "unit": "tonne_aluminium",
+    "reference_flow": 1.0,
+    "description": "Remelting of aluminium scrap for secondary production",
+    "inputs": [
+      {"name": "aluminium_scrap", "amount": 1.08, "unit": "tonne/tonne", "category": "materials"},
+      {"name": "electricity", "amount": 350, "unit": "kWh/tonne", "category": "energy"},
+      {"name": "natural_gas", "amount": 2.5, "unit": "GJ/tonne", "category": "energy"},
+      {"name": "flux", "amount": 15, "unit": "kg/tonne", "category": "materials"}
+    ],
+    "outputs": [
+      {"name": "secondary_aluminium", "amount": 1.0, "unit": "tonne", "category": "product"},
+      {"name": "dross", "amount": 0.05, "unit": "tonne", "category": "byproduct"},
+      {"name": "salt_slag", "amount": 0.08, "unit": "tonne", "category": "waste"}
+    ],
+    "emission_factors": {
+      "gwp": 450.0,
+      "gwp_unit": "kgCO2e/tonne"
+    },
+    "data_quality": "high",
+    "circular_attributes": {
+      "recycled_input_fraction": 1.0,
+      "recyclability": 0.95,
+      "energy_savings_vs_primary": 0.95
+    }
+  }
+]

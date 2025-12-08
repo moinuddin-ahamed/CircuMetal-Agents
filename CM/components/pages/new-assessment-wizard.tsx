@@ -4,27 +4,29 @@ import { useState, useMemo } from "react"
 import { ChevronRight, ChevronLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { useLCA } from "@/lib/lca-context"
+import { useLCA, type Project } from "@/lib/lca-context"
 import WizardStep1 from "@/components/wizard/step-1-basic-info"
 import WizardStep2 from "@/components/wizard/step-2-route-selection"
 import WizardStep3 from "@/components/wizard/step-3-scenario-setup"
 
 interface NewAssessmentWizardProps {
   onComplete: () => void
+  project?: Project | null
 }
 
-export default function NewAssessmentWizard({ onComplete }: NewAssessmentWizardProps) {
-  const [step, setStep] = useState(1)
+export default function NewAssessmentWizard({ onComplete, project }: NewAssessmentWizardProps) {
+  // If project is provided, start at step 2 (Route Selection)
+  const [step, setStep] = useState(project ? 2 : 1)
   const { addProject, addScenario } = useLCA()
   const [formData, setFormData] = useState({
-    projectName: "",
-    metalType: "",
+    projectName: project?.name || "",
+    metalType: project?.metal || "",
     productType: "",
-    region: "",
-    functionalUnit: "1",
+    region: project?.region || "",
+    functionalUnit: project?.functionalUnit || "1",
     route: "",
     scenarioName: "",
-    isBaseline: true,
+    isBaseline: !project, // Only baseline if new project
   })
 
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
@@ -55,12 +57,68 @@ export default function NewAssessmentWizard({ onComplete }: NewAssessmentWizardP
 
   const isStepValid = useMemo(() => validateStep(step), [step, formData])
 
+  const handleValidateStep = () => {
+    const errors: Record<string, string> = {}
+
+    if (step === 1) {
+      if (!formData.projectName) errors.projectName = "Project name is required"
+      if (!formData.metalType) errors.metalType = "Metal type is required"
+      if (!formData.region) errors.region = "Region is required"
+      if (!formData.functionalUnit || isNaN(Number(formData.functionalUnit)))
+        errors.functionalUnit = "Valid functional unit is required"
+    }
+
+    if (step === 2) {
+      if (!formData.route) errors.route = "Production route must be selected"
+    }
+
+    setValidationErrors(errors)
+    return Object.keys(errors).length === 0
+  }
+
+  const createScenario = (projectId: string | number) => {
+    const scenarioData = {
+      project_id: projectId,
+      name: formData.scenarioName || 'Scenario 1',
+      route_type: formData.route,
+      is_baseline: formData.isBaseline,
+      description: `${formData.metalType} - ${formData.productType}`,
+    }
+
+    fetch('/api/scenarios', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(scenarioData),
+    })
+      .then((res) => {
+        if (!res.ok) {
+          return res.json().then((err) => {
+            throw new Error(err.error || 'Failed to create scenario')
+          })
+        }
+        return res.json()
+      })
+      .then(() => {
+        onComplete()
+      })
+      .catch((err) => {
+        console.error('Error creating scenario:', err)
+        alert('Failed to create scenario: ' + err.message)
+      })
+  }
+
   const handleNext = () => {
     if (!handleValidateStep()) return
 
     if (step < 3) {
       setStep(step + 1)
     } else {
+      // If we have an existing project, skip creation and just add scenario
+      if (project) {
+        createScenario(project.id)
+        return
+      }
+
       // Validate all required fields before creating
       if (!formData.projectName) {
         alert('Project name is required')
@@ -111,31 +169,7 @@ export default function NewAssessmentWizard({ onComplete }: NewAssessmentWizardP
         })
         .then((data) => {
           console.log('Project created:', data)
-          // Create scenario via API
-          const scenarioData = {
-            project_id: Number(data.project.id),
-            name: formData.scenarioName || 'Scenario 1',
-            route_type: formData.route,
-            is_baseline: formData.isBaseline,
-            description: `${formData.metalType} - ${formData.productType}`,
-          }
-
-          return fetch('/api/scenarios', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(scenarioData),
-          })
-            .then((res) => {
-              if (!res.ok) {
-                return res.json().then((err) => {
-                  throw new Error(err.error || 'Failed to create scenario')
-                })
-              }
-              return res.json()
-            })
-        })
-        .then(() => {
-          onComplete()
+          createScenario(data.project.id)
         })
         .catch((err) => {
           console.error('Error creating assessment:', err)
@@ -146,25 +180,6 @@ export default function NewAssessmentWizard({ onComplete }: NewAssessmentWizardP
 
   const handleBack = () => {
     if (step > 1) setStep(step - 1)
-  }
-
-  const handleValidateStep = () => {
-    const errors: Record<string, string> = {}
-
-    if (step === 1) {
-      if (!formData.projectName) errors.projectName = "Project name is required"
-      if (!formData.metalType) errors.metalType = "Metal type is required"
-      if (!formData.region) errors.region = "Region is required"
-      if (!formData.functionalUnit || isNaN(Number(formData.functionalUnit)))
-        errors.functionalUnit = "Valid functional unit is required"
-    }
-
-    if (step === 2) {
-      if (!formData.route) errors.route = "Production route must be selected"
-    }
-
-    setValidationErrors(errors)
-    return Object.keys(errors).length === 0
   }
 
   return (

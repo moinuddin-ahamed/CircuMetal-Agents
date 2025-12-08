@@ -1,0 +1,24 @@
+mineral,year,state,production,unit,grade,mine_type,owner_type
+Iron Ore,2023,Odisha,158000000,tonnes,Fe 62%,Open Cast,Public
+Iron Ore,2023,Chhattisgarh,42000000,tonnes,Fe 60%,Open Cast,Mixed
+Iron Ore,2023,Karnataka,35000000,tonnes,Fe 58%,Open Cast,Private
+Iron Ore,2023,Jharkhand,28000000,tonnes,Fe 61%,Open Cast,Public
+Iron Ore,2023,Goa,8000000,tonnes,Fe 55%,Open Cast,Private
+Iron Ore,2022,Odisha,152000000,tonnes,Fe 62%,Open Cast,Public
+Iron Ore,2022,Chhattisgarh,40000000,tonnes,Fe 60%,Open Cast,Mixed
+Iron Ore,2022,Karnataka,33000000,tonnes,Fe 58%,Open Cast,Private
+Iron Ore,2021,Odisha,145000000,tonnes,Fe 62%,Open Cast,Public
+Iron Ore,2021,Chhattisgarh,38000000,tonnes,Fe 60%,Open Cast,Mixed
+Bauxite,2023,Odisha,12500000,tonnes,Al2O3 48%,Open Cast,Public
+Bauxite,2023,Gujarat,8200000,tonnes,Al2O3 45%,Open Cast,Mixed
+Bauxite,2023,Jharkhand,4500000,tonnes,Al2O3 46%,Open Cast,Private
+Bauxite,2023,Maharashtra,3800000,tonnes,Al2O3 44%,Open Cast,Mixed
+Bauxite,2023,Chhattisgarh,3200000,tonnes,Al2O3 47%,Open Cast,Public
+Bauxite,2022,Odisha,11800000,tonnes,Al2O3 48%,Open Cast,Public
+Bauxite,2022,Gujarat,7800000,tonnes,Al2O3 45%,Open Cast,Mixed
+Bauxite,2021,Odisha,11200000,tonnes,Al2O3 48%,Open Cast,Public
+Manganese,2023,Odisha,850000,tonnes,Mn 38%,Open Cast,Mixed
+Manganese,2023,Maharashtra,420000,tonnes,Mn 35%,Open Cast,Private
+Manganese,2023,Madhya Pradesh,380000,tonnes,Mn 36%,Open Cast,Public
+Chromite,2023,Odisha,4200000,tonnes,Cr2O3 48%,Open Cast,Public
+Chromite,2022,Odisha,4000000,tonnes,Cr2O3 48%,Open Cast,Public

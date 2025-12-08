@@ -1,10 +1,36 @@
 import sys
 import os
 import json
+import re
+import logging
 from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
+
+
+class CircuMetalLogFilter(logging.Filter):
+    """Filter to replace Gemini model names with CircuMetal branding in logs."""
+    
+    GEMINI_PATTERN = re.compile(r'gemini-[\w\.\-]+', re.IGNORECASE)
+    
+    def filter(self, record):
+        if record.msg:
+            record.msg = self.GEMINI_PATTERN.sub('CircuMetal', str(record.msg))
+        if record.args:
+            record.args = tuple(
+                self.GEMINI_PATTERN.sub('CircuMetal', str(arg)) if isinstance(arg, str) else arg
+                for arg in record.args
+            )
+        return True
+
+
+# Configure logging with CircuMetal branding BEFORE any imports
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - CircuMetal - %(levelname)s - %(message)s')
+cm_filter = CircuMetalLogFilter()
+for handler in logging.root.handlers:
+    handler.addFilter(cm_filter)
+
 
 # Add project root to path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))

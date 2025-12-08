@@ -17,7 +17,9 @@ import uuid
 from circu_metal.utils.retry import run_with_retry
 
 class ComplianceAgent(Agent):
-    def __init__(self, model_name: str = "gemini-2.0-flash-001"):
+    def __init__(self, model_name: str = None):
+        if model_name is None:
+            model_name = os.getenv("MODEL", "gemini-2.0-flash")
         prompt_path = os.path.join(os.path.dirname(__file__), '..', 'prompts', 'compliance_agent.md')
         if os.path.exists(prompt_path):
             with open(prompt_path, 'r') as f:

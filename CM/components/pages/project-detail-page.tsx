@@ -65,7 +65,9 @@ export default function ProjectDetailPage({
         </Card>
         <Card className="p-4 bg-white/80 backdrop-blur-sm border-green-100/50 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
           <p className="text-xs font-medium text-slate-500 mb-1">Created</p>
-          <p className="text-lg font-semibold text-slate-800">{project.createdAt.toLocaleDateString()}</p>
+          <p className="text-lg font-semibold text-slate-800">
+            {project.createdAt ? new Date(project.createdAt).toLocaleDateString() : "N/A"}
+          </p>
         </Card>
       </div>
 

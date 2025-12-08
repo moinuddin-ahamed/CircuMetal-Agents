@@ -1,0 +1,15 @@
+year,product,production_mt,consumption_mt,exports_mt,imports_mt,primary_pct,secondary_pct,energy_gwh
+2023,Primary Aluminium,4.10,4.35,0.25,0.50,100,0,59500
+2023,Secondary Aluminium,1.25,1.20,0.05,0.02,0,100,440
+2023,Alumina,8.20,7.95,0.35,0.10,100,0,1640
+2023,Total Aluminium,5.35,5.55,0.30,0.52,77,23,59940
+2022,Primary Aluminium,3.95,4.20,0.22,0.48,100,0,57400
+2022,Secondary Aluminium,1.15,1.10,0.04,0.02,0,100,405
+2022,Alumina,7.85,7.60,0.30,0.08,100,0,1570
+2022,Total Aluminium,5.10,5.30,0.26,0.50,77,23,57805
+2021,Primary Aluminium,3.85,4.05,0.20,0.45,100,0,55900
+2021,Secondary Aluminium,1.05,1.00,0.04,0.02,0,100,370
+2021,Alumina,7.50,7.25,0.28,0.08,100,0,1500
+2021,Total Aluminium,4.90,5.05,0.24,0.47,79,21,56270
+2020,Primary Aluminium,3.65,3.80,0.18,0.42,100,0,53000
+2020,Secondary Aluminium,0.92,0.88,0.03,0.02,0,100,325
