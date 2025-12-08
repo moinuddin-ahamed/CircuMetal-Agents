@@ -409,18 +409,125 @@ export default function AgentsInterface({ onBack }: AgentsInterfaceProps) {
     
     return parts.map((part, i) => {
       if (part.startsWith('`') && part.endsWith('`')) {
-        return <code key={i} className="px-1.5 py-0.5 bg-gray-200 rounded text-sm font-mono text-gray-800">{part.slice(1, -1)}</code>
+        return <code key={i} className="px-1 py-0.5 bg-gray-200 rounded text-xs font-mono text-gray-800">{part.slice(1, -1)}</code>
       }
       
       // Handle bold **text**
       const boldParts = part.split(/(\*\*[^*]+\*\*)/)
       return boldParts.map((bp, j) => {
         if (bp.startsWith('**') && bp.endsWith('**')) {
-          return <strong key={`${i}-${j}`} className="font-semibold">{bp.slice(2, -2)}</strong>
+          return <strong key={`${i}-${j}`} className="font-semibold text-gray-900">{bp.slice(2, -2)}</strong>
         }
         return <span key={`${i}-${j}`}>{bp}</span>
       })
     })
+  }
+
+  // Render markdown content with proper paragraph grouping
+  const renderMarkdown = (text: string): React.ReactNode => {
+    if (!text) return null
+    
+    const lines = text.split('\n')
+    const elements: React.ReactNode[] = []
+    let currentParagraph: string[] = []
+    let inCodeBlock = false
+    let codeBlockContent: string[] = []
+    let codeBlockLang = ''
+    
+    const flushParagraph = () => {
+      if (currentParagraph.length > 0) {
+        const content = currentParagraph.join(' ')
+        elements.push(
+          <p key={elements.length} className="text-gray-700 leading-relaxed mb-2">
+            {formatInlineMarkdown(content)}
+          </p>
+        )
+        currentParagraph = []
+      }
+    }
+    
+    lines.forEach((line, i) => {
+      // Code block handling
+      if (line.startsWith('```')) {
+        if (inCodeBlock) {
+          // End code block
+          elements.push(
+            <pre key={elements.length} className="bg-gray-900 text-gray-100 p-3 rounded-lg text-xs font-mono overflow-x-auto mb-3">
+              <code>{codeBlockContent.join('\n')}</code>
+            </pre>
+          )
+          codeBlockContent = []
+          inCodeBlock = false
+        } else {
+          // Start code block
+          flushParagraph()
+          inCodeBlock = true
+          codeBlockLang = line.slice(3)
+        }
+        return
+      }
+      
+      if (inCodeBlock) {
+        codeBlockContent.push(line)
+        return
+      }
+      
+      // Headers
+      if (line.startsWith('### ')) {
+        flushParagraph()
+        elements.push(<h4 key={elements.length} className="font-semibold text-gray-900 text-sm mt-3 mb-1">{line.slice(4)}</h4>)
+        return
+      }
+      if (line.startsWith('## ')) {
+        flushParagraph()
+        elements.push(<h3 key={elements.length} className="font-semibold text-gray-900 text-base mt-3 mb-1">{line.slice(3)}</h3>)
+        return
+      }
+      if (line.startsWith('# ')) {
+        flushParagraph()
+        elements.push(<h2 key={elements.length} className="font-bold text-gray-900 text-lg mt-3 mb-2">{line.slice(2)}</h2>)
+        return
+      }
+      
+      // Bullet points
+      if (line.startsWith('- ') || line.startsWith('* ')) {
+        flushParagraph()
+        elements.push(
+          <div key={elements.length} className="flex gap-2 ml-1 mb-1">
+            <span className="text-gray-400 mt-0.5">•</span>
+            <span className="text-gray-700 flex-1">{formatInlineMarkdown(line.slice(2))}</span>
+          </div>
+        )
+        return
+      }
+      
+      // Numbered lists
+      const numMatch = line.match(/^(\d+)\.\s(.*)/)
+      if (numMatch) {
+        flushParagraph()
+        elements.push(
+          <div key={elements.length} className="flex gap-2 ml-1 mb-1">
+            <span className="text-gray-500 font-medium min-w-[1.25rem]">{numMatch[1]}.</span>
+            <span className="text-gray-700 flex-1">{formatInlineMarkdown(numMatch[2])}</span>
+          </div>
+        )
+        return
+      }
+      
+      // Empty line = paragraph break
+      if (line.trim() === '') {
+        flushParagraph()
+        return
+      }
+      
+      // Regular text - accumulate into paragraph
+      currentParagraph.push(line)
+    })
+    
+    // Flush remaining paragraph
+    flushParagraph()
+    
+    return <>{elements}</>
   }
 
   const getStatusIcon = (status: Agent["status"]) => {
@@ -756,14 +863,14 @@ export default function AgentsInterface({ onBack }: AgentsInterfaceProps) {
                               className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                             >
                               <div
-                                className={`max-w-[80%] p-3 rounded-lg ${
+                                className={`max-w-[85%] p-4 rounded-xl ${
                                   msg.role === "user"
                                     ? "bg-gray-900 text-white"
-                                    : "bg-gray-50 text-gray-800"
+                                    : "bg-gray-50 text-gray-800 border border-gray-100"
                                 }`}
                               >
                                 {msg.role === "agent" && (
-                                  <div className="flex items-center gap-2 mb-2 pb-2 border-b border-gray-200">
+                                  <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-200">
                                     <Bot className="w-4 h-4 text-gray-500" />
                                     <p className="text-xs font-medium text-gray-600">{msg.agent}</p>
                                     {msg.isStreaming && (
@@ -774,44 +881,12 @@ export default function AgentsInterface({ onBack }: AgentsInterfaceProps) {
                                     )}
                                   </div>
                                 )}
-                                <div className={`text-sm leading-relaxed ${msg.role === "agent" ? "prose prose-sm prose-gray max-w-none" : ""}`}>
+                                <div className="text-sm leading-relaxed">
                                   {msg.role === "agent" ? (
-                                    <div className="space-y-2">
-                                      {msg.message.split('\n').map((line, i) => {
-                                        // Headers
-                                        if (line.startsWith('### ')) {
-                                          return <h4 key={i} className="font-semibold text-gray-900 mt-3 mb-1">{line.slice(4)}</h4>
-                                        }
-                                        if (line.startsWith('## ')) {
-                                          return <h3 key={i} className="font-semibold text-gray-900 text-base mt-3 mb-1">{line.slice(3)}</h3>
-                                        }
-                                        if (line.startsWith('# ')) {
-                                          return <h2 key={i} className="font-bold text-gray-900 text-lg mt-3 mb-2">{line.slice(2)}</h2>
-                                        }
-                                        // Bullet points
-                                        if (line.startsWith('- ') || line.startsWith('* ')) {
-                                          return <div key={i} className="flex gap-2 ml-2"><span className="text-gray-400">•</span><span>{formatInlineMarkdown(line.slice(2))}</span></div>
-                                        }
-                                        // Numbered lists
-                                        if (/^\d+\.\s/.test(line)) {
-                                          const match = line.match(/^(\d+)\.\s(.*)/)
-                                          if (match) {
-                                            return <div key={i} className="flex gap-2 ml-2"><span className="text-gray-500 font-medium">{match[1]}.</span><span>{formatInlineMarkdown(match[2])}</span></div>
-                                          }
-                                        }
-                                        // Code blocks
-                                        if (line.startsWith('```')) {
-                                          return null // Handle multi-line code blocks separately
-                                        }
-                                        // Empty lines
-                                        if (line.trim() === '') {
-                                          return <div key={i} className="h-2" />
-                                        }
-                                        // Regular text
-                                        return <p key={i} className="text-gray-700">{formatInlineMarkdown(line)}</p>
-                                      })}
+                                    <div className="markdown-content">
+                                      {renderMarkdown(msg.message)}
                                       {msg.isStreaming && (
-                                        <span className="inline-block w-2 h-4 bg-gray-400 animate-pulse ml-0.5" />
+                                        <span className="inline-block w-1.5 h-4 bg-blue-500 animate-pulse ml-0.5 align-middle" />
                                       )}
                                     </div>
                                   ) : (
@@ -824,7 +899,7 @@ export default function AgentsInterface({ onBack }: AgentsInterfaceProps) {
                         )}
                         {isChatLoading && chatHistory.length > 0 && !chatHistory[chatHistory.length - 1]?.isStreaming && (
                           <div className="flex justify-start">
-                            <div className="bg-gray-50 p-4 rounded-lg flex items-center gap-3">
+                            <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 flex items-center gap-3">
                               <div className="flex gap-1">
                                 <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                                 <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
