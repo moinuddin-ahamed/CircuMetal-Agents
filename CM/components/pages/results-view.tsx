@@ -46,19 +46,24 @@ export default function ResultsView({ onNavigate }: ResultsViewProps) {
   ]
 
   return (
-    <div className="p-8 space-y-8">
+    <div className="h-full bg-gradient-to-br from-white via-green-50/30 to-white p-8 space-y-8 overflow-auto">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Assessment Results</h1>
-          <p className="text-muted-foreground mt-1">
-            {currentScenario.name} | {currentProject.metal} Profile
-          </p>
+      <div className="flex items-center justify-between animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-lg shadow-green-600/20">
+            <ArrowLeft className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-slate-800">Assessment Results</h1>
+            <p className="text-slate-500 mt-1">
+              {currentScenario.name} | {currentProject.metal} Profile
+            </p>
+          </div>
         </div>
         <Button
           variant="outline"
           onClick={() => onNavigate("scenario")}
-          className="border-border text-foreground bg-transparent gap-2"
+          className="border-green-200 text-slate-700 bg-white hover:bg-green-50 hover:border-green-300 gap-2 transition-all duration-300"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Scenario
@@ -73,18 +78,18 @@ export default function ResultsView({ onNavigate }: ResultsViewProps) {
           { label: "Water Use", value: results.water.toFixed(1), unit: "m³/tonne" },
           { label: "Waste Generated", value: results.waste.toFixed(1), unit: "%" },
         ].map((indicator) => (
-          <Card key={indicator.label} className="p-6 bg-card border-border">
-            <p className="text-sm text-muted-foreground mb-1">{indicator.label}</p>
-            <p className="text-2xl font-bold text-foreground">{indicator.value}</p>
-            <p className="text-xs text-muted-foreground mt-1">{indicator.unit}</p>
+          <Card key={indicator.label} className="p-6 bg-white/80 backdrop-blur-sm border-green-100/50 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
+            <p className="text-sm text-slate-500 mb-1">{indicator.label}</p>
+            <p className="text-2xl font-bold text-slate-800">{indicator.value}</p>
+            <p className="text-xs text-slate-400 mt-1">{indicator.unit}</p>
           </Card>
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* GWP by Stage */}
-        <Card className="lg:col-span-2 p-6 bg-card border-border">
-          <h2 className="text-lg font-semibold text-foreground mb-4">GWP by Process Stage</h2>
+        <Card className="lg:col-span-2 p-6 bg-white/80 backdrop-blur-sm border-green-100/50 rounded-2xl shadow-lg">
+          <h2 className="text-lg font-semibold text-slate-800 mb-4">GWP by Process Stage</h2>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={environmentalData}>
               <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.25 0 0)" />

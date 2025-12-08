@@ -74,27 +74,27 @@ export default function AgentResultsView({ onNavigate }: AgentResultsViewProps) 
   // Show loading state during analysis
   if (isRunning) {
     return (
-      <div className="p-8">
-        <Card className="max-w-2xl mx-auto p-8 bg-card border-border">
+      <div className="h-full bg-gradient-to-br from-white via-green-50/30 to-white p-8 overflow-auto">
+        <Card className="max-w-2xl mx-auto p-8 bg-white/80 backdrop-blur-sm border-green-100/50 rounded-2xl shadow-lg">
           <div className="text-center">
-            <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-foreground mb-2">
+            <Loader2 className="w-12 h-12 animate-spin text-green-600 mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-slate-800 mb-2">
               Running AI Analysis
             </h2>
-            <p className="text-muted-foreground mb-6">
+            <p className="text-slate-500 mb-6">
               {getStepLabel(currentStep)}
             </p>
 
             {/* Progress bar */}
-            <div className="w-full h-2 bg-secondary rounded-full overflow-hidden mb-4">
+            <div className="w-full h-2 bg-green-100 rounded-full overflow-hidden mb-4">
               <div
-                className="h-full bg-primary transition-all duration-500 rounded-full"
+                className="h-full bg-green-600 transition-all duration-500 rounded-full"
                 style={{ width: `${progress}%` }}
               />
             </div>
 
             {/* Step indicators */}
-            <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground mt-4">
+            <div className="grid grid-cols-3 gap-2 text-xs text-slate-500 mt-4">
               {ANALYSIS_STEPS.slice(0, 6).map((step) => (
                 <div
                   key={step.key}
@@ -190,7 +190,7 @@ export default function AgentResultsView({ onNavigate }: AgentResultsViewProps) 
   const circularOpportunities = circularityResults.circular_flow_opportunities || []
 
   return (
-    <div className="p-8 space-y-8">
+    <div className="h-full p-8 space-y-8 overflow-auto">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

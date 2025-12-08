@@ -44,26 +44,26 @@ export default function ScenarioEditor({ onNavigate }: ScenarioEditorProps) {
   }
 
   return (
-    <div className="p-8 space-y-8">
+    <div className="h-full bg-gradient-to-br from-white via-green-50/30 to-white p-8 space-y-8 overflow-auto">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between animate-in fade-in slide-in-from-bottom-4 duration-500">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Scenario: {currentScenario.name}</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-3xl font-bold text-slate-800">Scenario: {currentScenario.name}</h1>
+          <p className="text-slate-500 mt-1">
             {currentProject.metal} | {currentProject.region}
           </p>
         </div>
         <div className="flex gap-2">
           <Button
             variant="outline"
-            className="border-border text-foreground bg-transparent"
+            className="border-green-200 text-slate-700 bg-white hover:bg-green-50 hover:border-green-300 transition-all duration-300"
             onClick={() => setIsSaving(true)}
             onTransitionEnd={() => setIsSaving(false)}
           >
             {isSaving ? "Saved ✓" : "Save"}
           </Button>
           <Button
-            className="bg-primary hover:bg-primary/90 text-primary-foreground"
+            className="bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-600/20 transition-all duration-300"
             onClick={handleRunAssessment}
             disabled={isRunning}
           >
@@ -75,7 +75,7 @@ export default function ScenarioEditor({ onNavigate }: ScenarioEditorProps) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Process Flow */}
         <div className="lg:col-span-2 space-y-4">
-          <h2 className="text-lg font-semibold text-foreground">Process Flow</h2>
+          <h2 className="text-lg font-semibold text-slate-800">Process Flow</h2>
           <div className="space-y-2">
             {currentScenario.stages.map((stage, idx) => (
               <div key={stage.id}>

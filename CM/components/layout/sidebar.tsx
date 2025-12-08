@@ -1,6 +1,6 @@
 "use client"
 
-import { LayoutDashboard, Plus, FileText, Folder, Settings, HelpCircle, Package, Bot, Database, BarChart3, ClipboardList } from "lucide-react"
+import { LayoutDashboard, Plus, FileText, Folder, Settings, HelpCircle, Package, Bot, Database, BarChart3, ClipboardList, Leaf } from "lucide-react"
 
 interface SidebarProps {
   currentView: string
@@ -26,25 +26,25 @@ export default function Sidebar({ currentView, onNavigate }: SidebarProps) {
   ]
 
   return (
-    <div className="w-64 bg-sidebar border-r border-sidebar-border flex flex-col">
+    <div className="w-64 bg-white border-r border-slate-100 flex flex-col shadow-sm">
       {/* Logo */}
-      <div className="p-6 border-b border-sidebar-border">
+      <div className="p-6 border-b border-slate-100">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-sidebar-primary to-primary flex items-center justify-center">
-            <span className="text-sidebar-primary-foreground text-sm font-bold">◉</span>
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shadow-lg shadow-emerald-500/20 transition-transform duration-300 hover:scale-105">
+            <Leaf className="w-5 h-5 text-white" />
           </div>
           <div>
-            <span className="font-bold text-sidebar-foreground text-base">CircuMet</span>
-            <p className="text-xs text-sidebar-foreground/60">LCA Platform</p>
+            <span className="font-bold text-slate-800 text-lg tracking-tight">CircuMet</span>
+            <p className="text-xs text-slate-400 font-medium">LCA Platform</p>
           </div>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 py-6 space-y-1">
-        {navItems.map((item) => {
+      <nav className="flex-1 px-3 py-6 space-y-1 overflow-y-auto">
+        {navItems.map((item, index) => {
           if (item.id.startsWith("separator")) {
-            return <div key={item.id} className="h-px bg-sidebar-border my-4" />
+            return <div key={item.id} className="h-px bg-slate-100 my-4" />
           }
           const Icon = item.icon as any
           const isActive = currentView === item.id
@@ -52,30 +52,27 @@ export default function Sidebar({ currentView, onNavigate }: SidebarProps) {
             <button
               key={item.id}
               onClick={() => onNavigate(item.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${isActive
-                  ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent/20 hover:text-sidebar-foreground"
+              style={{ animationDelay: `${index * 30}ms` }}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 animate-fade-in group ${isActive
+                  ? "bg-gradient-to-r from-emerald-500 to-green-500 text-white shadow-md shadow-emerald-500/25"
+                  : "text-slate-600 hover:bg-emerald-50 hover:text-emerald-700"
                 }`}
               aria-label={item.label}
               aria-current={isActive ? "page" : undefined}
             >
-              {Icon && <Icon className="w-4 h-4" strokeWidth={2} />}
+              {Icon && <Icon className={`w-4 h-4 transition-transform duration-200 ${isActive ? '' : 'group-hover:scale-110'}`} strokeWidth={2} />}
               {item.label}
             </button>
           )
         })}
       </nav>
 
-      {/* Organization */}
-      <div className="p-4 border-t border-sidebar-border">
-        <div className="text-xs font-medium text-sidebar-foreground/70 mb-3">Organization</div>
-        <button className="w-full flex items-center gap-2 p-2 rounded-lg hover:bg-sidebar-accent/20 transition-colors">
-          <div className="w-8 h-8 rounded-full bg-sidebar-accent" />
-          <div className="text-sm text-left">
-            <div className="font-medium text-sidebar-foreground">Acme Corp</div>
-            <div className="text-xs text-sidebar-foreground/60">Premium</div>
-          </div>
-        </button>
+      {/* Bottom section */}
+      <div className="p-4 border-t border-slate-100">
+        <div className="px-3 py-3 rounded-xl bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-100">
+          <p className="text-xs font-medium text-emerald-700">Pro Tip</p>
+          <p className="text-xs text-emerald-600 mt-1">Use AI Agents for automated LCA analysis</p>
+        </div>
       </div>
     </div>
   )

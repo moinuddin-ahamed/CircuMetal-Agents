@@ -1,7 +1,6 @@
 // Authentication middleware and session utilities for Next.js
 import { cookies } from 'next/headers'
-import { getSession, deleteSession } from '@/lib/db/auth'
-import type { User } from '@/lib/db/schema-types'
+import { getSession, deleteSession, type User } from '@/lib/db/auth'
 
 const SESSION_COOKIE_NAME = process.env.SESSION_COOKIE_NAME || 'session_id'
 

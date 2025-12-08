@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ArrowLeft, Loader2, CheckCircle, XCircle, Clock, Download, ExternalLink } from "lucide-react"
+import { ArrowLeft, Loader2, CheckCircle, XCircle, Clock, Download, ExternalLink, BarChart3 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
@@ -90,15 +90,15 @@ export default function RunResultsPage({ runId, onBack }: RunResultsPageProps) {
 
   if (statusLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="h-full bg-gradient-to-br from-white via-green-50/30 to-white flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-green-600" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-background p-8">
-      <div className="max-w-6xl mx-auto">
+    <div className="h-full bg-gradient-to-br from-white via-green-50/30 to-white p-8 overflow-auto">
+      <div className="max-w-6xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -106,18 +106,25 @@ export default function RunResultsPage({ runId, onBack }: RunResultsPageProps) {
               variant="ghost"
               size="sm"
               onClick={onBack}
-              className="mb-2 text-muted-foreground hover:text-foreground"
+              className="mb-2 text-slate-500 hover:text-green-700 hover:bg-green-50 transition-all duration-300"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
             </Button>
-            <h1 className="text-3xl font-bold text-foreground">Analysis Results</h1>
-            <p className="text-muted-foreground mt-2">Run ID: {runId}</p>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-lg shadow-green-600/20">
+                <BarChart3 className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-slate-800">Analysis Results</h1>
+                <p className="text-slate-500 mt-1">Run ID: {runId}</p>
+              </div>
+            </div>
           </div>
           {isCompleted && (
             <div className="flex gap-2">
-              <Button variant="outline" className="gap-2">
-                <Download className="w-4 h-4" />
+              <Button variant="outline" className="gap-2 border-green-200 hover:bg-green-50 hover:border-green-300 transition-all duration-300">
+                <Download className="w-4 h-4 text-green-600" />
                 Export PDF
               </Button>
               <Button variant="outline" className="gap-2">

@@ -49,47 +49,47 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="h-full p-8 space-y-6 overflow-auto bg-gradient-to-br from-white via-emerald-50/20 to-white">
       {/* Header */}
-      <div>
-        <h1 className="text-4xl font-bold text-foreground">Settings</h1>
-        <p className="text-muted-foreground mt-2">Manage your account and preferences</p>
+      <div className="animate-fade-in">
+        <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Settings</h1>
+        <p className="text-slate-500 mt-1 font-medium">Manage your account and preferences</p>
       </div>
 
-      <Tabs defaultValue="account" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="account">Account</TabsTrigger>
-          <TabsTrigger value="preferences">Preferences</TabsTrigger>
-          <TabsTrigger value="data-models">Data & Models</TabsTrigger>
+      <Tabs defaultValue="account" className="w-full animate-slide-up" style={{ animationDelay: '100ms' }}>
+        <TabsList className="grid w-full grid-cols-3 bg-slate-100/80 p-1 rounded-xl">
+          <TabsTrigger value="account" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-emerald-700 transition-all">Account</TabsTrigger>
+          <TabsTrigger value="preferences" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-emerald-700 transition-all">Preferences</TabsTrigger>
+          <TabsTrigger value="data-models" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-emerald-700 transition-all">Data & Models</TabsTrigger>
         </TabsList>
 
         {/* Account Tab */}
         <TabsContent value="account" className="space-y-6 mt-6">
-          <Card className="p-6 bg-card border-border">
-            <h2 className="text-lg font-semibold text-foreground mb-4">Account Information</h2>
+          <Card className="p-6 bg-white border-slate-100 rounded-2xl shadow-sm">
+            <h2 className="text-lg font-semibold text-slate-800 mb-4">Account Information</h2>
 
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">Name</label>
+                <label className="text-sm font-medium text-slate-600 mb-2 block">Name</label>
                 <Input
                   value={settings.name}
                   onChange={(e) => handleSettingChange("name", e.target.value)}
-                  className="bg-input text-foreground border-border"
+                  className="bg-slate-50 text-slate-700 border-slate-100 rounded-xl focus:border-emerald-300 focus:ring-emerald-100"
                 />
               </div>
 
               <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">Email</label>
-                <Input value={settings.email} disabled className="bg-input text-muted-foreground border-border" />
-                <p className="text-xs text-muted-foreground mt-1">Email cannot be changed</p>
+                <label className="text-sm font-medium text-slate-600 mb-2 block">Email</label>
+                <Input value={settings.email} disabled className="bg-slate-100 text-slate-500 border-slate-100 rounded-xl" />
+                <p className="text-xs text-slate-400 mt-1">Email cannot be changed</p>
               </div>
 
               <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">Timezone</label>
+                <label className="text-sm font-medium text-slate-600 mb-2 block">Timezone</label>
                 <select
                   value={settings.timezone}
                   onChange={(e) => handleSettingChange("timezone", e.target.value)}
-                  className="w-full px-3 py-2 bg-input text-foreground border border-border rounded-lg text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20 transition-colors"
+                  className="w-full px-4 py-2.5 bg-slate-50 text-slate-700 border border-slate-100 rounded-xl text-sm focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-100 transition-all"
                 >
                   <option>UTC</option>
                   <option>EST</option>
@@ -102,22 +102,22 @@ export default function SettingsPage() {
           </Card>
 
           {/* Change Password Section */}
-          <Card className="p-6 bg-card border-border">
-            <h2 className="text-lg font-semibold text-foreground mb-4">Change Password</h2>
+          <Card className="p-6 bg-white border-slate-100 rounded-2xl shadow-sm">
+            <h2 className="text-lg font-semibold text-slate-800 mb-4">Change Password</h2>
 
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">Current Password</label>
+                <label className="text-sm font-medium text-slate-600 mb-2 block">Current Password</label>
                 <div className="relative">
                   <Input
                     type={passwordForm.showCurrent ? "text" : "password"}
                     value={passwordForm.current}
                     onChange={(e) => setPasswordForm({ ...passwordForm, current: e.target.value })}
-                    className="bg-input text-foreground border-border pr-10"
+                    className="bg-slate-50 text-slate-700 border-slate-100 pr-10 rounded-xl focus:border-emerald-300 focus:ring-emerald-100"
                   />
                   <button
                     onClick={() => setPasswordForm((prev) => ({ ...prev, showCurrent: !prev.showCurrent }))}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-600 transition-colors"
                   >
                     {passwordForm.showCurrent ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -125,17 +125,17 @@ export default function SettingsPage() {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">New Password</label>
+                <label className="text-sm font-medium text-slate-600 mb-2 block">New Password</label>
                 <div className="relative">
                   <Input
                     type={passwordForm.showNew ? "text" : "password"}
                     value={passwordForm.new}
                     onChange={(e) => setPasswordForm({ ...passwordForm, new: e.target.value })}
-                    className="bg-input text-foreground border-border pr-10"
+                    className="bg-slate-50 text-slate-700 border-slate-100 pr-10 rounded-xl focus:border-emerald-300 focus:ring-emerald-100"
                   />
                   <button
                     onClick={() => setPasswordForm((prev) => ({ ...prev, showNew: !prev.showNew }))}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-600 transition-colors"
                   >
                     {passwordForm.showNew ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -143,36 +143,36 @@ export default function SettingsPage() {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">Confirm New Password</label>
+                <label className="text-sm font-medium text-slate-600 mb-2 block">Confirm New Password</label>
                 <div className="relative">
                   <Input
                     type={passwordForm.showConfirm ? "text" : "password"}
                     value={passwordForm.confirm}
                     onChange={(e) => setPasswordForm({ ...passwordForm, confirm: e.target.value })}
-                    className="bg-input text-foreground border-border pr-10"
+                    className="bg-slate-50 text-slate-700 border-slate-100 pr-10 rounded-xl focus:border-emerald-300 focus:ring-emerald-100"
                   />
                   <button
                     onClick={() => setPasswordForm((prev) => ({ ...prev, showConfirm: !prev.showConfirm }))}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-600 transition-colors"
                   >
                     {passwordForm.showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
 
-              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground w-full">Update Password</Button>
+              <Button className="bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white w-full rounded-xl shadow-lg shadow-emerald-500/25 transition-all duration-300 hover:scale-[1.01]">Update Password</Button>
             </div>
           </Card>
 
           <Button
             onClick={handleSaveSettings}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground w-full"
+            className="bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white w-full rounded-xl shadow-lg shadow-emerald-500/25 transition-all duration-300 hover:scale-[1.01]"
           >
             Save Changes
           </Button>
 
           {savedMessage && (
-            <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-sm text-emerald-700">
+            <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-sm text-emerald-700 font-medium animate-slide-up">
               {savedMessage}
             </div>
           )}
@@ -180,16 +180,16 @@ export default function SettingsPage() {
 
         {/* Preferences Tab */}
         <TabsContent value="preferences" className="space-y-6 mt-6">
-          <Card className="p-6 bg-card border-border">
-            <h2 className="text-lg font-semibold text-foreground mb-4">UI Preferences</h2>
+          <Card className="p-6 bg-white border-slate-100 rounded-2xl shadow-sm">
+            <h2 className="text-lg font-semibold text-slate-800 mb-4">UI Preferences</h2>
 
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">Theme</label>
+                <label className="text-sm font-medium text-slate-600 mb-2 block">Theme</label>
                 <select
                   value={settings.theme}
                   onChange={(e) => handleSettingChange("theme", e.target.value)}
-                  className="w-full px-3 py-2 bg-input text-foreground border border-border rounded-lg text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20 transition-colors"
+                  className="w-full px-4 py-2.5 bg-slate-50 text-slate-700 border border-slate-100 rounded-xl text-sm focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-100 transition-all"
                 >
                   <option value="dark">Dark</option>
                   <option value="light">Light</option>

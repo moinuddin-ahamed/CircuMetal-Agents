@@ -8,7 +8,7 @@ import {
   Database, FileText, BarChart3,
   Shield, Recycle, Send, ArrowLeft, Loader2,
   MessageSquare, Settings, Info, Play, FolderOpen,
-  Brain, Eye, Target, Download, FileDown
+  Brain, Eye, Target, Download, FileDown, Sparkles
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -298,6 +298,7 @@ export default function AgentsInterface({ onBack }: AgentsInterfaceProps) {
             setAgents(prev => prev.map(agent => {
               const agentNameLower = agent.name.toLowerCase().replace(" agent", "").replace(" ", "")
               const currentLower = statusData.current_agent.toLowerCase().replace("agent", "")
+              
               if (agentNameLower.includes(currentLower) || currentLower.includes(agentNameLower)) {
                 return { ...agent, status: "running" }
               }
@@ -409,14 +410,14 @@ export default function AgentsInterface({ onBack }: AgentsInterfaceProps) {
     
     return parts.map((part, i) => {
       if (part.startsWith('`') && part.endsWith('`')) {
-        return <code key={i} className="px-1 py-0.5 bg-gray-200 rounded text-xs font-mono text-gray-800">{part.slice(1, -1)}</code>
+        return <code key={i} className="px-1.5 py-0.5 bg-green-50 rounded-md text-xs font-mono text-green-800 border border-green-100">{part.slice(1, -1)}</code>
       }
       
       // Handle bold **text**
       const boldParts = part.split(/(\*\*[^*]+\*\*)/)
       return boldParts.map((bp, j) => {
         if (bp.startsWith('**') && bp.endsWith('**')) {
-          return <strong key={`${i}-${j}`} className="font-semibold text-gray-900">{bp.slice(2, -2)}</strong>
+          return <strong key={`${i}-${j}`} className="font-semibold text-green-900">{bp.slice(2, -2)}</strong>
         }
         return <span key={`${i}-${j}`}>{bp}</span>
       })
@@ -438,7 +439,7 @@ export default function AgentsInterface({ onBack }: AgentsInterfaceProps) {
       if (currentParagraph.length > 0) {
         const content = currentParagraph.join(' ')
         elements.push(
-          <p key={elements.length} className="text-gray-700 leading-relaxed mb-2">
+          <p key={elements.length} className="text-slate-700 leading-relaxed mb-3">
             {formatInlineMarkdown(content)}
           </p>
         )
@@ -452,9 +453,12 @@ export default function AgentsInterface({ onBack }: AgentsInterfaceProps) {
         if (inCodeBlock) {
           // End code block
           elements.push(
-            <pre key={elements.length} className="bg-gray-900 text-gray-100 p-3 rounded-lg text-xs font-mono overflow-x-auto mb-3">
-              <code>{codeBlockContent.join('\n')}</code>
-            </pre>
+            <div key={elements.length} className="relative group mb-4">
+              <div className="absolute -inset-1 bg-gradient-to-r from-green-100 to-emerald-100 rounded-lg blur opacity-25 group-hover:opacity-50 transition duration-200"></div>
+              <pre className="relative bg-slate-900 text-slate-100 p-4 rounded-lg text-xs font-mono overflow-x-auto shadow-sm">
+                <code>{codeBlockContent.join('\n')}</code>
+              </pre>
+            </div>
           )
           codeBlockContent = []
           inCodeBlock = false
@@ -475,17 +479,17 @@ export default function AgentsInterface({ onBack }: AgentsInterfaceProps) {
       // Headers
       if (line.startsWith('### ')) {
         flushParagraph()
-        elements.push(<h4 key={elements.length} className="font-semibold text-gray-900 text-sm mt-3 mb-1">{line.slice(4)}</h4>)
+        elements.push(<h4 key={elements.length} className="font-semibold text-green-900 text-sm mt-4 mb-2 flex items-center gap-2"><span className="w-1 h-4 bg-green-400 rounded-full"></span>{line.slice(4)}</h4>)
         return
       }
       if (line.startsWith('## ')) {
         flushParagraph()
-        elements.push(<h3 key={elements.length} className="font-semibold text-gray-900 text-base mt-3 mb-1">{line.slice(3)}</h3>)
+        elements.push(<h3 key={elements.length} className="font-semibold text-green-900 text-base mt-5 mb-2">{line.slice(3)}</h3>)
         return
       }
       if (line.startsWith('# ')) {
         flushParagraph()
-        elements.push(<h2 key={elements.length} className="font-bold text-gray-900 text-lg mt-3 mb-2">{line.slice(2)}</h2>)
+        elements.push(<h2 key={elements.length} className="font-bold text-green-900 text-lg mt-6 mb-3 pb-2 border-b border-green-100">{line.slice(2)}</h2>)
         return
       }
       
@@ -493,9 +497,9 @@ export default function AgentsInterface({ onBack }: AgentsInterfaceProps) {
       if (line.startsWith('- ') || line.startsWith('* ')) {
         flushParagraph()
         elements.push(
-          <div key={elements.length} className="flex gap-2 ml-1 mb-1">
-            <span className="text-gray-400 mt-0.5">•</span>
-            <span className="text-gray-700 flex-1">{formatInlineMarkdown(line.slice(2))}</span>
+          <div key={elements.length} className="flex gap-3 ml-1 mb-2 group">
+            <span className="text-green-400 mt-1.5 group-hover:text-green-500 transition-colors">•</span>
+            <span className="text-slate-700 flex-1">{formatInlineMarkdown(line.slice(2))}</span>
           </div>
         )
         return
@@ -506,9 +510,9 @@ export default function AgentsInterface({ onBack }: AgentsInterfaceProps) {
       if (numMatch) {
         flushParagraph()
         elements.push(
-          <div key={elements.length} className="flex gap-2 ml-1 mb-1">
-            <span className="text-gray-500 font-medium min-w-[1.25rem]">{numMatch[1]}.</span>
-            <span className="text-gray-700 flex-1">{formatInlineMarkdown(numMatch[2])}</span>
+          <div key={elements.length} className="flex gap-3 ml-1 mb-2">
+            <span className="text-green-600 font-medium min-w-[1.25rem] bg-green-50 rounded px-1 text-center h-fit text-xs py-0.5 mt-0.5">{numMatch[1]}.</span>
+            <span className="text-slate-700 flex-1">{formatInlineMarkdown(numMatch[2])}</span>
           </div>
         )
         return
@@ -533,13 +537,13 @@ export default function AgentsInterface({ onBack }: AgentsInterfaceProps) {
   const getStatusIcon = (status: Agent["status"]) => {
     switch (status) {
       case "running":
-        return <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
+        return <Loader2 className="w-4 h-4 animate-spin text-green-600" />
       case "completed":
-        return <CheckCircle className="w-4 h-4 text-green-500" />
+        return <CheckCircle className="w-4 h-4 text-emerald-500" />
       case "error":
         return <XCircle className="w-4 h-4 text-red-500" />
       default:
-        return <div className="w-2 h-2 rounded-full bg-gray-300" />
+        return <div className="w-2 h-2 rounded-full bg-slate-300" />
     }
   }
 
@@ -550,7 +554,7 @@ export default function AgentsInterface({ onBack }: AgentsInterfaceProps) {
       case "warning":
         return <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
       case "success":
-        return <CheckCircle className="w-3.5 h-3.5 text-green-500" />
+        return <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />
       default:
         return <Info className="w-3.5 h-3.5 text-blue-500" />
     }
@@ -561,37 +565,45 @@ export default function AgentsInterface({ onBack }: AgentsInterfaceProps) {
   const completedAgentsCount = agents.filter(a => a.status === "completed").length
 
   return (
-    <div className="min-h-screen bg-white p-6">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8 pb-6 border-b border-gray-100">
+    <div className="h-full bg-gradient-to-br from-white via-green-50/30 to-white p-6 font-sans flex flex-col overflow-auto">
+      <div className="w-full flex flex-col min-h-full animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="flex-none">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-8 pb-6 border-b border-green-100/50">
           <div>
             <Button
               variant="ghost"
               size="sm"
               onClick={onBack}
-              className="mb-2 text-gray-500 hover:text-gray-900 -ml-2"
+              className="mb-2 text-slate-500 hover:text-green-700 hover:bg-green-50 -ml-2 transition-all duration-300"
             >
               <ArrowLeft className="w-4 h-4 mr-1" />
               Back
             </Button>
-            <h1 className="text-2xl font-semibold text-gray-900">AI Agents</h1>
-            <p className="text-gray-500 text-sm mt-0.5">Multi-agent LCA analysis system</p>
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-green-100 rounded-xl">
+                <Sparkles className="w-6 h-6 text-green-600" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-slate-900 tracking-tight">AI Agents Orchestrator</h1>
+                <p className="text-slate-500 text-sm mt-0.5">Multi-agent LCA analysis & circularity system</p>
+              </div>
+            </div>
           </div>
           
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-50">
-              <div className={`w-2 h-2 rounded-full ${isSystemOnline ? 'bg-green-500' : 'bg-red-500'}`} />
-              <span className="text-xs text-gray-600">
-                {healthLoading ? "Connecting..." : isSystemOnline ? "Online" : "Offline"}
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-green-100 shadow-sm">
+              <div className={`w-2.5 h-2.5 rounded-full ${isSystemOnline ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]' : 'bg-red-500'}`} />
+              <span className="text-xs font-medium text-slate-600">
+                {healthLoading ? "Connecting..." : isSystemOnline ? "System Online" : "System Offline"}
               </span>
             </div>
             
             <Button 
-              variant="ghost" 
+              variant="outline" 
               size="icon"
               onClick={() => refetchHealth()} 
-              className="text-gray-400 hover:text-gray-600"
+              className="bg-white border-green-100 text-slate-400 hover:text-green-600 hover:border-green-200 hover:bg-green-50 transition-all duration-300"
             >
               <RefreshCw className="w-4 h-4" />
             </Button>
@@ -599,16 +611,16 @@ export default function AgentsInterface({ onBack }: AgentsInterfaceProps) {
             <Button 
               onClick={() => setShowProjectDialog(true)} 
               disabled={isOrchestrationRunning || !isSystemOnline}
-              className="bg-gray-900 hover:bg-gray-800 text-white"
+              className="bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-600/20 px-6 h-11 rounded-xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
             >
               {isOrchestrationRunning ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Running...
+                  Processing...
                 </>
               ) : (
                 <>
-                  <Play className="w-4 h-4 mr-2" />
+                  <Play className="w-4 h-4 mr-2 fill-current" />
                   Run Analysis
                 </>
               )}
@@ -618,19 +630,26 @@ export default function AgentsInterface({ onBack }: AgentsInterfaceProps) {
 
         {/* Progress Bar */}
         {isOrchestrationRunning && (
-          <div className="mb-6 p-4 rounded-lg bg-gray-50 border border-gray-100">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <Activity className="w-4 h-4 text-blue-500" />
-                <span className="text-sm font-medium text-gray-700">
-                  {currentAgent || "Starting..."}
-                </span>
+          <div className="mb-8 p-6 rounded-2xl bg-white border border-green-100 shadow-lg shadow-green-900/5 animate-in fade-in slide-in-from-top-2 duration-500">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-50 rounded-lg">
+                  <Activity className="w-5 h-5 text-blue-500 animate-pulse" />
+                </div>
+                <div>
+                  <span className="text-sm font-semibold text-slate-900 block">
+                    Analysis in Progress
+                  </span>
+                  <span className="text-xs text-slate-500">
+                    {currentAgent || "Initializing..."}
+                  </span>
+                </div>
               </div>
-              <span className="text-sm text-gray-500">{orchestrationProgress}%</span>
+              <span className="text-2xl font-bold text-green-600">{orchestrationProgress}%</span>
             </div>
-            <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+            <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
               <div 
-                className="h-full bg-blue-500 rounded-full transition-all duration-300"
+                className="h-full bg-gradient-to-r from-green-400 to-emerald-600 rounded-full transition-all duration-500 ease-out"
                 style={{ width: `${orchestrationProgress}%` }}
               />
             </div>
@@ -639,41 +658,40 @@ export default function AgentsInterface({ onBack }: AgentsInterfaceProps) {
 
         {/* Download Report Section */}
         {latestReport && !isOrchestrationRunning && (
-          <div className="mb-6 p-4 rounded-lg bg-green-50 border border-green-100">
+          <div className="mb-8 p-6 rounded-2xl bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-100 shadow-sm animate-in fade-in slide-in-from-top-2 duration-500">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <CheckCircle className="w-5 h-5 text-green-600" />
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-white rounded-full shadow-sm">
+                  <CheckCircle className="w-6 h-6 text-emerald-500" />
+                </div>
                 <div>
-                  <p className="text-sm font-medium text-green-900">Analysis Complete</p>
-                  <p className="text-xs text-green-700">Report ready for download</p>
+                  <p className="text-lg font-semibold text-emerald-900">Analysis Complete</p>
+                  <p className="text-sm text-emerald-700">Your comprehensive report is ready for download</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <Button
                   variant="outline"
-                  size="sm"
                   onClick={() => downloadReport(latestReport, 'md')}
-                  className="border-green-200 text-green-700 hover:bg-green-100"
+                  className="bg-white border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300 transition-all duration-300"
                 >
-                  <FileDown className="w-4 h-4 mr-1" />
+                  <FileDown className="w-4 h-4 mr-2" />
                   Markdown
                 </Button>
                 <Button
                   variant="outline"
-                  size="sm"
                   onClick={() => downloadReport(latestReport, 'json')}
-                  className="border-green-200 text-green-700 hover:bg-green-100"
+                  className="bg-white border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300 transition-all duration-300"
                 >
-                  <Download className="w-4 h-4 mr-1" />
+                  <Download className="w-4 h-4 mr-2" />
                   JSON
                 </Button>
                 <Button
                   variant="outline"
-                  size="sm"
                   onClick={() => downloadReport(latestReport, 'txt')}
-                  className="border-green-200 text-green-700 hover:bg-green-100"
+                  className="bg-white border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300 transition-all duration-300"
                 >
-                  <FileText className="w-4 h-4 mr-1" />
+                  <FileText className="w-4 h-4 mr-2" />
                   Text
                 </Button>
               </div>
@@ -682,74 +700,80 @@ export default function AgentsInterface({ onBack }: AgentsInterfaceProps) {
         )}
 
         {/* Stats */}
-        <div className="grid grid-cols-4 gap-4 mb-6">
-          <div className="p-4 rounded-lg bg-gray-50">
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Agents</p>
-            <p className="text-2xl font-semibold text-gray-900 mt-1">{agents.length}</p>
-          </div>
-          <div className="p-4 rounded-lg bg-gray-50">
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Active</p>
-            <p className="text-2xl font-semibold text-gray-900 mt-1">{activeAgentsCount}</p>
-          </div>
-          <div className="p-4 rounded-lg bg-gray-50">
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Completed</p>
-            <p className="text-2xl font-semibold text-gray-900 mt-1">{completedAgentsCount}</p>
-          </div>
-          <div className="p-4 rounded-lg bg-gray-50">
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Logs</p>
-            <p className="text-2xl font-semibold text-gray-900 mt-1">{logs.length}</p>
-          </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          {[
+            { label: "Total Agents", value: agents.length, icon: Bot, color: "text-purple-500", bg: "bg-purple-50" },
+            { label: "Active Now", value: activeAgentsCount, icon: Activity, color: "text-blue-500", bg: "bg-blue-50" },
+            { label: "Completed", value: completedAgentsCount, icon: CheckCircle, color: "text-emerald-500", bg: "bg-emerald-50" },
+            { label: "System Logs", value: logs.length, icon: Terminal, color: "text-slate-500", bg: "bg-slate-50" },
+          ].map((stat, i) => (
+            <div key={i} className="p-4 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 group">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">{stat.label}</p>
+                <div className={`p-2 rounded-lg ${stat.bg} group-hover:scale-110 transition-transform duration-300`}>
+                  <stat.icon className={`w-4 h-4 ${stat.color}`} />
+                </div>
+              </div>
+              <p className="text-2xl font-bold text-slate-900">{stat.value}</p>
+            </div>
+          ))}
+        </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-6">
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6" style={{ minHeight: '500px' }}>
           {/* Agents List */}
-          <div className="col-span-1">
-            <div className="rounded-lg border border-gray-100">
-              <div className="p-4 border-b border-gray-100">
-                <h2 className="font-medium text-gray-900">Agents</h2>
+          <div className="lg:col-span-4">
+            <div className="rounded-2xl bg-white border border-slate-100 shadow-sm overflow-hidden h-full flex flex-col" style={{ minHeight: '400px' }}>
+              <div className="p-4 border-b border-slate-100 bg-slate-50/50">
+                <h2 className="font-semibold text-slate-900 flex items-center gap-2">
+                  <Bot className="w-4 h-4 text-green-600" />
+                  Agent Swarm ({agents.length})
+                </h2>
               </div>
-              <ScrollArea className="h-[480px]">
-                <div className="p-2">
+              <ScrollArea className="flex-1">
+                <div className="p-4 space-y-3">
                   {agents.map((agent) => {
                     const Icon = agent.icon
+                    const isActive = agent.status === "running"
+                    const isCompleted = agent.status === "completed"
+                    
                     return (
                       <div
                         key={agent.name}
-                        className={`p-3 rounded-lg mb-1 cursor-pointer transition-colors ${
-                          agent.status === "running" 
-                            ? 'bg-blue-50' 
-                            : agent.status === "completed" 
-                            ? 'bg-green-50' 
-                            : 'hover:bg-gray-50'
+                        className={`p-4 rounded-xl cursor-pointer transition-all duration-300 border ${
+                          isActive 
+                            ? 'bg-blue-50/50 border-blue-100 shadow-sm scale-[1.02]' 
+                            : isCompleted 
+                            ? 'bg-emerald-50/50 border-emerald-100' 
+                            : 'bg-white border-slate-100 hover:border-green-200 hover:shadow-md hover:scale-[1.01]'
                         }`}
                         onClick={() => toggleAgentExpand(agent.name)}
                       >
-                        <div className="flex items-center gap-3">
-                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                            agent.status === "running" ? 'bg-blue-100' :
-                            agent.status === "completed" ? 'bg-green-100' : 'bg-gray-100'
+                        <div className="flex items-center gap-4">
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-sm transition-colors ${
+                            isActive ? 'bg-blue-100 text-blue-600' :
+                            isCompleted ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-50 text-slate-500 group-hover:bg-green-50 group-hover:text-green-600'
                           }`}>
-                            <Icon className={`w-4 h-4 ${
-                              agent.status === "running" ? 'text-blue-600' :
-                              agent.status === "completed" ? 'text-green-600' : 'text-gray-500'
-                            }`} />
+                            <Icon className="w-5 h-5" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <p className="text-sm font-medium text-gray-900">{agent.name}</p>
+                            <div className="flex items-center justify-between mb-1">
+                              <p className={`text-sm font-semibold ${isActive ? 'text-blue-700' : isCompleted ? 'text-emerald-700' : 'text-slate-900'}`}>
+                                {agent.name}
+                              </p>
                               {getStatusIcon(agent.status)}
                             </div>
-                            <p className="text-xs text-gray-500 truncate">{agent.description}</p>
+                            <p className="text-xs text-slate-500 truncate">{agent.description}</p>
                           </div>
-                          <ChevronRight className={`w-4 h-4 text-gray-400 transition-transform ${
-                            expandedAgents.has(agent.name) ? 'rotate-90' : ''
+                          <ChevronRight className={`w-4 h-4 text-slate-300 transition-transform duration-300 ${
+                            expandedAgents.has(agent.name) ? 'rotate-90 text-green-500' : ''
                           }`} />
                         </div>
                         
                         {expandedAgents.has(agent.name) && (
-                          <div className="mt-2 pt-2 border-t border-gray-100 flex items-center gap-2">
-                            <Clock className="w-3 h-3 text-gray-400" />
-                            <span className="text-xs text-gray-500">~{agent.averageTime}s average</span>
+                          <div className="mt-3 pt-3 border-t border-slate-100/50 flex items-center gap-2 animate-in fade-in slide-in-from-top-1 duration-300">
+                            <Clock className="w-3.5 h-3.5 text-slate-400" />
+                            <span className="text-xs text-slate-500">Estimated runtime: ~{agent.averageTime}s</span>
                           </div>
                         )}
                       </div>
@@ -761,20 +785,29 @@ export default function AgentsInterface({ onBack }: AgentsInterfaceProps) {
           </div>
 
           {/* Main Panel */}
-          <div className="col-span-2">
-            <div className="rounded-lg border border-gray-100">
-              <Tabs defaultValue="logs" className="w-full">
-                <div className="p-3 border-b border-gray-100">
-                  <TabsList className="grid w-full grid-cols-3 bg-gray-50 p-1 rounded-lg">
-                    <TabsTrigger value="logs" className="rounded text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">
-                      <Terminal className="w-4 h-4 mr-2" />
-                      Logs
-                    </TabsTrigger>
-                    <TabsTrigger value="chat" className="rounded text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">
+          <div className="lg:col-span-8">
+            <div className="rounded-2xl bg-white border border-slate-100 shadow-sm overflow-hidden h-full flex flex-col" style={{ minHeight: '400px' }}>
+              <Tabs defaultValue="chat" className="w-full h-full flex flex-col">
+                <div className="p-3 border-b border-slate-100 bg-slate-50/50">
+                  <TabsList className="grid w-full grid-cols-3 bg-slate-200/50 p-1 rounded-xl">
+                    <TabsTrigger 
+                      value="chat" 
+                      className="rounded-lg text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-green-700 data-[state=active]:shadow-sm transition-all duration-300"
+                    >
                       <MessageSquare className="w-4 h-4 mr-2" />
-                      Chat
+                      Assistant
                     </TabsTrigger>
-                    <TabsTrigger value="reports" className="rounded text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                    <TabsTrigger 
+                      value="logs" 
+                      className="rounded-lg text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-green-700 data-[state=active]:shadow-sm transition-all duration-300"
+                    >
+                      <Terminal className="w-4 h-4 mr-2" />
+                      System Logs
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="reports" 
+                      className="rounded-lg text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-green-700 data-[state=active]:shadow-sm transition-all duration-300"
+                    >
                       <FileText className="w-4 h-4 mr-2" />
                       Reports
                     </TabsTrigger>
@@ -782,35 +815,39 @@ export default function AgentsInterface({ onBack }: AgentsInterfaceProps) {
                 </div>
 
                 {/* Logs Tab */}
-                <TabsContent value="logs" className="m-0">
-                  <ScrollArea className="h-[420px]">
-                    <div className="p-4 space-y-2">
+                <TabsContent value="logs" className="m-0 flex-1 overflow-hidden">
+                  <ScrollArea className="h-full">
+                    <div className="p-6 space-y-3">
                       {logs.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-16 text-gray-400">
-                          <Terminal className="w-10 h-10 mb-3 opacity-30" />
-                          <p className="text-sm">No logs yet</p>
-                          <p className="text-xs mt-1">Run an analysis to see agent activity</p>
+                        <div className="flex flex-col items-center justify-center py-24 text-slate-300">
+                          <div className="p-4 bg-slate-50 rounded-full mb-4">
+                            <Terminal className="w-8 h-8" />
+                          </div>
+                          <p className="text-sm font-medium text-slate-500">System Idle</p>
+                          <p className="text-xs mt-1">Start an analysis to view real-time logs</p>
                         </div>
                       ) : (
                         logs.map((log) => (
                           <div
                             key={log.id}
-                            className={`p-3 rounded-lg ${
-                              log.level === "error" ? "bg-red-50" : 
-                              log.level === "warning" ? "bg-amber-50" : 
-                              log.level === "success" ? "bg-green-50" : "bg-gray-50"
+                            className={`p-4 rounded-xl border transition-all duration-300 hover:shadow-sm ${
+                              log.level === "error" ? "bg-red-50/50 border-red-100" : 
+                              log.level === "warning" ? "bg-amber-50/50 border-amber-100" : 
+                              log.level === "success" ? "bg-emerald-50/50 border-emerald-100" : "bg-white border-slate-100"
                             }`}
                           >
-                            <div className="flex items-start gap-2">
-                              {getLogIcon(log.level)}
+                            <div className="flex items-start gap-3">
+                              <div className="mt-0.5">{getLogIcon(log.level)}</div>
                               <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 mb-0.5">
-                                  <span className="text-xs font-medium text-gray-700">{log.agent}</span>
-                                  <span className="text-[10px] text-gray-400">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <Badge variant="outline" className="bg-white/50 text-[10px] px-1.5 py-0 h-5">
+                                    {log.agent}
+                                  </Badge>
+                                  <span className="text-[10px] text-slate-400 font-mono">
                                     {new Date(log.timestamp).toLocaleTimeString()}
                                   </span>
                                 </div>
-                                <p className="text-sm text-gray-600">{log.message}</p>
+                                <p className="text-sm text-slate-700 leading-relaxed font-mono text-[13px]">{log.message}</p>
                               </div>
                             </div>
                           </div>
@@ -822,159 +859,169 @@ export default function AgentsInterface({ onBack }: AgentsInterfaceProps) {
                 </TabsContent>
 
                 {/* Chat Tab */}
-                <TabsContent value="chat" className="m-0">
-                  <div className="flex flex-col h-[420px]">
-                    <ScrollArea className="flex-1 p-4">
-                      <div className="space-y-4">
-                        {chatHistory.length === 0 ? (
-                          <div className="flex flex-col items-center justify-center py-8 text-gray-400">
-                            <Bot className="w-12 h-12 mb-4 opacity-30" />
-                            <p className="text-base font-medium text-gray-600">CircuMetal AI Assistant</p>
-                            <p className="text-sm mt-1 text-gray-400">Ask about LCA, circularity, or environmental analysis</p>
-                            
-                            {/* Suggested Questions */}
-                            <div className="mt-6 w-full max-w-md">
-                              <p className="text-xs text-gray-400 mb-3 text-center">Suggested questions</p>
-                              <div className="space-y-2">
-                                {[
-                                  "What is Life Cycle Assessment (LCA)?",
-                                  "Explain the Material Circularity Indicator (MCI)",
-                                  "How does the multi-agent system work?",
-                                  "What environmental impacts are calculated?"
-                                ].map((question) => (
-                                  <button
-                                    key={question}
-                                    onClick={() => {
-                                      setChatMessage(question)
-                                      setTimeout(() => handleSendChat(), 100)
-                                    }}
-                                    className="w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-colors text-sm text-gray-700"
-                                  >
-                                    {question}
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
+                <TabsContent value="chat" className="m-0 flex-1 flex flex-col overflow-hidden">
+                  <ScrollArea className="flex-1 p-6">
+                    <div className="space-y-6">
+                      {chatHistory.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-12">
+                          <div className="w-20 h-20 bg-gradient-to-br from-green-100 to-emerald-50 rounded-3xl flex items-center justify-center mb-6 shadow-sm rotate-3 transition-transform hover:rotate-0 duration-500">
+                            <Bot className="w-10 h-10 text-green-600" />
                           </div>
-                        ) : (
-                          chatHistory.map((msg, idx) => (
-                            <div
-                              key={idx}
-                              className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-                            >
-                              <div
-                                className={`max-w-[85%] p-4 rounded-xl ${
-                                  msg.role === "user"
-                                    ? "bg-gray-900 text-white"
-                                    : "bg-gray-50 text-gray-800 border border-gray-100"
-                                }`}
+                          <h3 className="text-xl font-bold text-slate-900 mb-2">How can I help you?</h3>
+                          <p className="text-slate-500 text-sm text-center max-w-xs mb-8">
+                            I can analyze LCA data, explain circularity metrics, or help you interpret results.
+                          </p>
+                          
+                          {/* Suggested Questions */}
+                          <div className="grid grid-cols-2 gap-3 w-full max-w-lg">
+                            {[
+                              "What is Life Cycle Assessment?",
+                              "Explain Material Circularity",
+                              "How does the system work?",
+                              "Analyze environmental impact"
+                            ].map((question, i) => (
+                              <button
+                                key={question}
+                                onClick={() => {
+                                  setChatMessage(question)
+                                  setTimeout(() => handleSendChat(), 100)
+                                }}
+                                className="text-left px-4 py-3 rounded-xl border border-slate-100 bg-white hover:border-green-200 hover:bg-green-50/50 hover:shadow-sm transition-all duration-300 text-sm text-slate-600 group"
                               >
-                                {msg.role === "agent" && (
-                                  <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-200">
-                                    <Bot className="w-4 h-4 text-gray-500" />
-                                    <p className="text-xs font-medium text-gray-600">{msg.agent}</p>
-                                    {msg.isStreaming && (
-                                      <span className="ml-auto flex items-center gap-1 text-xs text-blue-500">
-                                        <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />
-                                        typing
-                                      </span>
-                                    )}
+                                <span className="block text-xs text-green-500 mb-1 opacity-0 group-hover:opacity-100 transition-opacity">Suggestion</span>
+                                {question}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      ) : (
+                        chatHistory.map((msg, idx) => (
+                          <div
+                            key={idx}
+                            className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} animate-in fade-in slide-in-from-bottom-2 duration-300`}
+                          >
+                            <div
+                              className={`max-w-[85%] p-5 rounded-2xl shadow-sm ${
+                                msg.role === "user"
+                                  ? "bg-slate-900 text-white rounded-tr-none"
+                                  : "bg-white text-slate-800 border border-slate-100 rounded-tl-none"
+                              }`}
+                            >
+                              {msg.role === "agent" && (
+                                <div className="flex items-center gap-2 mb-3 pb-2 border-b border-slate-100">
+                                  <div className="p-1 bg-green-100 rounded-lg">
+                                    <Bot className="w-3 h-3 text-green-600" />
                                   </div>
-                                )}
-                                <div className="text-sm leading-relaxed">
-                                  {msg.role === "agent" ? (
-                                    <div className="markdown-content">
-                                      {renderMarkdown(msg.message)}
-                                      {msg.isStreaming && (
-                                        <span className="inline-block w-1.5 h-4 bg-blue-500 animate-pulse ml-0.5 align-middle" />
-                                      )}
-                                    </div>
-                                  ) : (
-                                    <span>{msg.message}</span>
+                                  <p className="text-xs font-bold text-slate-700">{msg.agent}</p>
+                                  {msg.isStreaming && (
+                                    <span className="ml-auto flex items-center gap-1.5 text-[10px] font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
+                                      <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
+                                      GENERATING
+                                    </span>
                                   )}
                                 </div>
+                              )}
+                              <div className="text-sm leading-relaxed">
+                                {msg.role === "agent" ? (
+                                  <div className="markdown-content">
+                                    {renderMarkdown(msg.message)}
+                                    {msg.isStreaming && (
+                                      <span className="inline-block w-1.5 h-4 bg-green-500 animate-pulse ml-0.5 align-middle rounded-full" />
+                                    )}
+                                  </div>
+                                ) : (
+                                  <span>{msg.message}</span>
+                                )}
                               </div>
-                            </div>
-                          ))
-                        )}
-                        {isChatLoading && chatHistory.length > 0 && !chatHistory[chatHistory.length - 1]?.isStreaming && (
-                          <div className="flex justify-start">
-                            <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 flex items-center gap-3">
-                              <div className="flex gap-1">
-                                <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                                <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                                <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                              </div>
-                              <span className="text-sm text-gray-500">Thinking...</span>
                             </div>
                           </div>
-                        )}
-                        <div ref={chatEndRef} />
-                      </div>
-                    </ScrollArea>
-                    <div className="p-4 border-t border-gray-100 bg-gray-50/50">
-                      <div className="flex gap-3">
-                        <div className="flex-1 relative">
-                          <Input
-                            value={chatMessage}
-                            onChange={(e) => setChatMessage(e.target.value)}
-                            placeholder="Type your question here..."
-                            onKeyPress={(e) => e.key === "Enter" && !e.shiftKey && handleSendChat()}
-                            disabled={isChatLoading}
-                            className="w-full pr-4 py-3 border-gray-200 focus:border-gray-400 focus:ring-1 focus:ring-gray-200 rounded-lg bg-white"
-                          />
+                        ))
+                      )}
+                      {isChatLoading && chatHistory.length > 0 && !chatHistory[chatHistory.length - 1]?.isStreaming && (
+                        <div className="flex justify-start animate-in fade-in slide-in-from-bottom-2">
+                          <div className="bg-white p-4 rounded-2xl rounded-tl-none border border-slate-100 shadow-sm flex items-center gap-3">
+                            <div className="flex gap-1.5">
+                              <span className="w-2 h-2 bg-green-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                              <span className="w-2 h-2 bg-green-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                              <span className="w-2 h-2 bg-green-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                            </div>
+                            <span className="text-xs font-medium text-slate-400">Thinking...</span>
+                          </div>
                         </div>
-                        <Button 
-                          onClick={handleSendChat}
-                          disabled={!chatMessage.trim() || isChatLoading}
-                          className="bg-gray-900 hover:bg-gray-800 px-4 py-3 h-auto"
-                        >
-                          {isChatLoading ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <>
-                              <Send className="w-4 h-4 mr-2" />
-                              Send
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                      <p className="text-xs text-gray-400 mt-2 text-center">Press Enter to send • Powered by Gemini</p>
+                      )}
+                      <div ref={chatEndRef} />
                     </div>
+                  </ScrollArea>
+                  <div className="p-4 border-t border-slate-100 bg-white">
+                    <div className="flex gap-3">
+                      <div className="flex-1 relative group">
+                        <div className="absolute -inset-0.5 bg-gradient-to-r from-green-200 to-emerald-200 rounded-xl opacity-0 group-hover:opacity-50 transition duration-500 blur"></div>
+                        <Input
+                          value={chatMessage}
+                          onChange={(e) => setChatMessage(e.target.value)}
+                          placeholder="Ask anything about the analysis..."
+                          onKeyPress={(e) => e.key === "Enter" && !e.shiftKey && handleSendChat()}
+                          disabled={isChatLoading}
+                          className="relative w-full pr-4 py-6 border-slate-200 focus:border-green-400 focus:ring-2 focus:ring-green-100 rounded-xl bg-white shadow-sm text-base"
+                        />
+                      </div>
+                      <Button 
+                        onClick={handleSendChat}
+                        disabled={!chatMessage.trim() || isChatLoading}
+                        className="h-auto px-6 bg-slate-900 hover:bg-slate-800 rounded-xl shadow-lg shadow-slate-900/20 transition-all duration-300 hover:scale-105"
+                      >
+                        {isChatLoading ? (
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                          <Send className="w-5 h-5" />
+                        )}
+                      </Button>
+                    </div>
+                    <p className="text-[10px] text-slate-400 mt-3 text-center flex items-center justify-center gap-1">
+                      <Sparkles className="w-3 h-3 text-green-500" />
+                      Powered by Gemini 2.5 Flash
+                    </p>
                   </div>
                 </TabsContent>
 
                 {/* Reports Tab */}
-                <TabsContent value="reports" className="m-0">
-                  <ScrollArea className="h-[420px]">
-                    <div className="p-4 space-y-2">
+                <TabsContent value="reports" className="m-0 flex-1 overflow-hidden">
+                  <ScrollArea className="h-full">
+                    <div className="p-6 space-y-4">
                       {!reportsData?.reports?.length ? (
-                        <div className="flex flex-col items-center justify-center py-16 text-gray-400">
-                          <FileText className="w-10 h-10 mb-3 opacity-30" />
-                          <p className="text-sm">No reports yet</p>
-                          <p className="text-xs mt-1">Run an analysis to generate reports</p>
+                        <div className="flex flex-col items-center justify-center py-24 text-slate-300">
+                          <div className="p-4 bg-slate-50 rounded-full mb-4">
+                            <FileText className="w-8 h-8" />
+                          </div>
+                          <p className="text-sm font-medium text-slate-500">No Reports Available</p>
+                          <p className="text-xs mt-1">Completed analyses will appear here</p>
                         </div>
                       ) : (
                         reportsData.reports.map((report: Report) => (
                           <div
                             key={report.id}
-                            className="p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
+                            className="p-5 rounded-xl bg-white border border-slate-100 hover:border-green-200 hover:shadow-md transition-all duration-300 group"
                           >
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <p className="text-sm font-medium text-gray-900">
-                                  Report {report.run_id.slice(0, 8)}
-                                </p>
-                                <p className="text-xs text-gray-500 mt-0.5">
-                                  {new Date(report.created_at).toLocaleDateString()} at {new Date(report.created_at).toLocaleTimeString()}
-                                </p>
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center gap-3">
+                                <div className="p-2 bg-green-50 rounded-lg text-green-600 group-hover:bg-green-100 transition-colors">
+                                  <FileText className="w-5 h-5" />
+                                </div>
+                                <div>
+                                  <p className="text-sm font-bold text-slate-900">
+                                    Analysis Report
+                                  </p>
+                                  <p className="text-xs text-slate-500 font-mono mt-0.5">
+                                    ID: {report.run_id.slice(0, 8)}
+                                  </p>
+                                </div>
                               </div>
                               <div className="flex items-center gap-1">
                                 <Button
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => downloadReport(report, 'md')}
-                                  className="text-gray-500 hover:text-gray-700"
+                                  className="text-slate-400 hover:text-green-600 hover:bg-green-50"
                                 >
                                   <FileDown className="w-4 h-4" />
                                 </Button>
@@ -982,18 +1029,33 @@ export default function AgentsInterface({ onBack }: AgentsInterfaceProps) {
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => downloadReport(report, 'json')}
-                                  className="text-gray-500 hover:text-gray-700"
+                                  className="text-slate-400 hover:text-green-600 hover:bg-green-50"
                                 >
                                   <Download className="w-4 h-4" />
                                 </Button>
                               </div>
                             </div>
+                            
+                            <div className="flex items-center gap-4 text-xs text-slate-500 mb-3">
+                              <span className="flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                {new Date(report.created_at).toLocaleDateString()}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <CheckCircle className="w-3 h-3 text-green-500" />
+                                Completed
+                              </span>
+                            </div>
+
                             {report.key_takeaways && report.key_takeaways.length > 0 && (
-                              <div className="mt-2 pt-2 border-t border-gray-200">
-                                <p className="text-xs text-gray-500 mb-1">Key Takeaways:</p>
-                                <ul className="text-xs text-gray-600 space-y-0.5">
+                              <div className="pt-3 border-t border-slate-50">
+                                <p className="text-xs font-medium text-slate-700 mb-2">Key Findings:</p>
+                                <ul className="space-y-1.5">
                                   {report.key_takeaways.slice(0, 2).map((takeaway, i) => (
-                                    <li key={i} className="truncate">• {takeaway}</li>
+                                    <li key={i} className="text-xs text-slate-600 flex items-start gap-2">
+                                      <span className="w-1 h-1 rounded-full bg-green-400 mt-1.5 shrink-0" />
+                                      <span className="line-clamp-1">{takeaway}</span>
+                                    </li>
                                   ))}
                                 </ul>
                               </div>
@@ -1012,33 +1074,35 @@ export default function AgentsInterface({ onBack }: AgentsInterfaceProps) {
 
       {/* Project Selection Dialog */}
       <Dialog open={showProjectDialog} onOpenChange={setShowProjectDialog}>
-        <DialogContent className="bg-white max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <FolderOpen className="w-5 h-5 text-gray-500" />
-              Select Project
-            </DialogTitle>
-            <DialogDescription>
-              Choose a project to run LCA analysis
-            </DialogDescription>
-          </DialogHeader>
+        <DialogContent className="bg-white max-w-md border-none shadow-2xl rounded-2xl p-0 overflow-hidden">
+          <div className="bg-slate-50 p-6 border-b border-slate-100">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-xl font-bold text-slate-900">
+                <FolderOpen className="w-5 h-5 text-green-600" />
+                Select Project
+              </DialogTitle>
+              <DialogDescription className="text-slate-500">
+                Choose a project configuration to start the analysis
+              </DialogDescription>
+            </DialogHeader>
+          </div>
           
-          <div className="py-4">
+          <div className="p-6">
             <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full h-12 rounded-xl border-slate-200 focus:ring-green-100 focus:border-green-400">
                 <SelectValue placeholder="Select a project..." />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="rounded-xl border-slate-100 shadow-lg">
                 {projectsLoading ? (
-                  <div className="p-3 text-center text-gray-500 text-sm">Loading...</div>
+                  <div className="p-4 text-center text-slate-500 text-sm">Loading projects...</div>
                 ) : projectsData?.projects?.length === 0 ? (
-                  <div className="p-3 text-center text-gray-500 text-sm">No projects found</div>
+                  <div className="p-4 text-center text-slate-500 text-sm">No projects found</div>
                 ) : (
                   projectsData?.projects?.map((project: Project) => (
-                    <SelectItem key={project.id} value={project.id}>
+                    <SelectItem key={project.id} value={project.id} className="py-3 focus:bg-green-50 focus:text-green-900 cursor-pointer">
                       <div>
                         <p className="font-medium">{project.name}</p>
-                        <p className="text-xs text-gray-500">{project.material || 'No material'}</p>
+                        <p className="text-xs text-slate-500 mt-0.5">{project.material || 'No material specified'}</p>
                       </div>
                     </SelectItem>
                   ))
@@ -1047,29 +1111,31 @@ export default function AgentsInterface({ onBack }: AgentsInterfaceProps) {
             </Select>
             
             {selectedProjectId && getSelectedProject() && (
-              <div className="mt-4 p-3 rounded-lg bg-gray-50">
-                <p className="text-sm font-medium text-gray-900">{getSelectedProject()?.name}</p>
-                <p className="text-xs text-gray-500 mt-1">{getSelectedProject()?.description}</p>
-                {getSelectedProject()?.material && (
-                  <Badge variant="secondary" className="mt-2 text-xs">
-                    {getSelectedProject()?.material}
-                  </Badge>
-                )}
+              <div className="mt-4 p-4 rounded-xl bg-green-50/50 border border-green-100 animate-in fade-in slide-in-from-top-2">
+                <div className="flex items-start justify-between mb-2">
+                  <p className="text-sm font-bold text-slate-900">{getSelectedProject()?.name}</p>
+                  {getSelectedProject()?.material && (
+                    <Badge variant="secondary" className="bg-white text-green-700 border border-green-100 shadow-sm">
+                      {getSelectedProject()?.material}
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-xs text-slate-600 leading-relaxed">{getSelectedProject()?.description}</p>
               </div>
             )}
           </div>
           
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowProjectDialog(false)}>
+          <DialogFooter className="p-6 bg-slate-50 border-t border-slate-100">
+            <Button variant="ghost" onClick={() => setShowProjectDialog(false)} className="hover:bg-slate-200/50 text-slate-600">
               Cancel
             </Button>
             <Button 
               onClick={handleStartOrchestration}
               disabled={!selectedProjectId}
-              className="bg-gray-900 hover:bg-gray-800"
+              className="bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-600/20 px-6 rounded-lg"
             >
               <Play className="w-4 h-4 mr-2" />
-              Start
+              Start Analysis
             </Button>
           </DialogFooter>
         </DialogContent>

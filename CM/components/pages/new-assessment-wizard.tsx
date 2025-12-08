@@ -168,27 +168,27 @@ export default function NewAssessmentWizard({ onComplete }: NewAssessmentWizardP
   }
 
   return (
-    <div className="min-h-screen bg-background p-8">
+    <div className="h-full bg-gradient-to-br from-white via-emerald-50/20 to-white p-8 overflow-auto">
       <div className="max-w-3xl mx-auto">
         {/* Header */}
-        <div className="mb-12">
-          <h1 className="text-3xl font-bold text-foreground">New Assessment</h1>
-          <p className="text-muted-foreground mt-2">Create a new LCA project in 3 steps</p>
+        <div className="mb-12 animate-fade-in">
+          <h1 className="text-3xl font-bold text-slate-800 tracking-tight">New Assessment</h1>
+          <p className="text-slate-500 mt-1 font-medium">Create a new LCA project in 3 steps</p>
         </div>
 
         {/* Progress */}
-        <div className="mb-12">
+        <div className="mb-12 animate-slide-up" style={{ animationDelay: '100ms' }}>
           <div className="flex items-center gap-4">
             {steps.map((s, idx) => (
               <div key={s.number} className="flex items-center gap-4">
                 <div
-                  className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold transition-all ${step >= s.number ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"
+                  className={`w-11 h-11 rounded-xl flex items-center justify-center font-bold transition-all duration-300 ${step >= s.number ? "bg-gradient-to-r from-emerald-500 to-green-500 text-white shadow-lg shadow-emerald-500/30" : "bg-slate-100 text-slate-400"
                     }`}
                 >
                   {s.number}
                 </div>
                 {idx < steps.length - 1 && (
-                  <div className={`w-8 h-1 transition-colors ${step > s.number ? "bg-primary" : "bg-secondary"}`} />
+                  <div className={`w-8 h-1 rounded-full transition-colors duration-300 ${step > s.number ? "bg-emerald-500" : "bg-slate-200"}`} />
                 )}
               </div>
             ))}
@@ -196,27 +196,27 @@ export default function NewAssessmentWizard({ onComplete }: NewAssessmentWizardP
           <div className="mt-4 flex gap-12">
             {steps.map((s) => (
               <div key={s.number}>
-                <p className="font-semibold text-foreground text-sm">{s.title}</p>
-                <p className="text-xs text-muted-foreground">{s.description}</p>
+                <p className="font-semibold text-slate-700 text-sm">{s.title}</p>
+                <p className="text-xs text-slate-400">{s.description}</p>
               </div>
             ))}
           </div>
         </div>
 
         {/* Step Content */}
-        <Card className="p-8 bg-card border-border mb-8">
+        <Card className="p-8 bg-white border-slate-100 mb-8 rounded-2xl shadow-sm animate-scale-in" style={{ animationDelay: '200ms' }}>
           {step === 1 && <WizardStep1 formData={formData} setFormData={setFormData} />}
           {step === 2 && <WizardStep2 formData={formData} setFormData={setFormData} />}
           {step === 3 && <WizardStep3 formData={formData} setFormData={setFormData} />}
         </Card>
 
         {/* Actions */}
-        <div className="flex justify-between gap-4">
+        <div className="flex justify-between gap-4 animate-slide-up" style={{ animationDelay: '300ms' }}>
           <Button
             onClick={handleBack}
             variant="outline"
             disabled={step === 1}
-            className="border-border text-foreground hover:bg-secondary bg-transparent disabled:opacity-50"
+            className="border-slate-200 text-slate-600 hover:bg-slate-50 bg-white rounded-xl disabled:opacity-50 transition-all"
           >
             <ChevronLeft className="w-4 h-4 mr-2" />
             Back
@@ -224,7 +224,7 @@ export default function NewAssessmentWizard({ onComplete }: NewAssessmentWizardP
           <Button
             onClick={handleNext}
             disabled={!isStepValid}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white rounded-xl shadow-lg shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-[1.02]"
           >
             {step === 3 ? "Create Assessment" : "Continue"}
             {step !== 3 && <ChevronRight className="w-4 h-4 ml-2" />}

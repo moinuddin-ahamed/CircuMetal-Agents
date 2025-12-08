@@ -44,52 +44,52 @@ export default function AIPredictionLog() {
   }
 
   return (
-    <div className="p-8 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">AI Predictions Log</h1>
-        <p className="text-muted-foreground mt-1">Track all AI-assisted parameter predictions</p>
+    <div className="h-full bg-gradient-to-br from-white via-green-50/30 to-white p-8 space-y-6 overflow-auto">
+      <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <h1 className="text-3xl font-bold text-slate-800">AI Predictions Log</h1>
+        <p className="text-slate-500 mt-1">Track all AI-assisted parameter predictions</p>
       </div>
 
-      <Card className="border-border bg-card overflow-hidden">
+      <Card className="border-green-100/50 bg-white/80 backdrop-blur-sm overflow-hidden rounded-2xl shadow-lg">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow className="border-border hover:bg-transparent">
-                <TableHead className="text-muted-foreground">Parameter</TableHead>
-                <TableHead className="text-muted-foreground">Predicted Value</TableHead>
-                <TableHead className="text-muted-foreground">Source Stage</TableHead>
-                <TableHead className="text-muted-foreground">Confidence</TableHead>
-                <TableHead className="text-muted-foreground">Model Version</TableHead>
-                <TableHead className="text-muted-foreground">Project</TableHead>
-                <TableHead className="text-muted-foreground text-center">Overridden</TableHead>
+              <TableRow className="border-green-100 hover:bg-transparent">
+                <TableHead className="text-slate-500">Parameter</TableHead>
+                <TableHead className="text-slate-500">Predicted Value</TableHead>
+                <TableHead className="text-slate-500">Source Stage</TableHead>
+                <TableHead className="text-slate-500">Confidence</TableHead>
+                <TableHead className="text-slate-500">Model Version</TableHead>
+                <TableHead className="text-slate-500">Project</TableHead>
+                <TableHead className="text-slate-500 text-center">Overridden</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {predictionLogs.length > 0 ? (
                 predictionLogs.slice(0, 20).map((log, idx) => (
-                  <TableRow key={idx} className="border-border hover:bg-secondary/30">
-                    <TableCell className="font-medium text-foreground">{log.parameter}</TableCell>
-                    <TableCell className="text-foreground">
+                  <TableRow key={idx} className="border-green-100 hover:bg-green-50/50 transition-colors">
+                    <TableCell className="font-medium text-slate-800">{log.parameter}</TableCell>
+                    <TableCell className="text-slate-800">
                       {log.predictedValue} {log.unit}
                     </TableCell>
-                    <TableCell className="text-muted-foreground">{log.sourceStage}</TableCell>
+                    <TableCell className="text-slate-500">{log.sourceStage}</TableCell>
                     <TableCell>
                       <Badge className={`${confidenceColor(log.confidence)} border-0`}>{log.confidence}</Badge>
                     </TableCell>
-                    <TableCell className="text-muted-foreground text-sm">{log.modelVersion}</TableCell>
-                    <TableCell className="text-muted-foreground text-sm">{log.projectName}</TableCell>
+                    <TableCell className="text-slate-500 text-sm">{log.modelVersion}</TableCell>
+                    <TableCell className="text-slate-500 text-sm">{log.projectName}</TableCell>
                     <TableCell className="text-center">
                       {log.overridden ? (
-                        <CheckCircle className="w-4 h-4 text-primary inline" />
+                        <CheckCircle className="w-4 h-4 text-green-600 inline" />
                       ) : (
-                        <Circle className="w-4 h-4 text-muted-foreground inline" />
+                        <Circle className="w-4 h-4 text-slate-400 inline" />
                       )}
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={7} className="text-center py-8 text-slate-500">
                     No AI predictions yet. Start by creating an assessment with missing parameters.
                   </TableCell>
                 </TableRow>

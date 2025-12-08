@@ -87,8 +87,8 @@ export default function ScenarioBuilder({
   }
 
   return (
-    <div className="min-h-screen bg-background p-8">
-      <div className="max-w-4xl mx-auto">
+    <div className="h-full bg-gradient-to-br from-white via-green-50/30 to-white p-8 overflow-auto">
+      <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -96,24 +96,31 @@ export default function ScenarioBuilder({
               variant="ghost"
               size="sm"
               onClick={onBack}
-              className="mb-2 text-muted-foreground hover:text-foreground"
+              className="mb-2 text-slate-500 hover:text-green-700 hover:bg-green-50 transition-all duration-300"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
             </Button>
-            <h1 className="text-3xl font-bold text-foreground">Scenario Configuration</h1>
-            <p className="text-muted-foreground mt-2">
-              Configure analysis parameters and run the multi-agent LCA
-            </p>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-lg shadow-green-600/20">
+                <Recycle className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-slate-800">Scenario Configuration</h1>
+                <p className="text-slate-500 mt-1">
+                  Configure analysis parameters and run the multi-agent LCA
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Scenario Configuration */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Circularity Settings */}
-          <Card className="p-6 bg-card border-border">
+          <Card className="p-6 bg-white/80 backdrop-blur-sm border-green-100/50 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl">
             <div className="flex items-center gap-2 mb-6">
-              <Recycle className="w-5 h-5 text-primary" />
+              <Recycle className="w-5 h-5 text-green-600" />
               <h2 className="text-lg font-semibold text-foreground">Circularity Parameters</h2>
             </div>
 

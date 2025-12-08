@@ -1,6 +1,6 @@
 "use client"
 
-import { MoreVertical } from "lucide-react"
+import { MoreVertical, ArrowUpRight } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
@@ -20,18 +20,18 @@ interface ProjectCardProps {
 
 export default function ProjectCard({ project, onOpen }: ProjectCardProps) {
   const statusColors = {
-    completed: "bg-primary/20 text-primary",
-    "in-progress": "bg-accent/20 text-accent",
-    draft: "bg-muted text-muted-foreground",
+    completed: "bg-emerald-100 text-emerald-700 border-emerald-200",
+    "in-progress": "bg-blue-100 text-blue-700 border-blue-200",
+    draft: "bg-slate-100 text-slate-600 border-slate-200",
   }
 
   const circularityScore = Math.round(project.recycledContent * 0.6 + (100 - project.gwp) * 0.4)
   const getCircularityGrade = (score: number) => {
-    if (score >= 85) return { grade: "A+", color: "bg-emerald-500/20 text-emerald-700" }
-    if (score >= 75) return { grade: "A", color: "bg-emerald-500/20 text-emerald-700" }
-    if (score >= 65) return { grade: "B", color: "bg-blue-500/20 text-blue-700" }
-    if (score >= 50) return { grade: "C", color: "bg-amber-500/20 text-amber-700" }
-    return { grade: "D", color: "bg-red-500/20 text-red-700" }
+    if (score >= 85) return { grade: "A+", color: "bg-emerald-100 text-emerald-700" }
+    if (score >= 75) return { grade: "A", color: "bg-emerald-100 text-emerald-700" }
+    if (score >= 65) return { grade: "B", color: "bg-blue-100 text-blue-700" }
+    if (score >= 50) return { grade: "C", color: "bg-amber-100 text-amber-700" }
+    return { grade: "D", color: "bg-red-100 text-red-700" }
   }
 
   const grade = getCircularityGrade(circularityScore)
@@ -39,57 +39,62 @@ export default function ProjectCard({ project, onOpen }: ProjectCardProps) {
 
   return (
     <Card
-      className="p-6 bg-card hover:border-primary/50 transition-all cursor-pointer border border-border"
+      className="p-5 bg-white hover:shadow-xl hover:shadow-emerald-500/10 hover:border-emerald-200 transition-all duration-300 cursor-pointer border border-slate-100 rounded-2xl group hover:-translate-y-1"
       onClick={onOpen}
     >
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
-          <h3 className="font-semibold text-foreground text-base">{project.name}</h3>
-          <p className="text-xs text-muted-foreground mt-1">{project.region}</p>
+          <h3 className="font-semibold text-slate-800 text-base group-hover:text-emerald-700 transition-colors">{project.name}</h3>
+          <p className="text-xs text-slate-500 mt-1 font-medium">{project.region}</p>
         </div>
-        <button className="text-muted-foreground hover:text-foreground p-1">
-          <MoreVertical className="w-4 h-4" />
+        <button className="text-slate-300 hover:text-emerald-500 p-1.5 rounded-lg hover:bg-emerald-50 transition-all opacity-0 group-hover:opacity-100">
+          <ArrowUpRight className="w-4 h-4" />
         </button>
       </div>
 
       {/* Metal & Status */}
-      <div className="flex gap-2 mb-4">
-        <Badge variant="secondary" className="text-xs">
+      <div className="flex gap-2 mb-4 flex-wrap">
+        <Badge variant="secondary" className="text-xs bg-slate-100 text-slate-600 border-0 font-medium">
           {project.metal}
         </Badge>
-        <Badge className={`${statusColors[project.status as keyof typeof statusColors]} text-xs`}>
+        <Badge className={`${statusColors[project.status as keyof typeof statusColors]} text-xs border font-medium`}>
           {project.status}
         </Badge>
-        {isMissingData && <Badge className="bg-amber-500/20 text-amber-700 text-xs">Missing Data</Badge>}
+        {isMissingData && <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-xs border font-medium">Missing Data</Badge>}
       </div>
 
       {/* Metrics */}
-      <div className="space-y-3 pt-4 border-t border-border">
+      <div className="space-y-3 pt-4 border-t border-slate-100">
         <div className="flex justify-between items-center">
-          <span className="text-xs text-muted-foreground font-medium">GWP (kg CO₂e/unit)</span>
-          <span className="font-semibold text-foreground text-sm">{project.gwp}</span>
+          <span className="text-xs text-slate-500 font-medium">GWP (kg CO₂e/unit)</span>
+          <span className="font-semibold text-slate-800 text-sm">{project.gwp}</span>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-xs text-muted-foreground font-medium">Recycled Content</span>
+          <span className="text-xs text-slate-500 font-medium">Recycled Content</span>
           <div className="flex items-center gap-2">
-            <div className="w-20 h-1.5 bg-secondary rounded-full overflow-hidden">
-              <div className="h-full bg-accent rounded-full" style={{ width: `${project.recycledContent}%` }} />
+            <div className="w-20 h-2 bg-slate-100 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-gradient-to-r from-emerald-400 to-green-500 rounded-full transition-all duration-500" 
+                style={{ width: `${project.recycledContent}%` }} 
+              />
             </div>
-            <span className="text-xs font-medium text-foreground">{project.recycledContent}%</span>
+            <span className="text-xs font-semibold text-slate-700">{project.recycledContent}%</span>
           </div>
         </div>
 
-        <div className="flex justify-between items-center pt-2 border-t border-border/50">
+        <div className="flex justify-between items-center pt-3 border-t border-slate-50">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <span className="text-xs text-muted-foreground font-medium cursor-help">Circularity Score</span>
+                <span className="text-xs text-slate-500 font-medium cursor-help">Circularity Score</span>
               </TooltipTrigger>
-              <TooltipContent>Based on recycled content (60%) and low GWP (40%)</TooltipContent>
+              <TooltipContent className="bg-slate-800 text-white text-xs rounded-lg">
+                Based on recycled content (60%) and low GWP (40%)
+              </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          <div className={`px-2 py-1 rounded font-bold text-sm ${grade.color}`}>{grade.grade}</div>
+          <div className={`px-2.5 py-1 rounded-lg font-bold text-sm ${grade.color}`}>{grade.grade}</div>
         </div>
       </div>
     </Card>

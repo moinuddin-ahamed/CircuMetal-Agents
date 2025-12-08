@@ -44,19 +44,24 @@ export default function ComparisonView({ onNavigate }: ComparisonViewProps) {
   const wasteReduction = (((results1.waste - results2.waste) / results1.waste) * 100).toFixed(1)
 
   return (
-    <div className="p-8 space-y-8">
+    <div className="h-full bg-gradient-to-br from-white via-green-50/30 to-white p-8 space-y-8 overflow-auto">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Scenario Comparison</h1>
-          <p className="text-muted-foreground mt-1">
-            {currentScenario.name} vs {selectedScenario2.name}
-          </p>
+      <div className="flex items-center justify-between animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-lg shadow-green-600/20">
+            <ArrowLeft className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-slate-800">Scenario Comparison</h1>
+            <p className="text-slate-500 mt-1">
+              {currentScenario.name} vs {selectedScenario2.name}
+            </p>
+          </div>
         </div>
         <Button
           variant="outline"
           onClick={() => onNavigate("results")}
-          className="border-border text-foreground bg-transparent gap-2"
+          className="border-green-200 text-slate-700 bg-white hover:bg-green-50 hover:border-green-300 gap-2 transition-all duration-300"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Results
@@ -82,17 +87,17 @@ export default function ComparisonView({ onNavigate }: ComparisonViewProps) {
             change: `↓ ${(results1.waste - results2.waste).toFixed(1)}%`,
           },
         ].map((item) => (
-          <Card key={item.label} className="p-6 bg-primary/10 border border-primary/30">
-            <p className="text-sm text-muted-foreground mb-1">{item.label}</p>
-            <p className="text-2xl font-bold text-accent">{item.value}</p>
-            <p className="text-xs text-accent mt-2">{item.change}</p>
+          <Card key={item.label} className="p-6 bg-green-50/50 border border-green-200/50 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
+            <p className="text-sm text-slate-500 mb-1">{item.label}</p>
+            <p className="text-2xl font-bold text-green-600">{item.value}</p>
+            <p className="text-xs text-green-600 mt-2">{item.change}</p>
           </Card>
         ))}
       </div>
 
       {/* Comparison Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <Card className="p-6 bg-card border-border">
+        <Card className="p-6 bg-white/80 backdrop-blur-sm border-green-100/50 rounded-2xl shadow-lg">
           <h2 className="text-lg font-semibold text-foreground mb-4">Environmental Impact Comparison</h2>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={comparisonData}>

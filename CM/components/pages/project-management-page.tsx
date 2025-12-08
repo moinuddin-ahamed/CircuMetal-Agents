@@ -252,34 +252,38 @@ export default function ProjectManagementPage({
   }
 
   return (
-    <div className="min-h-screen bg-background p-8">
+    <div className="h-full bg-gradient-to-br from-white via-emerald-50/20 to-white p-8 overflow-auto">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-8 animate-fade-in">
           <div>
             <Button
               variant="ghost"
               size="sm"
               onClick={onBack}
-              className="mb-2 text-muted-foreground hover:text-foreground"
+              className="mb-2 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Dashboard
             </Button>
-            <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
-              <Folder className="w-8 h-8 text-primary" />
-              Project Management
-            </h1>
-            <p className="text-muted-foreground mt-2">
-              Organize your LCA assessments into projects
-            </p>
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center">
+                <Folder className="w-6 h-6 text-emerald-600" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Project Management</h1>
+                <p className="text-slate-500 mt-0.5 font-medium">
+                  Organize your LCA assessments into projects
+                </p>
+              </div>
+            </div>
           </div>
           <div className="flex gap-3">
-            <Button variant="outline" onClick={() => refetch()} className="gap-2">
+            <Button variant="outline" onClick={() => refetch()} className="gap-2 border-slate-200 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700 rounded-xl transition-all">
               <RefreshCw className="w-4 h-4" />
               Refresh
             </Button>
-            <Button onClick={handleCreateClick} className="gap-2">
+            <Button onClick={handleCreateClick} className="gap-2 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white rounded-xl shadow-lg shadow-emerald-500/25 transition-all hover:scale-[1.02]">
               <Plus className="w-4 h-4" />
               New Project
             </Button>
@@ -287,18 +291,18 @@ export default function ProjectManagementPage({
         </div>
 
         {/* Search and Stats */}
-        <Card className="p-4 bg-card border-border mb-6">
+        <Card className="p-5 bg-white border-slate-100 mb-6 rounded-2xl shadow-sm animate-slide-up" style={{ animationDelay: '100ms' }}>
           <div className="flex items-center gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <Input
                 placeholder="Search projects by name, material, or description..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-background"
+                className="pl-11 h-11 bg-slate-50 border-slate-100 rounded-xl focus:border-emerald-300 focus:ring-emerald-100"
               />
             </div>
-            <Badge variant="secondary" className="px-3 py-1">
+            <Badge variant="secondary" className="px-4 py-1.5 bg-emerald-50 text-emerald-700 border-0 font-medium">
               {filteredProjects.length} projects
             </Badge>
           </div>
@@ -307,7 +311,7 @@ export default function ProjectManagementPage({
         {/* Projects Grid */}
         {isLoading ? (
           <div className="flex items-center justify-center py-16">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
             <span className="ml-3 text-muted-foreground">Loading projects...</span>
           </div>
         ) : error ? (

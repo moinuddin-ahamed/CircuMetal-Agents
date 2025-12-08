@@ -110,8 +110,8 @@ export default function InventoryInputPage({ projectId, onComplete, onBack }: In
   }
 
   return (
-    <div className="min-h-screen bg-background p-8">
-      <div className="max-w-4xl mx-auto">
+    <div className="h-full bg-gradient-to-br from-white via-green-50/30 to-white p-8 overflow-auto">
+      <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -119,60 +119,67 @@ export default function InventoryInputPage({ projectId, onComplete, onBack }: In
               variant="ghost"
               size="sm"
               onClick={onBack}
-              className="mb-2 text-muted-foreground hover:text-foreground"
+              className="mb-2 text-slate-500 hover:text-green-700 hover:bg-green-50 transition-all duration-300"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
             </Button>
-            <h1 className="text-3xl font-bold text-foreground">New Inventory</h1>
-            <p className="text-muted-foreground mt-2">
-              Enter material inputs for LCA analysis
-            </p>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-lg shadow-green-600/20">
+                <FileSpreadsheet className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-slate-800">New Inventory</h1>
+                <p className="text-slate-500 mt-1">
+                  Enter material inputs for LCA analysis
+                </p>
+              </div>
+            </div>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" className="gap-2">
-              <FileSpreadsheet className="w-4 h-4" />
+            <Button variant="outline" className="gap-2 border-green-200 hover:bg-green-50 hover:border-green-300 transition-all duration-300">
+              <FileSpreadsheet className="w-4 h-4 text-green-600" />
               Import CSV
             </Button>
-            <Button variant="outline" className="gap-2">
-              <Upload className="w-4 h-4" />
+            <Button variant="outline" className="gap-2 border-green-200 hover:bg-green-50 hover:border-green-300 transition-all duration-300">
+              <Upload className="w-4 h-4 text-green-600" />
               Upload Excel
             </Button>
           </div>
         </div>
 
         {/* Basic Info */}
-        <Card className="p-6 bg-card border-border mb-6">
-          <h2 className="text-lg font-semibold text-foreground mb-4">Basic Information</h2>
+        <Card className="p-6 bg-white/80 backdrop-blur-sm border-green-100/50 shadow-lg rounded-2xl mb-6">
+          <h2 className="text-lg font-semibold text-slate-800 mb-4">Basic Information</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Inventory Name *</Label>
+              <Label htmlFor="name" className="text-slate-700">Inventory Name *</Label>
               <Input
                 id="name"
                 placeholder="e.g., Aluminum Slab Production Q1 2025"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="bg-background"
+                className="bg-white border-green-100 focus:border-green-400 focus:ring-green-400/20"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description" className="text-slate-700">Description</Label>
               <Input
                 id="description"
                 placeholder="Brief description of this inventory"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="bg-background"
+                className="bg-white border-green-100 focus:border-green-400 focus:ring-green-400/20"
               />
             </div>
           </div>
         </Card>
 
         {/* Material Items */}
-        <Card className="p-6 bg-card border-border mb-6">
+        <Card className="p-6 bg-white/80 backdrop-blur-sm border-green-100/50 shadow-lg rounded-2xl mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-foreground">Material Inputs</h2>
-            <Button onClick={addItem} size="sm" className="gap-2">
+            <h2 className="text-lg font-semibold text-slate-800">Material Inputs</h2>
+            <Button onClick={addItem} size="sm" className="gap-2 bg-green-600 hover:bg-green-700 shadow-lg shadow-green-600/20 transition-all duration-300">
               <Plus className="w-4 h-4" />
               Add Item
             </Button>

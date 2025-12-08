@@ -33,16 +33,16 @@ export default function ProjectDetailPage({
   const hasScenarios = project.scenarios && project.scenarios.length > 0
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="h-full bg-gradient-to-br from-white via-green-50/30 to-white p-8 space-y-6 overflow-auto">
       {/* Header with back button */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between animate-in fade-in slide-in-from-bottom-4 duration-500">
         <div className="flex items-center gap-4">
-          <button onClick={() => onNavigate("projects")} className="p-2 hover:bg-muted rounded-lg transition-colors">
-            <ArrowLeft className="w-4 h-4 text-muted-foreground" />
+          <button onClick={() => onNavigate("projects")} className="p-2 hover:bg-green-50 rounded-lg transition-all duration-300">
+            <ArrowLeft className="w-4 h-4 text-slate-500" />
           </button>
           <div>
-            <h1 className="text-4xl font-bold text-foreground">{project.name}</h1>
-            <p className="text-muted-foreground mt-2">
+            <h1 className="text-4xl font-bold text-slate-800">{project.name}</h1>
+            <p className="text-slate-500 mt-2">
               {project.metal} • {project.region}
             </p>
           </div>
@@ -51,39 +51,39 @@ export default function ProjectDetailPage({
 
       {/* Project Info Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="p-4 bg-card border-border">
-          <p className="text-xs font-medium text-muted-foreground mb-1">Status</p>
-          <p className="text-lg font-semibold text-foreground capitalize">{project.status}</p>
+        <Card className="p-4 bg-white/80 backdrop-blur-sm border-green-100/50 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
+          <p className="text-xs font-medium text-slate-500 mb-1">Status</p>
+          <p className="text-lg font-semibold text-slate-800 capitalize">{project.status}</p>
         </Card>
-        <Card className="p-4 bg-card border-border">
-          <p className="text-xs font-medium text-muted-foreground mb-1">Metal Type</p>
-          <p className="text-lg font-semibold text-foreground">{project.metal}</p>
+        <Card className="p-4 bg-white/80 backdrop-blur-sm border-green-100/50 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
+          <p className="text-xs font-medium text-slate-500 mb-1">Metal Type</p>
+          <p className="text-lg font-semibold text-slate-800">{project.metal}</p>
         </Card>
-        <Card className="p-4 bg-card border-border">
-          <p className="text-xs font-medium text-muted-foreground mb-1">Region</p>
-          <p className="text-lg font-semibold text-foreground">{project.region}</p>
+        <Card className="p-4 bg-white/80 backdrop-blur-sm border-green-100/50 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
+          <p className="text-xs font-medium text-slate-500 mb-1">Region</p>
+          <p className="text-lg font-semibold text-slate-800">{project.region}</p>
         </Card>
-        <Card className="p-4 bg-card border-border">
-          <p className="text-xs font-medium text-muted-foreground mb-1">Created</p>
-          <p className="text-lg font-semibold text-foreground">{project.createdAt.toLocaleDateString()}</p>
+        <Card className="p-4 bg-white/80 backdrop-blur-sm border-green-100/50 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
+          <p className="text-xs font-medium text-slate-500 mb-1">Created</p>
+          <p className="text-lg font-semibold text-slate-800">{project.createdAt.toLocaleDateString()}</p>
         </Card>
       </div>
 
       {/* Scenarios */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-semibold text-foreground">Scenarios</h2>
-          <Button onClick={onCreateScenario} className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2">
+          <h2 className="text-2xl font-semibold text-slate-800">Scenarios</h2>
+          <Button onClick={onCreateScenario} className="bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-600/20 transition-all duration-300 gap-2">
             <Plus className="w-4 h-4" />
             Create Scenario
           </Button>
         </div>
 
         {!hasScenarios ? (
-          <Card className="p-8 bg-card border-border border-dashed text-center">
-            <h3 className="text-lg font-semibold text-foreground mb-2">No scenarios yet</h3>
-            <p className="text-muted-foreground mb-4">Create a scenario to start analysing this project.</p>
-            <Button onClick={onCreateScenario} className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2">
+          <Card className="p-8 bg-white/80 border-green-200/50 border-dashed text-center rounded-2xl">
+            <h3 className="text-lg font-semibold text-slate-800 mb-2">No scenarios yet</h3>
+            <p className="text-slate-500 mb-4">Create a scenario to start analysing this project.</p>
+            <Button onClick={onCreateScenario} className="bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-600/20 transition-all duration-300 gap-2">
               <Plus className="w-4 h-4" />
               Create Scenario
             </Button>
@@ -92,7 +92,7 @@ export default function ProjectDetailPage({
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {/* Scenario List */}
             <div className="space-y-2">
-              <p className="text-xs font-semibold text-muted-foreground mb-3">Scenarios ({project.scenarios.length})</p>
+              <p className="text-xs font-semibold text-slate-500 mb-3">Scenarios ({project.scenarios.length})</p>
               {project.scenarios.map((scenario) => (
                 <Card
                   key={scenario.id}
