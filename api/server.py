@@ -1779,6 +1779,27 @@ async def get_latest_visualization_endpoint(
     return visualization
 
 
+from circu_metal.agents.life_cycle_explorer_agent import LifeCycleExplorerAgent
+
+class LifeCycleExplorerRequest(BaseModel):
+    metal: str
+    ore_name: str
+    ore_grade: str
+
+@app.post("/api/life-cycle/generate")
+async def generate_life_cycle(request: LifeCycleExplorerRequest):
+    """Generate a complete life cycle assessment structure based on metal and ore inputs"""
+    try:
+        agent = LifeCycleExplorerAgent()
+        result = await agent.handle_async({
+            "metal": request.metal,
+            "ore_name": request.ore_name,
+            "ore_grade": request.ore_grade
+        })
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 # ============================================================================
 # Main Entry Point
 # ============================================================================

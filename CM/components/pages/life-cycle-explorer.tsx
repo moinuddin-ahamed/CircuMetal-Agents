@@ -17,6 +17,9 @@ import {
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 
+import { Input } from "@/components/ui/input"
+import { Loader2 } from "lucide-react"
+
 // Stage type color mappings for consistent theming
 const STAGE_COLORS = {
   extraction: { bg: 'bg-amber-500', light: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200' },
@@ -48,15 +51,70 @@ export default function LifeCycleExplorer() {
   const [showPredictions, setShowPredictions] = useState(false)
   const [selectedStageId, setSelectedStageId] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<'timeline' | 'metrics' | 'circular'>('timeline')
+  
+  // Custom Input State
+  const [customMetal, setCustomMetal] = useState("")
+  const [customOre, setCustomOre] = useState("")
+  const [customGrade, setCustomGrade] = useState("")
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [generatedRoute, setGeneratedRoute] = useState<ProcessingRoute | null>(null)
 
   const selectedMetal = METALS_DATA.find(m => m.id === selectedMetalId)
-  const selectedOre = selectedMetal?.ores.find(o => o.id === selectedOreId)
-  const selectedRoute = selectedOre?.processingRoutes.find(r => r.id === selectedRouteId) || selectedOre?.processingRoutes[0]
-  const selectedStage = selectedRoute?.stages.find(s => s.id === selectedStageId)
+  const selectedOre = selectedMetal?.ores?.find(o => o.id === selectedOreId)
+  // Use generated route if available, otherwise fallback to static data
+  const selectedRoute = generatedRoute || (selectedOre?.processingRoutes?.find(r => r.id === selectedRouteId) || selectedOre?.processingRoutes?.[0])
+  const selectedStage = selectedRoute?.stages?.find(s => s.id === selectedStageId)
+
+  const handleGenerate = async () => {
+    if (!customMetal || !customOre || !customGrade) return
+    
+    setIsGenerating(true)
+    setGeneratedRoute(null)
+    
+    try {
+      const response = await fetch('http://localhost:8000/api/life-cycle/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          metal: customMetal,
+          ore_name: customOre,
+          ore_grade: customGrade
+        })
+      })
+      
+      if (!response.ok) throw new Error('Failed to generate')
+      
+      const data = await response.json()
+      console.log("Generated route data:", data)
+      console.log("Data keys:", Object.keys(data))
+      console.log("Stages count:", data.stages?.length)
+      console.log("First stage:", data.stages?.[0])
+      
+      // Check if response is an error response from agent
+      if (data.status === "failure" || !data.stages) {
+        console.error("Agent returned error:", data.log || "Unknown error")
+        alert(`Generation failed: ${data.log || "No stages returned"}`)
+        return
+      }
+      
+      console.log("Setting generatedRoute with", data.stages.length, "stages")
+      setGeneratedRoute(data as ProcessingRoute)
+      if (data.stages && data.stages.length > 0) {
+        setSelectedStageId(data.stages[0].id)
+        console.log("Set selectedStageId to:", data.stages[0].id)
+      }
+      console.log("Generation complete, generatedRoute should be set")
+    } catch (error) {
+      console.error("Generation failed:", error)
+      alert(`Generation failed: ${error}`)
+    } finally {
+      setIsGenerating(false)
+    }
+  }
 
   // Calculate total metrics for the route
   const routeMetrics = useMemo(() => {
-    if (!selectedRoute) return null
+    if (!selectedRoute || !selectedRoute.stages) return null
     const stages = selectedRoute.stages
     const totalCarbon = stages.reduce((sum, s) => sum + (s.metrics?.carbonEmissions || 0), 0)
     const totalEnergy = stages.reduce((sum, s) => sum + (s.metrics?.energyConsumption || 0), 0)
@@ -70,7 +128,7 @@ export default function LifeCycleExplorer() {
   }, [selectedRoute])
 
   useEffect(() => {
-    if (selectedMetal && selectedMetal.ores.length > 0) {
+    if (selectedMetal && selectedMetal.ores && selectedMetal.ores.length > 0) {
       setSelectedOreId(selectedMetal.ores[0].id)
     } else {
       setSelectedOreId("")
@@ -78,7 +136,7 @@ export default function LifeCycleExplorer() {
   }, [selectedMetalId])
 
   useEffect(() => {
-    if (selectedOre && selectedOre.processingRoutes.length > 0) {
+    if (selectedOre && selectedOre.processingRoutes && selectedOre.processingRoutes.length > 0) {
       setSelectedRouteId(selectedOre.processingRoutes[0].id)
     } else {
       setSelectedRouteId("")
@@ -86,7 +144,7 @@ export default function LifeCycleExplorer() {
   }, [selectedOreId])
 
   useEffect(() => {
-    if (selectedRoute && selectedRoute.stages.length > 0) {
+    if (selectedRoute && selectedRoute.stages && selectedRoute.stages.length > 0 && !selectedStageId) {
       setSelectedStageId(selectedRoute.stages[0].id)
     }
   }, [selectedRoute])
@@ -114,69 +172,125 @@ export default function LifeCycleExplorer() {
 
       {/* Selection Controls */}
       <Card className="border-emerald-100 shadow-sm bg-white">
-        <CardContent className="p-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-emerald-700 uppercase tracking-wide">Metal</label>
-            <Select value={selectedMetalId} onValueChange={setSelectedMetalId}>
-              <SelectTrigger className="border-emerald-200 focus:ring-emerald-500">
-                <SelectValue placeholder="Select Metal" />
-              </SelectTrigger>
-              <SelectContent>
-                {METALS_DATA.filter(m => m.ores.length > 0 && m.ores.some(o => o.processingRoutes.length > 0)).map(metal => (
-                  <SelectItem key={metal.id} value={metal.id}>
-                    <span className="flex items-center gap-2">
-                      <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold flex items-center justify-center">
-                        {metal.symbol}
-                      </span>
-                      {metal.name}
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        <CardContent className="p-4">
+          <Tabs defaultValue="preset" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsTrigger value="preset">Preset Data</TabsTrigger>
+              <TabsTrigger value="custom">Custom Generation (AI)</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="preset" className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-emerald-700 uppercase tracking-wide">Metal</label>
+                <Select value={selectedMetalId} onValueChange={setSelectedMetalId}>
+                  <SelectTrigger className="border-emerald-200 focus:ring-emerald-500">
+                    <SelectValue placeholder="Select Metal" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {METALS_DATA.filter(m => m.ores && m.ores.length > 0 && m.ores.some(o => o.processingRoutes && o.processingRoutes.length > 0)).map(metal => (
+                      <SelectItem key={metal.id} value={metal.id}>
+                        <span className="flex items-center gap-2">
+                          <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold flex items-center justify-center">
+                            {metal.symbol}
+                          </span>
+                          {metal.name}
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-emerald-700 uppercase tracking-wide">Ore Type</label>
-            <Select value={selectedOreId} onValueChange={setSelectedOreId} disabled={!selectedMetal?.ores.length}>
-              <SelectTrigger className="border-emerald-200 focus:ring-emerald-500">
-                <SelectValue placeholder="Select Ore" />
-              </SelectTrigger>
-              <SelectContent>
-                {selectedMetal?.ores.filter(o => o.processingRoutes.length > 0).map(ore => (
-                  <SelectItem key={ore.id} value={ore.id}>{ore.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-emerald-700 uppercase tracking-wide">Ore Type</label>
+                <Select value={selectedOreId} onValueChange={setSelectedOreId} disabled={!selectedMetal?.ores?.length}>
+                  <SelectTrigger className="border-emerald-200 focus:ring-emerald-500">
+                    <SelectValue placeholder="Select Ore" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {selectedMetal?.ores?.filter(o => o.processingRoutes && o.processingRoutes.length > 0).map(ore => (
+                      <SelectItem key={ore.id} value={ore.id}>{ore.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-emerald-700 uppercase tracking-wide">Processing Route</label>
-            <Select value={selectedRouteId} onValueChange={setSelectedRouteId} disabled={!selectedOre?.processingRoutes.length}>
-              <SelectTrigger className="border-emerald-200 focus:ring-emerald-500">
-                <SelectValue placeholder="Select Route" />
-              </SelectTrigger>
-              <SelectContent>
-                {selectedOre?.processingRoutes.map(route => (
-                  <SelectItem key={route.id} value={route.id}>{route.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-emerald-700 uppercase tracking-wide">Processing Route</label>
+                <Select value={selectedRouteId} onValueChange={setSelectedRouteId} disabled={!selectedOre?.processingRoutes?.length}>
+                  <SelectTrigger className="border-emerald-200 focus:ring-emerald-500">
+                    <SelectValue placeholder="Select Route" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {selectedOre?.processingRoutes?.map(route => (
+                      <SelectItem key={route.id} value={route.id}>{route.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-emerald-700 uppercase tracking-wide">View Mode</label>
-            <Select value={viewMode} onValueChange={(v) => setViewMode(v as any)}>
-              <SelectTrigger className="border-emerald-200 focus:ring-emerald-500">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="timeline">Timeline View</SelectItem>
-                <SelectItem value="metrics">Metrics View</SelectItem>
-                <SelectItem value="circular">Circular Flows</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-emerald-700 uppercase tracking-wide">View Mode</label>
+                <Select value={viewMode} onValueChange={(v) => setViewMode(v as any)}>
+                  <SelectTrigger className="border-emerald-200 focus:ring-emerald-500">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="timeline">Timeline View</SelectItem>
+                    <SelectItem value="metrics">Metrics View</SelectItem>
+                    <SelectItem value="circular">Circular Flows</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="custom" className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-emerald-700 uppercase tracking-wide">Metal Name</label>
+                <Input 
+                  placeholder="e.g. Lithium" 
+                  value={customMetal} 
+                  onChange={(e) => setCustomMetal(e.target.value)}
+                  className="border-emerald-200 focus:ring-emerald-500"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-emerald-700 uppercase tracking-wide">Ore Name</label>
+                <Input 
+                  placeholder="e.g. Spodumene" 
+                  value={customOre} 
+                  onChange={(e) => setCustomOre(e.target.value)}
+                  className="border-emerald-200 focus:ring-emerald-500"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-emerald-700 uppercase tracking-wide">Ore Grade</label>
+                <Input 
+                  placeholder="e.g. 1.2% Li2O" 
+                  value={customGrade} 
+                  onChange={(e) => setCustomGrade(e.target.value)}
+                  className="border-emerald-200 focus:ring-emerald-500"
+                />
+              </div>
+              <Button 
+                onClick={handleGenerate} 
+                disabled={isGenerating || !customMetal || !customOre || !customGrade}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white w-full"
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Bot className="mr-2 h-4 w-4" />
+                    Generate Lifecycle
+                  </>
+                )}
+              </Button>
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
 
@@ -233,6 +347,11 @@ export default function LifeCycleExplorer() {
                   <CardTitle className="text-lg font-semibold text-slate-800 flex items-center gap-2">
                     <Recycle className="w-5 h-5 text-emerald-600" />
                     Complete Life Cycle
+                    {generatedRoute && (
+                      <Badge className="bg-purple-100 text-purple-700 border-purple-200 text-xs ml-2">
+                        <Bot className="w-3 h-3 mr-1" /> AI Generated
+                      </Badge>
+                    )}
                   </CardTitle>
                   <div className="flex gap-1">
                     {Object.entries(STAGE_COLORS).map(([type, colors]) => (
@@ -240,13 +359,18 @@ export default function LifeCycleExplorer() {
                     ))}
                   </div>
                 </div>
+                {generatedRoute && (
+                  <CardDescription className="text-purple-600 mt-1">
+                    {selectedRoute.name} • {selectedRoute.stages?.length || 0} stages
+                  </CardDescription>
+                )}
               </CardHeader>
               <CardContent className="p-4">
                 <ScrollArea className="h-[600px] pr-4">
                   <div className="relative space-y-4 pl-8 border-l-2 border-emerald-200 ml-4">
-                    {selectedRoute.stages.map((stage, index) => {
-                      const colors = STAGE_COLORS[stage.type]
-                      const StageIcon = STAGE_ICONS[stage.type]
+                    {selectedRoute.stages?.map((stage, index) => {
+                      const colors = STAGE_COLORS[stage.type] || STAGE_COLORS.extraction
+                      const StageIcon = STAGE_ICONS[stage.type] || Package
                       const isSelected = stage.id === selectedStageId
                       const hasCircularLoops = stage.circularLoops && stage.circularLoops.length > 0
                       
@@ -344,7 +468,7 @@ export default function LifeCycleExplorer() {
                               )}
 
                               {/* Transport Info */}
-                              {stage.transportMode && index < selectedRoute.stages.length - 1 && (
+                              {stage.transportMode && selectedRoute.stages && index < selectedRoute.stages.length - 1 && (
                                 <div className="mt-3 flex items-center gap-2 text-xs text-slate-500">
                                   <Truck className="w-3 h-3" />
                                   <span>{stage.transportMode} to next stage</span>
@@ -373,7 +497,7 @@ export default function LifeCycleExplorer() {
           )}
 
           {/* Byproduct Management Section */}
-          {selectedRoute && selectedRoute.stages.some(s => s.byproductFlows && s.byproductFlows.length > 0) && (
+          {selectedRoute && selectedRoute.stages?.some(s => s.byproductFlows && s.byproductFlows.length > 0) && (
             <Card className="border-emerald-100 bg-white">
               <CardHeader className="pb-2 border-b border-emerald-50">
                 <div className="flex items-center justify-between">
@@ -389,11 +513,11 @@ export default function LifeCycleExplorer() {
               <CardContent className="p-4">
                 <div className="space-y-6">
                   {selectedRoute.stages
-                    .filter(s => s.byproductFlows && s.byproductFlows.length > 0)
+                    ?.filter(s => s.byproductFlows && s.byproductFlows.length > 0)
                     .map(stage => (
                       <div key={stage.id} className="space-y-3">
                         <div className="flex items-center gap-2">
-                          <Badge className={`${STAGE_COLORS[stage.type].bg} text-white border-none`}>
+                          <Badge className={`${(STAGE_COLORS[stage.type] || STAGE_COLORS.extraction).bg} text-white border-none`}>
                             {stage.name}
                           </Badge>
                           <div className="h-px flex-1 bg-slate-100" />
@@ -462,7 +586,11 @@ export default function LifeCycleExplorer() {
             <Card className="border-emerald-100 bg-white">
               <CardHeader className="pb-2 border-b border-emerald-50">
                 <CardTitle className="text-base font-semibold flex items-center gap-2">
-                  {(() => { const Icon = STAGE_ICONS[selectedStage.type]; return <Icon className={`w-4 h-4 ${STAGE_COLORS[selectedStage.type].text}`} /> })()}
+                  {(() => { 
+                    const Icon = STAGE_ICONS[selectedStage.type] || Package; 
+                    const colors = STAGE_COLORS[selectedStage.type] || STAGE_COLORS.extraction;
+                    return <Icon className={`w-4 h-4 ${colors.text}`} /> 
+                  })()}
                   Stage Details
                 </CardTitle>
               </CardHeader>
@@ -497,7 +625,7 @@ export default function LifeCycleExplorer() {
                 <div>
                   <span className="text-slate-500 text-xs uppercase tracking-wide block mb-2">Inputs</span>
                   <div className="flex flex-wrap gap-1">
-                    {selectedStage.inputs.map(i => (
+                    {selectedStage.inputs?.map(i => (
                       <Badge key={i} variant="secondary" className="text-xs bg-slate-100 text-slate-600">
                         {i}
                       </Badge>
@@ -508,7 +636,7 @@ export default function LifeCycleExplorer() {
                 <div>
                   <span className="text-slate-500 text-xs uppercase tracking-wide block mb-2">Outputs</span>
                   <div className="flex flex-wrap gap-1">
-                    {selectedStage.outputs.map(o => (
+                    {selectedStage.outputs?.map(o => (
                       <Badge key={o} className="text-xs bg-amber-50 text-amber-700 border border-amber-200">
                         {o}
                       </Badge>
@@ -525,6 +653,7 @@ export default function LifeCycleExplorer() {
           )}
 
           {/* Ore Characteristics */}
+          {selectedOre && (
           <Card className="border-emerald-100 bg-white">
             <CardHeader className="pb-2 border-b border-emerald-50">
               <CardTitle className="text-base font-semibold flex items-center gap-2">
@@ -544,7 +673,7 @@ export default function LifeCycleExplorer() {
               <div>
                 <span className="text-slate-500 text-xs uppercase tracking-wide block mb-1">Key Regions</span>
                 <div className="flex flex-wrap gap-1 mt-1">
-                  {selectedOre?.regions.map(r => (
+                  {selectedOre?.regions?.map(r => (
                     <Badge key={r} variant="outline" className="text-xs border-emerald-200 text-emerald-700">{r}</Badge>
                   ))}
                 </div>
@@ -553,7 +682,7 @@ export default function LifeCycleExplorer() {
                 <div>
                   <span className="text-slate-500 text-xs uppercase tracking-wide block mb-1">Byproducts</span>
                   <div className="flex flex-wrap gap-1 mt-1">
-                    {selectedOre.byproducts.map(b => (
+                    {selectedOre.byproducts?.map(b => (
                       <Badge key={b} className="text-xs bg-purple-50 text-purple-700 border border-purple-200">{b}</Badge>
                     ))}
                   </div>
@@ -561,6 +690,7 @@ export default function LifeCycleExplorer() {
               )}
             </CardContent>
           </Card>
+          )}
 
           {/* Agent Insights */}
           <Card className="bg-gradient-to-br from-slate-900 to-slate-800 text-white border-none overflow-hidden">
