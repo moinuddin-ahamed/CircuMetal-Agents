@@ -4,15 +4,17 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ArrowUpRight, ArrowDownRight, TrendingUp, DollarSign, Truck, Leaf } from "lucide-react"
+import { ArrowUpRight, ArrowDownRight, TrendingUp, IndianRupee, Truck, Leaf } from "lucide-react"
 
 export default function TradingFloor() {
   const listings = [
-    { id: 1, type: "Secondary", material: "Aluminium Scrap (Taint/Tabor)", grade: "98%", quantity: "500 MT", price: "$1,850/MT", trend: "up", location: "Rotterdam, NL", seller: "EcoMetal Recyclers", co2: "-92%" },
-    { id: 2, type: "Byproduct", material: "Red Mud (Bauxite Residue)", grade: "High Fe", quantity: "10,000 MT", price: "$15/MT", trend: "stable", location: "Guinea", seller: "Global Alumina Co", co2: "N/A" },
-    { id: 3, type: "Secondary", material: "Copper Cathode (Off-spec)", grade: "99.5%", quantity: "120 MT", price: "$8,200/MT", trend: "down", location: "Hamburg, DE", seller: "Nordic Smelters", co2: "-45%" },
-    { id: 4, type: "Byproduct", material: "Copper Slag (Granulated)", grade: "Abrasive Grade", quantity: "5,000 MT", price: "$45/MT", trend: "up", location: "Chile", seller: "Andes Mining", co2: "Low" },
-    { id: 5, type: "Secondary", material: "Lithium Black Mass", grade: "Li 4%, Co 12%", quantity: "50 MT", price: "Market Index", trend: "up", location: "South Korea", seller: "Battery Loop", co2: "-70%" },
+    { id: 1, type: "Secondary", material: "Aluminium Scrap (Taint/Tabor)", grade: "98%", quantity: "500 MT", price: "₹1,54,000/MT", trend: "up", location: "Jharsuguda, Odisha", seller: "Vedanta Aluminium", co2: "-92%" },
+    { id: 2, type: "Byproduct", material: "Red Mud (Bauxite Residue)", grade: "High Fe", quantity: "10,000 MT", price: "₹1,250/MT", trend: "stable", location: "Belgaum, Karnataka", seller: "Hindalco Industries", co2: "N/A" },
+    { id: 3, type: "Secondary", material: "Copper Cathode (Off-spec)", grade: "99.5%", quantity: "120 MT", price: "₹6,85,000/MT", trend: "down", location: "Silvassa, Gujarat", seller: "Hindustan Copper", co2: "-45%" },
+    { id: 4, type: "Byproduct", material: "Copper Slag (Granulated)", grade: "Abrasive Grade", quantity: "5,000 MT", price: "₹3,750/MT", trend: "up", location: "Tuticorin, Tamil Nadu", seller: "Sterlite Copper", co2: "Low" },
+    { id: 5, type: "Secondary", material: "Lithium Black Mass", grade: "Li 4%, Co 12%", quantity: "50 MT", price: "Market Index", trend: "up", location: "Chennai, Tamil Nadu", seller: "Tata Chemicals", co2: "-70%" },
+    { id: 6, type: "Secondary", material: "Steel Scrap (HMS 1&2)", grade: "Mixed", quantity: "2,000 MT", price: "₹35,500/MT", trend: "up", location: "Jamshedpur, Jharkhand", seller: "Tata Steel", co2: "-58%" },
+    { id: 7, type: "Byproduct", material: "Fly Ash (Grade I)", grade: "High Silica", quantity: "15,000 MT", price: "₹850/MT", trend: "stable", location: "Raigarh, Chhattisgarh", seller: "NTPC Ltd", co2: "Low" },
   ]
 
   return (
@@ -20,7 +22,7 @@ export default function TradingFloor() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Trading Floor</h1>
-          <p className="text-slate-500">Marketplace for secondary metals, byproducts, and residues</p>
+          <p className="text-slate-500">Marketplace for secondary metals, byproducts, and residues in India</p>
         </div>
         <Button className="bg-emerald-600 hover:bg-emerald-700">
           Create Listing
@@ -30,16 +32,17 @@ export default function TradingFloor() {
       {/* Market Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
-          { label: "Aluminium Scrap", price: "$1,850", change: "+2.4%", trend: "up" },
-          { label: "Copper Scrap", price: "$7,920", change: "-0.8%", trend: "down" },
-          { label: "Black Mass", price: "$3,200", change: "+5.1%", trend: "up" },
-          { label: "Steel Scrap (HMS 1)", price: "$380", change: "+1.2%", trend: "up" },
+          { label: "Aluminium Scrap", price: "₹1,54,000", change: "+2.4%", trend: "up" },
+          { label: "Copper Scrap", price: "₹6,61,000", change: "-0.8%", trend: "down" },
+          { label: "Black Mass", price: "₹2,67,000", change: "+5.1%", trend: "up" },
+          { label: "Steel Scrap (HMS 1)", price: "₹35,500", change: "+1.2%", trend: "up" },
         ].map((item, i) => (
           <Card key={i}>
             <CardContent className="p-4 flex justify-between items-center">
               <div>
                 <p className="text-xs text-slate-500 font-medium uppercase">{item.label}</p>
                 <p className="text-xl font-bold text-slate-900">{item.price}</p>
+                <p className="text-xs text-slate-400">per MT</p>
               </div>
               <div className={`flex items-center gap-1 text-sm font-medium ${item.trend === 'up' ? 'text-emerald-600' : 'text-red-600'}`}>
                 {item.trend === 'up' ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}

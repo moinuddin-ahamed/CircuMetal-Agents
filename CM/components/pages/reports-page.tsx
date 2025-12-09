@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import React, { useState } from "react"
 import { 
   FileText, ArrowLeft, RefreshCw, Calendar, Clock,
   ChevronRight, Download, Eye, Loader2, Search,
@@ -245,6 +245,149 @@ export default function ReportsPage({ onBack }: ReportsPageProps) {
     return "text-red-600 bg-red-100"
   }
 
+  // Helper function to format inline markdown (bold, italic, code)
+  const formatInlineMarkdown = (text: string): React.ReactNode => {
+    if (!text) return text
+    
+    // Split by code backticks first
+    const parts = text.split(/(`[^`]+`)/)
+    
+    return parts.map((part, i) => {
+      if (part.startsWith('`') && part.endsWith('`')) {
+        return <code key={i} className="px-1.5 py-0.5 bg-emerald-50 rounded-md text-xs font-mono text-emerald-800 border border-emerald-100">{part.slice(1, -1)}</code>
+      }
+      
+      // Handle bold **text**
+      const boldParts = part.split(/(\*\*[^*]+\*\*)/)
+      return boldParts.map((bp, j) => {
+        if (bp.startsWith('**') && bp.endsWith('**')) {
+          return <strong key={`${i}-${j}`} className="font-semibold text-emerald-900">{bp.slice(2, -2)}</strong>
+        }
+        return <span key={`${i}-${j}`}>{bp}</span>
+      })
+    })
+  }
+
+  // Render markdown content with proper formatting
+  const renderMarkdown = (text: string): React.ReactNode => {
+    if (!text) return <p className="text-muted-foreground italic">No report content available</p>
+    
+    const lines = text.split('\n')
+    const elements: React.ReactNode[] = []
+    let currentParagraph: string[] = []
+    let inCodeBlock = false
+    let codeBlockContent: string[] = []
+    
+    const flushParagraph = () => {
+      if (currentParagraph.length > 0) {
+        const content = currentParagraph.join(' ')
+        elements.push(
+          <p key={elements.length} className="text-slate-700 leading-relaxed mb-3">
+            {formatInlineMarkdown(content)}
+          </p>
+        )
+        currentParagraph = []
+      }
+    }
+    
+    lines.forEach((line) => {
+      // Code block handling
+      if (line.startsWith('```')) {
+        if (inCodeBlock) {
+          elements.push(
+            <pre key={elements.length} className="bg-slate-900 text-slate-100 p-4 rounded-lg text-xs font-mono overflow-x-auto mb-4">
+              <code>{codeBlockContent.join('\n')}</code>
+            </pre>
+          )
+          codeBlockContent = []
+          inCodeBlock = false
+        } else {
+          flushParagraph()
+          inCodeBlock = true
+        }
+        return
+      }
+      
+      if (inCodeBlock) {
+        codeBlockContent.push(line)
+        return
+      }
+      
+      // Headers
+      if (line.startsWith('#### ')) {
+        flushParagraph()
+        elements.push(<h5 key={elements.length} className="font-semibold text-emerald-800 text-sm mt-3 mb-2">{line.slice(5)}</h5>)
+        return
+      }
+      if (line.startsWith('### ')) {
+        flushParagraph()
+        elements.push(<h4 key={elements.length} className="font-semibold text-emerald-900 text-base mt-4 mb-2 flex items-center gap-2"><span className="w-1 h-4 bg-emerald-400 rounded-full"></span>{line.slice(4)}</h4>)
+        return
+      }
+      if (line.startsWith('## ')) {
+        flushParagraph()
+        elements.push(<h3 key={elements.length} className="font-semibold text-emerald-900 text-lg mt-5 mb-3 pb-2 border-b border-emerald-100">{line.slice(3)}</h3>)
+        return
+      }
+      if (line.startsWith('# ')) {
+        flushParagraph()
+        elements.push(<h2 key={elements.length} className="font-bold text-emerald-900 text-xl mt-6 mb-4 pb-2 border-b-2 border-emerald-200">{line.slice(2)}</h2>)
+        return
+      }
+      
+      // Bullet points
+      if (line.startsWith('- ') || line.startsWith('* ')) {
+        flushParagraph()
+        elements.push(
+          <div key={elements.length} className="flex gap-3 ml-2 mb-2">
+            <span className="text-emerald-500 mt-1">•</span>
+            <span className="text-slate-700 flex-1">{formatInlineMarkdown(line.slice(2))}</span>
+          </div>
+        )
+        return
+      }
+      
+      // Numbered lists
+      const numMatch = line.match(/^(\d+)\.\s(.*)/)
+      if (numMatch) {
+        flushParagraph()
+        elements.push(
+          <div key={elements.length} className="flex gap-3 ml-2 mb-2">
+            <span className="text-emerald-600 font-medium min-w-[1.5rem] bg-emerald-50 rounded px-1.5 text-center text-sm">{numMatch[1]}.</span>
+            <span className="text-slate-700 flex-1">{formatInlineMarkdown(numMatch[2])}</span>
+          </div>
+        )
+        return
+      }
+      
+      // Horizontal rule
+      if (line.match(/^---+$/) || line.match(/^\*\*\*+$/)) {
+        flushParagraph()
+        elements.push(<hr key={elements.length} className="my-4 border-emerald-100" />)
+        return
+      }
+      
+      // Empty line = paragraph break
+      if (line.trim() === '') {
+        flushParagraph()
+        return
+      }
+      
+      // Regular text - accumulate into paragraph
+      currentParagraph.push(line)
+    })
+    
+    // Flush remaining paragraph
+    flushParagraph()
+    
+    return <>{elements}</>
+  }
+
+  // Get markdown content from report (handles different field names)
+  const getReportMarkdown = (report: Report): string => {
+    return report.report_markdown || (report as any).content || ''
+  }
+
   return (
     <div className="h-full bg-gradient-to-br from-white via-emerald-50/20 to-white p-8 overflow-auto">
       <div className="max-w-7xl mx-auto">
@@ -434,143 +577,180 @@ export default function ReportsPage({ onBack }: ReportsPageProps) {
 
         {/* Report Detail/Edit Dialog */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
-            <DialogHeader>
+          <DialogContent className="max-w-5xl h-[90vh] overflow-hidden flex flex-col">
+            <DialogHeader className="flex-shrink-0">
               <DialogTitle className="flex items-center gap-3">
                 <FileText className="w-5 h-5 text-primary" />
                 {isEditMode ? (selectedReport ? "Edit Report" : "New Report") : "Report Details"}
               </DialogTitle>
             </DialogHeader>
             
-            <ScrollArea className="flex-1 pr-4">
-              {isEditMode ? (
-                <div className="space-y-4 py-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Material</Label>
-                      <Input 
-                        value={formData.material || ""} 
-                        onChange={(e) => setFormData({...formData, material: e.target.value})}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Location</Label>
-                      <Input 
-                        value={formData.location || ""} 
-                        onChange={(e) => setFormData({...formData, location: e.target.value})}
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Process Description</Label>
-                    <Textarea 
-                      value={formData.process_description || ""} 
-                      onChange={(e) => setFormData({...formData, process_description: e.target.value})}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Input Amount</Label>
-                    <Input 
-                      value={formData.input_amount || ""} 
-                      onChange={(e) => setFormData({...formData, input_amount: e.target.value})}
-                    />
-                  </div>
-                </div>
-              ) : (
-                selectedReport && (
-                  <div className="space-y-6">
-                    {/* Overview */}
-                    <div>
-                      <h3 className="text-lg font-semibold mb-3">Overview</h3>
+            <div className="flex-1 overflow-hidden">
+              <ScrollArea className="h-full">
+                <div className="pr-4 pb-4">
+                  {isEditMode ? (
+                    <div className="space-y-4 py-4">
                       <div className="grid grid-cols-2 gap-4">
-                        {selectedReport.project_id && getProjectName(selectedReport.project_id) && (
-                          <Card className="p-4 bg-primary/5 border-primary/20 col-span-2">
-                            <div className="flex items-center gap-2">
-                              <FolderOpen className="w-5 h-5 text-primary" />
-                              <div>
-                                <p className="text-sm text-muted-foreground">Linked Project</p>
-                                <p className="font-semibold text-primary">{getProjectName(selectedReport.project_id)}</p>
-                              </div>
-                            </div>
+                        <div className="space-y-2">
+                          <Label>Material</Label>
+                          <Input 
+                            value={formData.material || ""} 
+                            onChange={(e) => setFormData({...formData, material: e.target.value})}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Location</Label>
+                          <Input 
+                            value={formData.location || ""} 
+                            onChange={(e) => setFormData({...formData, location: e.target.value})}
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Process Description</Label>
+                        <Textarea 
+                          value={formData.process_description || ""} 
+                          onChange={(e) => setFormData({...formData, process_description: e.target.value})}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Input Amount</Label>
+                        <Input 
+                          value={formData.input_amount || ""} 
+                          onChange={(e) => setFormData({...formData, input_amount: e.target.value})}
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    selectedReport && (
+                      <div className="space-y-6 py-2">
+                        {/* Overview */}
+                        <div>
+                          <h3 className="text-lg font-semibold mb-3">Overview</h3>
+                          <div className="grid grid-cols-2 gap-4">
+                            {selectedReport.project_id && getProjectName(selectedReport.project_id) && (
+                              <Card className="p-4 bg-primary/5 border-primary/20 col-span-2">
+                                <div className="flex items-center gap-2">
+                                  <FolderOpen className="w-5 h-5 text-primary" />
+                                  <div>
+                                    <p className="text-sm text-muted-foreground">Linked Project</p>
+                                    <p className="font-semibold text-primary">{getProjectName(selectedReport.project_id)}</p>
+                                  </div>
+                                </div>
+                              </Card>
+                            )}
+                            <Card className="p-4 bg-muted/50">
+                              <p className="text-sm text-muted-foreground">Material</p>
+                              <p className="font-semibold">{selectedReport.material}</p>
+                            </Card>
+                            <Card className="p-4 bg-muted/50">
+                              <p className="text-sm text-muted-foreground">Input Amount</p>
+                              <p className="font-semibold">{selectedReport.input_amount}</p>
+                            </Card>
+                            <Card className="p-4 bg-muted/50">
+                              <p className="text-sm text-muted-foreground">Location</p>
+                              <p className="font-semibold">{selectedReport.location}</p>
+                            </Card>
+                            <Card className="p-4 bg-muted/50">
+                              <p className="text-sm text-muted-foreground">Generated</p>
+                              <p className="font-semibold">
+                                {formatDate(selectedReport.created_at)} at {formatTime(selectedReport.created_at)}
+                              </p>
+                            </Card>
+                          </div>
+                        </div>
+
+                        {/* Process Description */}
+                        <div>
+                          <h3 className="text-lg font-semibold mb-3">Process Description</h3>
+                          <Card className="p-4 bg-muted/50">
+                            <p className="text-foreground">{selectedReport.process_description}</p>
                           </Card>
+                        </div>
+
+                        {/* LCA Results Summary */}
+                        <div>
+                          <h3 className="text-lg font-semibold mb-3">LCA Results</h3>
+                          <div className="grid grid-cols-3 gap-4">
+                            <Card className="p-4 bg-orange-50 border-orange-200">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Zap className="w-5 h-5 text-orange-600" />
+                                <p className="text-sm font-medium text-orange-800">Global Warming Potential</p>
+                              </div>
+                              <p className="text-2xl font-bold text-orange-900">
+                                {selectedReport.lca_results?.gwp_100?.value || 'N/A'}
+                              </p>
+                              <p className="text-sm text-orange-700">
+                                {selectedReport.lca_results?.gwp_100?.unit || ''}
+                              </p>
+                            </Card>
+                            <Card className="p-4 bg-blue-50 border-blue-200">
+                              <div className="flex items-center gap-2 mb-2">
+                                <BarChart3 className="w-5 h-5 text-blue-600" />
+                                <p className="text-sm font-medium text-blue-800">Energy Demand</p>
+                              </div>
+                              <p className="text-2xl font-bold text-blue-900">
+                                {selectedReport.lca_results?.energy_demand?.value || 'N/A'}
+                              </p>
+                              <p className="text-sm text-blue-700">
+                                {selectedReport.lca_results?.energy_demand?.unit || ''}
+                              </p>
+                            </Card>
+                            <Card className="p-4 bg-cyan-50 border-cyan-200">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Droplets className="w-5 h-5 text-cyan-600" />
+                                <p className="text-sm font-medium text-cyan-800">Water Consumption</p>
+                              </div>
+                              <p className="text-2xl font-bold text-cyan-900">
+                                {selectedReport.lca_results?.water_consumption?.value || 'N/A'}
+                              </p>
+                              <p className="text-sm text-cyan-700">
+                                {selectedReport.lca_results?.water_consumption?.unit || ''}
+                              </p>
+                            </Card>
+                          </div>
+                        </div>
+
+                        {/* Full Report Content (Markdown) */}
+                        {getReportMarkdown(selectedReport) && (
+                          <div>
+                            <div className="flex items-center justify-between mb-3">
+                              <h3 className="text-lg font-semibold">Full Report</h3>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => {
+                                  const content = getReportMarkdown(selectedReport)
+                                  const blob = new Blob([content], { type: 'text/markdown' })
+                                  const url = URL.createObjectURL(blob)
+                                  const a = document.createElement('a')
+                                  a.href = url
+                                  a.download = `report-${selectedReport.id || 'download'}.md`
+                                  document.body.appendChild(a)
+                                  a.click()
+                                  document.body.removeChild(a)
+                                  URL.revokeObjectURL(url)
+                                }}
+                              >
+                                <Download className="w-4 h-4 mr-2" />
+                                Download Markdown
+                              </Button>
+                            </div>
+                            <Card className="p-6 bg-white border border-slate-200 shadow-sm">
+                              <div className="prose prose-slate prose-sm max-w-none">
+                                {renderMarkdown(getReportMarkdown(selectedReport))}
+                              </div>
+                            </Card>
+                          </div>
                         )}
-                        <Card className="p-4 bg-muted/50">
-                          <p className="text-sm text-muted-foreground">Material</p>
-                          <p className="font-semibold">{selectedReport.material}</p>
-                        </Card>
-                        <Card className="p-4 bg-muted/50">
-                          <p className="text-sm text-muted-foreground">Input Amount</p>
-                          <p className="font-semibold">{selectedReport.input_amount}</p>
-                        </Card>
-                        <Card className="p-4 bg-muted/50">
-                          <p className="text-sm text-muted-foreground">Location</p>
-                          <p className="font-semibold">{selectedReport.location}</p>
-                        </Card>
-                        <Card className="p-4 bg-muted/50">
-                          <p className="text-sm text-muted-foreground">Generated</p>
-                          <p className="font-semibold">
-                            {formatDate(selectedReport.created_at)} at {formatTime(selectedReport.created_at)}
-                          </p>
-                        </Card>
                       </div>
-                    </div>
+                    )
+                  )}
+                </div>
+              </ScrollArea>
+            </div>
 
-                    {/* Process Description */}
-                    <div>
-                      <h3 className="text-lg font-semibold mb-3">Process Description</h3>
-                      <Card className="p-4 bg-muted/50">
-                        <p className="text-foreground">{selectedReport.process_description}</p>
-                      </Card>
-                    </div>
-
-                    {/* LCA Results */}
-                    <div>
-                      <h3 className="text-lg font-semibold mb-3">LCA Results</h3>
-                      <div className="grid grid-cols-3 gap-4">
-                        <Card className="p-4 bg-orange-50 border-orange-200">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Zap className="w-5 h-5 text-orange-600" />
-                            <p className="text-sm font-medium text-orange-800">Global Warming Potential</p>
-                          </div>
-                          <p className="text-2xl font-bold text-orange-900">
-                            {selectedReport.lca_results?.gwp_100?.value}
-                          </p>
-                          <p className="text-sm text-orange-700">
-                            {selectedReport.lca_results?.gwp_100?.unit}
-                          </p>
-                        </Card>
-                        <Card className="p-4 bg-blue-50 border-blue-200">
-                          <div className="flex items-center gap-2 mb-2">
-                            <BarChart3 className="w-5 h-5 text-blue-600" />
-                            <p className="text-sm font-medium text-blue-800">Energy Demand</p>
-                          </div>
-                          <p className="text-2xl font-bold text-blue-900">
-                            {selectedReport.lca_results?.energy_demand?.value}
-                          </p>
-                          <p className="text-sm text-blue-700">
-                            {selectedReport.lca_results?.energy_demand?.unit}
-                          </p>
-                        </Card>
-                        <Card className="p-4 bg-cyan-50 border-cyan-200">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Droplets className="w-5 h-5 text-cyan-600" />
-                            <p className="text-sm font-medium text-cyan-800">Water Consumption</p>
-                          </div>
-                          <p className="text-2xl font-bold text-cyan-900">
-                            {selectedReport.lca_results?.water_consumption?.value}
-                          </p>
-                          <p className="text-sm text-cyan-700">
-                            {selectedReport.lca_results?.water_consumption?.unit}
-                          </p>
-                        </Card>
-                      </div>
-                    </div>
-                  </div>
-                )
-              )}
-            </ScrollArea>
-
-            <DialogFooter className="mt-4">
+            <DialogFooter className="flex-shrink-0 mt-4 pt-4 border-t">
               {isEditMode ? (
                 <>
                   <Button variant="outline" onClick={() => setIsEditMode(false)}>Cancel</Button>

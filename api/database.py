@@ -445,6 +445,13 @@ async def delete_report(report_id: str) -> bool:
     return result.deleted_count > 0
 
 
+async def get_reports_by_project(project_id: str, limit: int = 50) -> List[Dict[str, Any]]:
+    """Get all reports for a specific project, sorted by creation date (newest first)"""
+    collection = await get_collection("reports")
+    cursor = collection.find({"project_id": project_id}).sort("created_at", -1).limit(limit)
+    return [serialize_doc(doc) async for doc in cursor]
+
+
 # ============================================================================
 # Visualization Operations
 # ============================================================================

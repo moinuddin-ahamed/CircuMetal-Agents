@@ -1,25 +1,73 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { METALS_DATA, Metal, Ore, ProcessingRoute } from "@/lib/metals-data"
+import { useState, useEffect, useMemo } from "react"
+import { METALS_DATA, Metal, Ore, ProcessingRoute, Stage, CircularLoop } from "@/lib/metals-data"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
-import { ArrowRight, Leaf, Factory, Truck, Recycle, Zap, Globe, TrendingUp, AlertCircle, Bot } from "lucide-react"
+import { Progress } from "@/components/ui/progress"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { 
+  ArrowRight, Leaf, Factory, Truck, Recycle, Zap, Globe, TrendingUp, AlertCircle, Bot, 
+  MapPin, Building2, Clock, Droplets, Trash2, RotateCcw, ChevronRight, ArrowUpRight, 
+  Sparkles, Activity, Target, Package
+} from "lucide-react"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
+
+// Stage type color mappings for consistent theming
+const STAGE_COLORS = {
+  extraction: { bg: 'bg-amber-500', light: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200' },
+  beneficiation: { bg: 'bg-blue-500', light: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200' },
+  smelting: { bg: 'bg-orange-500', light: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-200' },
+  refining: { bg: 'bg-purple-500', light: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200' },
+  manufacturing: { bg: 'bg-indigo-500', light: 'bg-indigo-50', text: 'text-indigo-700', border: 'border-indigo-200' },
+  use: { bg: 'bg-teal-500', light: 'bg-teal-50', text: 'text-teal-700', border: 'border-teal-200' },
+  eol: { bg: 'bg-slate-500', light: 'bg-slate-50', text: 'text-slate-700', border: 'border-slate-200' },
+  recycling: { bg: 'bg-emerald-500', light: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200' }
+}
+
+// Stage type icons
+const STAGE_ICONS = {
+  extraction: Package,
+  beneficiation: Activity,
+  smelting: Factory,
+  refining: Sparkles,
+  manufacturing: Building2,
+  use: Target,
+  eol: Trash2,
+  recycling: Recycle
+}
 
 export default function LifeCycleExplorer() {
   const [selectedMetalId, setSelectedMetalId] = useState<string>(METALS_DATA[0].id)
   const [selectedOreId, setSelectedOreId] = useState<string>(METALS_DATA[0].ores[0]?.id || "")
   const [selectedRouteId, setSelectedRouteId] = useState<string>("")
   const [showPredictions, setShowPredictions] = useState(false)
+  const [selectedStageId, setSelectedStageId] = useState<string | null>(null)
+  const [viewMode, setViewMode] = useState<'timeline' | 'metrics' | 'circular'>('timeline')
 
   const selectedMetal = METALS_DATA.find(m => m.id === selectedMetalId)
   const selectedOre = selectedMetal?.ores.find(o => o.id === selectedOreId)
   const selectedRoute = selectedOre?.processingRoutes.find(r => r.id === selectedRouteId) || selectedOre?.processingRoutes[0]
+  const selectedStage = selectedRoute?.stages.find(s => s.id === selectedStageId)
+
+  // Calculate total metrics for the route
+  const routeMetrics = useMemo(() => {
+    if (!selectedRoute) return null
+    const stages = selectedRoute.stages
+    const totalCarbon = stages.reduce((sum, s) => sum + (s.metrics?.carbonEmissions || 0), 0)
+    const totalEnergy = stages.reduce((sum, s) => sum + (s.metrics?.energyConsumption || 0), 0)
+    const totalWater = stages.reduce((sum, s) => sum + (s.metrics?.waterUsage || 0), 0)
+    const totalWaste = stages.reduce((sum, s) => sum + (s.metrics?.wasteGenerated || 0), 0)
+    const circularLoops = stages.flatMap(s => (s.circularLoops || []).map(loop => ({ ...loop, fromStage: s.id, fromStageName: s.name })))
+    const carbonSaved = circularLoops.reduce((sum, loop) => sum + loop.carbonSavings, 0)
+    
+    return { totalCarbon, totalEnergy, totalWater, totalWaste, circularLoops, carbonSaved, 
+      circularityScore: selectedRoute.circularityScore || 0 }
+  }, [selectedRoute])
 
   useEffect(() => {
     if (selectedMetal && selectedMetal.ores.length > 0) {
@@ -37,51 +85,65 @@ export default function LifeCycleExplorer() {
     }
   }, [selectedOreId])
 
+  useEffect(() => {
+    if (selectedRoute && selectedRoute.stages.length > 0) {
+      setSelectedStageId(selectedRoute.stages[0].id)
+    }
+  }, [selectedRoute])
+
   return (
-    <div className="p-6 space-y-6 bg-slate-50 min-h-screen">
+    <div className="p-6 space-y-6 bg-gradient-to-br from-white via-emerald-50/30 to-white min-h-screen">
+      {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Life Cycle Explorer</h1>
-          <p className="text-slate-500">Visualize complete metal value chains from ore to recycling</p>
+          <p className="text-slate-500">Complete metal value chain from extraction to recycling</p>
         </div>
-        <div className="flex items-center gap-4 bg-white p-2 rounded-lg border border-slate-200 shadow-sm">
-          <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 bg-white p-2 rounded-lg border border-emerald-100 shadow-sm">
             <Switch id="prediction-mode" checked={showPredictions} onCheckedChange={setShowPredictions} />
             <Label htmlFor="prediction-mode" className="cursor-pointer flex items-center gap-2">
               {showPredictions ? <TrendingUp className="w-4 h-4 text-emerald-600" /> : <Database className="w-4 h-4 text-slate-400" />}
               <span className={showPredictions ? "text-emerald-700 font-medium" : "text-slate-600"}>
-                {showPredictions ? "AI Prediction Mode" : "Observed Data"}
+                {showPredictions ? "AI Predictions" : "Observed Data"}
               </span>
             </Label>
           </div>
         </div>
       </div>
 
-      {/* Controls */}
-      <Card className="border-none shadow-sm bg-white">
+      {/* Selection Controls */}
+      <Card className="border-emerald-100 shadow-sm bg-white">
         <CardContent className="p-4 grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="space-y-2">
-            <label className="text-xs font-medium text-slate-500 uppercase">Metal</label>
+            <label className="text-xs font-medium text-emerald-700 uppercase tracking-wide">Metal</label>
             <Select value={selectedMetalId} onValueChange={setSelectedMetalId}>
-              <SelectTrigger>
+              <SelectTrigger className="border-emerald-200 focus:ring-emerald-500">
                 <SelectValue placeholder="Select Metal" />
               </SelectTrigger>
               <SelectContent>
-                {METALS_DATA.map(metal => (
-                  <SelectItem key={metal.id} value={metal.id}>{metal.name} ({metal.symbol})</SelectItem>
+                {METALS_DATA.filter(m => m.ores.length > 0 && m.ores.some(o => o.processingRoutes.length > 0)).map(metal => (
+                  <SelectItem key={metal.id} value={metal.id}>
+                    <span className="flex items-center gap-2">
+                      <span className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold flex items-center justify-center">
+                        {metal.symbol}
+                      </span>
+                      {metal.name}
+                    </span>
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-medium text-slate-500 uppercase">Ore Type</label>
+            <label className="text-xs font-medium text-emerald-700 uppercase tracking-wide">Ore Type</label>
             <Select value={selectedOreId} onValueChange={setSelectedOreId} disabled={!selectedMetal?.ores.length}>
-              <SelectTrigger>
+              <SelectTrigger className="border-emerald-200 focus:ring-emerald-500">
                 <SelectValue placeholder="Select Ore" />
               </SelectTrigger>
               <SelectContent>
-                {selectedMetal?.ores.map(ore => (
+                {selectedMetal?.ores.filter(o => o.processingRoutes.length > 0).map(ore => (
                   <SelectItem key={ore.id} value={ore.id}>{ore.name}</SelectItem>
                 ))}
               </SelectContent>
@@ -89,9 +151,9 @@ export default function LifeCycleExplorer() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-medium text-slate-500 uppercase">Processing Route</label>
+            <label className="text-xs font-medium text-emerald-700 uppercase tracking-wide">Processing Route</label>
             <Select value={selectedRouteId} onValueChange={setSelectedRouteId} disabled={!selectedOre?.processingRoutes.length}>
-              <SelectTrigger>
+              <SelectTrigger className="border-emerald-200 focus:ring-emerald-500">
                 <SelectValue placeholder="Select Route" />
               </SelectTrigger>
               <SelectContent>
@@ -103,170 +165,446 @@ export default function LifeCycleExplorer() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-medium text-slate-500 uppercase">Region</label>
-            <Select defaultValue="global">
-              <SelectTrigger>
-                <SelectValue placeholder="Select Region" />
+            <label className="text-xs font-medium text-emerald-700 uppercase tracking-wide">View Mode</label>
+            <Select value={viewMode} onValueChange={(v) => setViewMode(v as any)}>
+              <SelectTrigger className="border-emerald-200 focus:ring-emerald-500">
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="global">Global Average</SelectItem>
-                <SelectItem value="eu">Europe</SelectItem>
-                <SelectItem value="na">North America</SelectItem>
-                <SelectItem value="cn">China</SelectItem>
-                <SelectItem value="au">Australia</SelectItem>
+                <SelectItem value="timeline">Timeline View</SelectItem>
+                <SelectItem value="metrics">Metrics View</SelectItem>
+                <SelectItem value="circular">Circular Flows</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </CardContent>
       </Card>
 
-      {/* Visualization */}
+      {/* Route Summary Stats */}
+      {routeMetrics && (
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+          <Card className="border-emerald-100 bg-white">
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-slate-900">{selectedRoute?.stages.length || 0}</div>
+              <div className="text-xs text-slate-500 uppercase tracking-wide">Stages</div>
+            </CardContent>
+          </Card>
+          <Card className="border-emerald-100 bg-white">
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-red-600">{(routeMetrics.totalCarbon / 1000).toFixed(1)}</div>
+              <div className="text-xs text-slate-500 uppercase tracking-wide">t CO₂e/t</div>
+            </CardContent>
+          </Card>
+          <Card className="border-emerald-100 bg-white">
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-amber-600">{(routeMetrics.totalEnergy / 1000).toFixed(0)}</div>
+              <div className="text-xs text-slate-500 uppercase tracking-wide">GJ/t Energy</div>
+            </CardContent>
+          </Card>
+          <Card className="border-emerald-100 bg-white">
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-blue-600">{routeMetrics.totalWater.toFixed(1)}</div>
+              <div className="text-xs text-slate-500 uppercase tracking-wide">m³/t Water</div>
+            </CardContent>
+          </Card>
+          <Card className="border-emerald-100 bg-white">
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-emerald-600">{routeMetrics.circularLoops.length}</div>
+              <div className="text-xs text-slate-500 uppercase tracking-wide">Circular Loops</div>
+            </CardContent>
+          </Card>
+          <Card className="border-emerald-100 bg-gradient-to-br from-emerald-50 to-emerald-100">
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-emerald-700">{routeMetrics.circularityScore}%</div>
+              <div className="text-xs text-emerald-600 uppercase tracking-wide">Circularity</div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Flow */}
-        <div className="lg:col-span-2 space-y-6">
+        {/* Lifecycle Flow - Left Column */}
+        <div className="lg:col-span-2 space-y-4">
           {selectedRoute ? (
-            <div className="relative space-y-8 pl-8 border-l-2 border-slate-200 ml-4">
-              {selectedRoute.stages.map((stage, index) => (
-                <div key={stage.id} className="relative">
-                  {/* Node Dot */}
-                  <div className={`absolute -left-[41px] top-6 w-6 h-6 rounded-full border-4 border-white shadow-sm z-10 ${
-                    stage.type === 'extraction' ? 'bg-amber-500' :
-                    stage.type === 'beneficiation' ? 'bg-blue-500' :
-                    stage.type === 'smelting' ? 'bg-red-500' :
-                    stage.type === 'refining' ? 'bg-purple-500' :
-                    'bg-emerald-500'
-                  }`} />
-                  
-                  <Card className="overflow-hidden transition-all hover:shadow-md border-slate-200">
-                    <div className="h-1 w-full bg-gradient-to-r from-transparent via-slate-200 to-transparent opacity-50" />
-                    <CardContent className="p-5">
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <div className="flex items-center gap-2 mb-1">
-                            <Badge variant="outline" className="bg-slate-50 text-slate-600 border-slate-200 capitalize">
-                              {stage.type}
-                            </Badge>
-                            {showPredictions && (
-                              <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 flex items-center gap-1">
-                                <TrendingUp className="w-3 h-3" /> AI Forecast
-                              </Badge>
-                            )}
-                          </div>
-                          <h3 className="text-lg font-semibold text-slate-800">{stage.name}</h3>
-                          <p className="text-sm text-slate-500">{stage.description}</p>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-xs text-slate-400 uppercase font-medium mb-1">Circularity Income</div>
-                          <div className="text-lg font-bold text-emerald-600">{stage.circularityPotential}</div>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-slate-100">
-                        <div>
-                          <span className="text-xs text-slate-400 block mb-1">Inputs</span>
-                          <div className="flex flex-wrap gap-1">
-                            {stage.inputs.map(i => (
-                              <Badge key={i} variant="secondary" className="text-xs bg-slate-100 text-slate-600 hover:bg-slate-200">
-                                {i}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                        <div>
-                          <span className="text-xs text-slate-400 block mb-1">Outputs & Byproducts</span>
-                          <div className="flex flex-wrap gap-1">
-                            {stage.outputs.map(o => (
-                              <Badge key={o} variant="secondary" className="text-xs bg-amber-50 text-amber-700 border-amber-100 hover:bg-amber-100">
-                                {o}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-6 mt-4 text-sm text-slate-500">
-                        <div className="flex items-center gap-1.5">
-                          <Zap className="w-4 h-4 text-yellow-500" />
-                          <span>Energy: <span className="font-medium text-slate-700">{stage.energy}</span></span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <Globe className="w-4 h-4 text-blue-500" />
-                          <span>Emissions: <span className="font-medium text-slate-700">{stage.emissions}</span></span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+            <Card className="border-emerald-100 bg-white overflow-hidden">
+              <CardHeader className="pb-2 border-b border-emerald-50">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                    <Recycle className="w-5 h-5 text-emerald-600" />
+                    Complete Life Cycle
+                  </CardTitle>
+                  <div className="flex gap-1">
+                    {Object.entries(STAGE_COLORS).map(([type, colors]) => (
+                      <div key={type} className={`w-3 h-3 rounded-full ${colors.bg}`} title={type} />
+                    ))}
+                  </div>
                 </div>
-              ))}
-            </div>
+              </CardHeader>
+              <CardContent className="p-4">
+                <ScrollArea className="h-[600px] pr-4">
+                  <div className="relative space-y-4 pl-8 border-l-2 border-emerald-200 ml-4">
+                    {selectedRoute.stages.map((stage, index) => {
+                      const colors = STAGE_COLORS[stage.type]
+                      const StageIcon = STAGE_ICONS[stage.type]
+                      const isSelected = stage.id === selectedStageId
+                      const hasCircularLoops = stage.circularLoops && stage.circularLoops.length > 0
+                      
+                      return (
+                        <div key={stage.id} className="relative">
+                          {/* Node */}
+                          <div className={`absolute -left-[41px] top-4 w-8 h-8 rounded-full border-4 border-white shadow-md z-10 flex items-center justify-center ${colors.bg}`}>
+                            <StageIcon className="w-4 h-4 text-white" />
+                          </div>
+                          
+                          {/* Circular Loop Arrow */}
+                          {hasCircularLoops && (
+                            <div className="absolute -left-16 top-8 text-emerald-500">
+                              <RotateCcw className="w-5 h-5" />
+                            </div>
+                          )}
+                          
+                          {/* Stage Card */}
+                          <Card 
+                            className={`overflow-hidden transition-all cursor-pointer hover:shadow-lg ${
+                              isSelected ? 'ring-2 ring-emerald-500 shadow-lg' : 'border-slate-200 hover:border-emerald-300'
+                            }`}
+                            onClick={() => setSelectedStageId(stage.id)}
+                          >
+                            <div className={`h-1 w-full ${colors.bg}`} />
+                            <CardContent className="p-4">
+                              {/* Header */}
+                              <div className="flex justify-between items-start mb-3">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                    <Badge className={`${colors.light} ${colors.text} ${colors.border} border capitalize text-xs`}>
+                                      {stage.type.replace('eol', 'End of Life')}
+                                    </Badge>
+                                    {stage.facility && (
+                                      <Badge variant="outline" className="text-xs bg-white">
+                                        <MapPin className="w-3 h-3 mr-1" />
+                                        {stage.facility.location}
+                                      </Badge>
+                                    )}
+                                    {showPredictions && (
+                                      <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 text-xs">
+                                        <TrendingUp className="w-3 h-3 mr-1" /> AI Enhanced
+                                      </Badge>
+                                    )}
+                                  </div>
+                                  <h3 className="text-base font-semibold text-slate-800">{stage.name}</h3>
+                                  <p className="text-sm text-slate-500 line-clamp-2">{stage.description}</p>
+                                </div>
+                                <ChevronRight className={`w-5 h-5 transition-transform ${isSelected ? 'rotate-90 text-emerald-600' : 'text-slate-300'}`} />
+                              </div>
+
+                              {/* Metrics Row */}
+                              {stage.metrics && (
+                                <div className="grid grid-cols-4 gap-2 mt-3 pt-3 border-t border-slate-100">
+                                  <div className="text-center p-2 rounded-lg bg-red-50">
+                                    <div className="text-xs text-red-600 font-medium">{stage.metrics.carbonEmissions.toLocaleString()}</div>
+                                    <div className="text-[10px] text-red-500">kg CO₂e</div>
+                                  </div>
+                                  <div className="text-center p-2 rounded-lg bg-amber-50">
+                                    <div className="text-xs text-amber-600 font-medium">{(stage.metrics.energyConsumption/1000).toFixed(1)}</div>
+                                    <div className="text-[10px] text-amber-500">GJ</div>
+                                  </div>
+                                  <div className="text-center p-2 rounded-lg bg-blue-50">
+                                    <div className="text-xs text-blue-600 font-medium">{stage.metrics.waterUsage}</div>
+                                    <div className="text-[10px] text-blue-500">m³</div>
+                                  </div>
+                                  <div className="text-center p-2 rounded-lg bg-slate-50">
+                                    <div className="text-xs text-slate-600 font-medium">{stage.metrics.wasteGenerated}</div>
+                                    <div className="text-[10px] text-slate-500">kg waste</div>
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Circular Loops */}
+                              {hasCircularLoops && (
+                                <div className="mt-3 pt-3 border-t border-emerald-100">
+                                  <div className="text-xs font-medium text-emerald-700 mb-2 flex items-center gap-1">
+                                    <RotateCcw className="w-3 h-3" /> Circular Flows
+                                  </div>
+                                  <div className="space-y-1">
+                                    {stage.circularLoops?.map((loop, i) => (
+                                      <div key={i} className="flex items-center gap-2 text-xs bg-emerald-50 p-2 rounded-lg">
+                                        <ArrowUpRight className="w-3 h-3 text-emerald-600" />
+                                        <span className="text-slate-600">{loop.materialFlow}</span>
+                                        <Badge className="bg-emerald-100 text-emerald-700 text-[10px] ml-auto">
+                                          {loop.recoveryRate}% recovery
+                                        </Badge>
+                                        <Badge className="bg-green-100 text-green-700 text-[10px]">
+                                          -{loop.carbonSavings} kg CO₂
+                                        </Badge>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Transport Info */}
+                              {stage.transportMode && index < selectedRoute.stages.length - 1 && (
+                                <div className="mt-3 flex items-center gap-2 text-xs text-slate-500">
+                                  <Truck className="w-3 h-3" />
+                                  <span>{stage.transportMode} to next stage</span>
+                                  {stage.transportDistance && (
+                                    <span className="text-slate-400">• {stage.transportDistance} km</span>
+                                  )}
+                                </div>
+                              )}
+                            </CardContent>
+                          </Card>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </ScrollArea>
+              </CardContent>
+            </Card>
           ) : (
-            <div className="flex flex-col items-center justify-center h-64 bg-white rounded-xl border border-dashed border-slate-300 text-slate-400">
-              <Factory className="w-12 h-12 mb-3 opacity-20" />
-              <p>Select a valid processing route to view the life cycle flow.</p>
-            </div>
+            <Card className="border-emerald-100 bg-white">
+              <CardContent className="flex flex-col items-center justify-center h-64 text-slate-400">
+                <Factory className="w-12 h-12 mb-3 opacity-20" />
+                <p>Select a metal with complete processing routes to view the life cycle.</p>
+                <p className="text-sm mt-2">Try: Aluminium, Copper, or Steel</p>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Byproduct Management Section */}
+          {selectedRoute && selectedRoute.stages.some(s => s.byproductFlows && s.byproductFlows.length > 0) && (
+            <Card className="border-emerald-100 bg-white">
+              <CardHeader className="pb-2 border-b border-emerald-50">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                    <Trash2 className="w-5 h-5 text-amber-600" />
+                    Byproduct & Waste Management
+                  </CardTitle>
+                </div>
+                <CardDescription>
+                  Management strategies for process residues and byproducts
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-4">
+                <div className="space-y-6">
+                  {selectedRoute.stages
+                    .filter(s => s.byproductFlows && s.byproductFlows.length > 0)
+                    .map(stage => (
+                      <div key={stage.id} className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <Badge className={`${STAGE_COLORS[stage.type].bg} text-white border-none`}>
+                            {stage.name}
+                          </Badge>
+                          <div className="h-px flex-1 bg-slate-100" />
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {stage.byproductFlows?.map((flow, idx) => (
+                            <div key={idx} className="p-3 rounded-lg border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-colors">
+                              <div className="flex justify-between items-start mb-2">
+                                <h4 className="font-medium text-slate-800">{flow.name}</h4>
+                                <Badge variant="outline" className={`
+                                  ${flow.managementMethod === 'Valorization' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : ''}
+                                  ${flow.managementMethod === 'Recycling' ? 'bg-blue-50 text-blue-700 border-blue-200' : ''}
+                                  ${flow.managementMethod === 'Storage' ? 'bg-amber-50 text-amber-700 border-amber-200' : ''}
+                                  ${flow.managementMethod === 'Disposal' ? 'bg-red-50 text-red-700 border-red-200' : ''}
+                                `}>
+                                  {flow.managementMethod}
+                                </Badge>
+                              </div>
+                              
+                              <p className="text-xs text-slate-500 mb-3">{flow.description}</p>
+                              
+                              <div className="grid grid-cols-2 gap-2 text-xs">
+                                <div className="p-2 bg-white rounded border border-slate-100">
+                                  <span className="text-slate-400 block mb-0.5">Volume</span>
+                                  <span className="font-medium text-slate-700">{flow.volume} kg/t</span>
+                                </div>
+                                <div className="p-2 bg-white rounded border border-slate-100">
+                                  <span className="text-slate-400 block mb-0.5">Destination</span>
+                                  <span className="font-medium text-slate-700">{flow.destination || 'N/A'}</span>
+                                </div>
+                                <div className="p-2 bg-white rounded border border-slate-100">
+                                  <span className="text-slate-400 block mb-0.5">Env. Risk</span>
+                                  <span className={`font-medium ${
+                                    flow.environmentalRisk === 'High' ? 'text-red-600' : 
+                                    flow.environmentalRisk === 'Medium' ? 'text-amber-600' : 'text-emerald-600'
+                                  }`}>
+                                    {flow.environmentalRisk}
+                                  </span>
+                                </div>
+                                <div className="p-2 bg-white rounded border border-slate-100">
+                                  <span className="text-slate-400 block mb-0.5">Economic</span>
+                                  <span className={`font-medium ${
+                                    flow.economicValue === 'Revenue' ? 'text-emerald-600' : 
+                                    flow.economicValue === 'Cost' ? 'text-red-600' : 'text-slate-600'
+                                  }`}>
+                                    {flow.economicValue}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </CardContent>
+            </Card>
           )}
         </div>
 
-        {/* Sidebar Info */}
+        {/* Right Sidebar */}
         <div className="space-y-6">
-          {/* Ore Details */}
-          <Card>
-            <CardHeader className="pb-3">
+          {/* Stage Details */}
+          {selectedStage && (
+            <Card className="border-emerald-100 bg-white">
+              <CardHeader className="pb-2 border-b border-emerald-50">
+                <CardTitle className="text-base font-semibold flex items-center gap-2">
+                  {(() => { const Icon = STAGE_ICONS[selectedStage.type]; return <Icon className={`w-4 h-4 ${STAGE_COLORS[selectedStage.type].text}`} /> })()}
+                  Stage Details
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 space-y-4 text-sm">
+                <div>
+                  <span className="text-slate-500 text-xs uppercase tracking-wide block mb-1">Stage Name</span>
+                  <span className="font-semibold text-slate-800">{selectedStage.name}</span>
+                </div>
+                
+                {selectedStage.facility && (
+                  <div className="p-3 bg-emerald-50 rounded-lg border border-emerald-100">
+                    <div className="flex items-center gap-2 text-emerald-700 font-medium mb-2">
+                      <Building2 className="w-4 h-4" />
+                      Facility Information
+                    </div>
+                    <div className="space-y-1 text-slate-600">
+                      <div><span className="text-slate-500">Name:</span> {selectedStage.facility.name}</div>
+                      <div><span className="text-slate-500">Location:</span> {selectedStage.facility.location}</div>
+                      <div><span className="text-slate-500">Country:</span> {selectedStage.facility.country}</div>
+                    </div>
+                  </div>
+                )}
+
+                {selectedStage.duration && (
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-slate-400" />
+                    <span className="text-slate-500">Duration:</span>
+                    <span className="font-medium text-slate-700">{selectedStage.duration}</span>
+                  </div>
+                )}
+
+                <div>
+                  <span className="text-slate-500 text-xs uppercase tracking-wide block mb-2">Inputs</span>
+                  <div className="flex flex-wrap gap-1">
+                    {selectedStage.inputs.map(i => (
+                      <Badge key={i} variant="secondary" className="text-xs bg-slate-100 text-slate-600">
+                        {i}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <span className="text-slate-500 text-xs uppercase tracking-wide block mb-2">Outputs</span>
+                  <div className="flex flex-wrap gap-1">
+                    {selectedStage.outputs.map(o => (
+                      <Badge key={o} className="text-xs bg-amber-50 text-amber-700 border border-amber-200">
+                        {o}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="p-3 bg-slate-50 rounded-lg">
+                  <div className="text-xs text-slate-500 uppercase tracking-wide mb-2">Circularity Potential</div>
+                  <div className="font-medium text-emerald-700">{selectedStage.circularityPotential}</div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Ore Characteristics */}
+          <Card className="border-emerald-100 bg-white">
+            <CardHeader className="pb-2 border-b border-emerald-50">
               <CardTitle className="text-base font-semibold flex items-center gap-2">
-                <Leaf className="w-4 h-4 text-emerald-500" />
+                <Leaf className="w-4 h-4 text-emerald-600" />
                 Ore Characteristics
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4 text-sm">
+            <CardContent className="p-4 space-y-3 text-sm">
               <div>
-                <span className="text-slate-500 block">Mineralogy</span>
+                <span className="text-slate-500 text-xs uppercase tracking-wide block mb-1">Mineralogy</span>
                 <span className="font-medium text-slate-800">{selectedOre?.mineralogy || "N/A"}</span>
               </div>
               <div>
-                <span className="text-slate-500 block">Typical Grade</span>
+                <span className="text-slate-500 text-xs uppercase tracking-wide block mb-1">Grade Range</span>
                 <span className="font-medium text-slate-800">{selectedOre?.gradeRange || "N/A"}</span>
               </div>
               <div>
-                <span className="text-slate-500 block">Key Regions</span>
+                <span className="text-slate-500 text-xs uppercase tracking-wide block mb-1">Key Regions</span>
                 <div className="flex flex-wrap gap-1 mt-1">
                   {selectedOre?.regions.map(r => (
-                    <Badge key={r} variant="outline" className="text-xs">{r}</Badge>
+                    <Badge key={r} variant="outline" className="text-xs border-emerald-200 text-emerald-700">{r}</Badge>
                   ))}
                 </div>
               </div>
+              {selectedOre?.byproducts && selectedOre.byproducts.length > 0 && (
+                <div>
+                  <span className="text-slate-500 text-xs uppercase tracking-wide block mb-1">Byproducts</span>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {selectedOre.byproducts.map(b => (
+                      <Badge key={b} className="text-xs bg-purple-50 text-purple-700 border border-purple-200">{b}</Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
 
           {/* Agent Insights */}
-          <Card className="bg-gradient-to-br from-slate-900 to-slate-800 text-white border-none">
-            <CardHeader className="pb-3">
+          <Card className="bg-gradient-to-br from-slate-900 to-slate-800 text-white border-none overflow-hidden">
+            <CardHeader className="pb-2">
               <CardTitle className="text-base font-semibold flex items-center gap-2 text-emerald-400">
                 <Bot className="w-4 h-4" />
-                Agent Insights
+                AI Agent Insights
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4 text-sm">
+            <CardContent className="space-y-3 text-sm">
               <div className="p-3 bg-white/5 rounded-lg border border-white/10">
                 <div className="flex items-center gap-2 mb-1 text-xs font-medium text-emerald-300">
-                  <AlertCircle className="w-3 h-3" /> LCA Agent
+                  <Leaf className="w-3 h-3" /> Circularity Agent
                 </div>
-                <p className="text-slate-300 leading-relaxed">
-                  {selectedRoute?.name.includes("Bayer") 
-                    ? "High caustic soda consumption identified in refining stage. Consider membrane filtration to recover NaOH."
-                    : "Standard pathway selected. Energy intensity is within global average range."}
+                <p className="text-slate-300 leading-relaxed text-xs">
+                  {routeMetrics && routeMetrics.circularLoops.length > 0
+                    ? `Identified ${routeMetrics.circularLoops.length} circular flows saving ${routeMetrics.carbonSaved.toLocaleString()} kg CO₂e/t through material recovery.`
+                    : "Analyzing potential circular economy opportunities for this route."}
                 </p>
               </div>
               
               <div className="p-3 bg-white/5 rounded-lg border border-white/10">
                 <div className="flex items-center gap-2 mb-1 text-xs font-medium text-blue-300">
-                  <TrendingUp className="w-3 h-3" /> Prediction Agent
+                  <Activity className="w-3 h-3" /> LCA Agent
                 </div>
-                <p className="text-slate-300 leading-relaxed">
-                  {showPredictions 
-                    ? "Scrap availability expected to increase by 15% in 2026 due to automotive EOL wave."
-                    : "Current market prices favor primary production, but secondary premiums are rising."}
+                <p className="text-slate-300 leading-relaxed text-xs">
+                  {selectedStage?.type === 'smelting'
+                    ? "Smelting stage identified as highest carbon intensity. Consider renewable energy or DRI alternatives."
+                    : selectedStage?.type === 'recycling'
+                    ? "Secondary production pathway shows 75-95% lower carbon footprint vs primary."
+                    : "Monitoring all stages for optimization opportunities."}
                 </p>
               </div>
+
+              {showPredictions && (
+                <div className="p-3 bg-white/5 rounded-lg border border-white/10">
+                  <div className="flex items-center gap-2 mb-1 text-xs font-medium text-amber-300">
+                    <TrendingUp className="w-3 h-3" /> Forecast Agent
+                  </div>
+                  <p className="text-slate-300 leading-relaxed text-xs">
+                    Scrap availability projected to increase 15% by 2026 due to automotive EOL wave. Secondary production premiums expected to narrow.
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -275,7 +613,7 @@ export default function LifeCycleExplorer() {
   )
 }
 
-function Database(props: any) {
+function Database(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}

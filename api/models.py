@@ -309,6 +309,38 @@ class MaterialProperty(BaseModel):
 
 
 # ============================================================================
+# Report Models
+# ============================================================================
+
+class ReportFormat(str, Enum):
+    MARKDOWN = "markdown"
+    HTML = "html"
+    JSON = "json"
+
+
+class ReportData(BaseModel):
+    """Report data model"""
+    id: Optional[str] = None
+    run_id: Optional[str] = None
+    project_id: Optional[str] = None
+    title: str
+    content: str  # Markdown content of the report
+    format: ReportFormat = ReportFormat.MARKDOWN
+    sections: Dict[str, Any] = {}
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+
+class ProjectReportsResponse(BaseModel):
+    """Response for project reports listing"""
+    success: bool
+    project_id: str
+    project_name: str
+    reports: List[Dict[str, Any]]
+    count: int
+
+
+# ============================================================================
 # Visualization Models
 # ============================================================================
 
