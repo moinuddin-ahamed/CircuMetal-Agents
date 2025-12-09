@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
-import { METALS_DATA, Metal, Ore, ProcessingRoute, Stage, CircularLoop } from "@/lib/metals-data"
+import { METALS_DATA, Metal, Ore, ProcessingRoute, Stage, CircularLoop, LogisticsData } from "@/lib/metals-data"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -16,6 +16,7 @@ import {
 } from "lucide-react"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
+import LogisticsMap from "@/components/logistics-map"
 
 import { Input } from "@/components/ui/input"
 import { Loader2 } from "lucide-react"
@@ -56,6 +57,8 @@ export default function LifeCycleExplorer() {
   const [customMetal, setCustomMetal] = useState("")
   const [customOre, setCustomOre] = useState("")
   const [customGrade, setCustomGrade] = useState("")
+  const [customQuantity, setCustomQuantity] = useState("")
+  const [customDescription, setCustomDescription] = useState("")
   const [isGenerating, setIsGenerating] = useState(false)
   const [generatedRoute, setGeneratedRoute] = useState<ProcessingRoute | null>(null)
 
@@ -78,7 +81,9 @@ export default function LifeCycleExplorer() {
         body: JSON.stringify({
           metal: customMetal,
           ore_name: customOre,
-          ore_grade: customGrade
+          ore_grade: customGrade,
+          quantity: customQuantity,
+          description: customDescription
         })
       })
       
@@ -272,10 +277,29 @@ export default function LifeCycleExplorer() {
                   className="border-emerald-200 focus:ring-emerald-500"
                 />
               </div>
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-emerald-700 uppercase tracking-wide">Quantity (kg)</label>
+                <Input 
+                  placeholder="e.g. 1000" 
+                  value={customQuantity} 
+                  onChange={(e) => setCustomQuantity(e.target.value)}
+                  className="border-emerald-200 focus:ring-emerald-500"
+                  type="number"
+                />
+              </div>
+              <div className="space-y-2 md:col-span-2">
+                <label className="text-xs font-medium text-emerald-700 uppercase tracking-wide">Description</label>
+                <Input 
+                  placeholder="e.g. High purity extraction process" 
+                  value={customDescription} 
+                  onChange={(e) => setCustomDescription(e.target.value)}
+                  className="border-emerald-200 focus:ring-emerald-500"
+                />
+              </div>
               <Button 
                 onClick={handleGenerate} 
                 disabled={isGenerating || !customMetal || !customOre || !customGrade}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white w-full"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white w-full md:col-span-2"
               >
                 {isGenerating ? (
                   <>
@@ -576,6 +600,14 @@ export default function LifeCycleExplorer() {
                 </div>
               </CardContent>
             </Card>
+          )}
+
+          {/* Logistics & Transport Map Section */}
+          {selectedRoute && (
+            <LogisticsMap 
+              logistics={selectedRoute.logistics} 
+              routeName={selectedRoute.name}
+            />
           )}
         </div>
 

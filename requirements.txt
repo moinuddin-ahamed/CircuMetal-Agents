@@ -9,3 +9,4 @@ uvicorn[standard]
 pydantic>=2.0
 motor>=3.3.0
 pymongo>=4.6.0
+httpx>=0.25.0

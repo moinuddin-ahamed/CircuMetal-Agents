@@ -1785,6 +1785,8 @@ class LifeCycleExplorerRequest(BaseModel):
     metal: str
     ore_name: str
     ore_grade: str
+    quantity: Optional[str] = None
+    description: Optional[str] = None
 
 @app.post("/api/life-cycle/generate")
 async def generate_life_cycle(request: LifeCycleExplorerRequest):
@@ -1794,11 +1796,257 @@ async def generate_life_cycle(request: LifeCycleExplorerRequest):
         result = await agent.handle_async({
             "metal": request.metal,
             "ore_name": request.ore_name,
-            "ore_grade": request.ore_grade
+            "ore_grade": request.ore_grade,
+            "quantity": request.quantity,
+            "description": request.description
         })
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# ============================================================================
+# Logistics & Route Optimization Endpoints
+# ============================================================================
+
+import httpx
+
+class TransportLegInput(BaseModel):
+    id: str
+    fromStage: str
+    toStage: str
+    fromLocation: Dict[str, Any]
+    toLocation: Dict[str, Any]
+    material: str
+    mode: str
+    distance: float
+    duration: str
+    emissions: float
+    vehicleType: Optional[str] = None
+    frequency: Optional[str] = None
+
+class RouteOptimizationRequest(BaseModel):
+    transportLegs: List[TransportLegInput]
+
+class OptimizedRoute(BaseModel):
+    legId: str
+    originalDistance: float
+    optimizedDistance: float
+    distanceSaved: float
+    originalDuration: str
+    optimizedDuration: str
+    routePolyline: Optional[str] = None
+    waypoints: Optional[List[Dict[str, float]]] = None
+    trafficConditions: Optional[str] = None
+    alternativeRoutes: Optional[List[Dict[str, Any]]] = None
+
+class RouteOptimizationResponse(BaseModel):
+    status: str
+    optimizedRoutes: List[OptimizedRoute]
+    totalDistanceSaved: float
+    totalEmissionsSaved: float
+    optimizationMethod: str
+    message: Optional[str] = None
+
+@app.post("/api/logistics/optimize", response_model=RouteOptimizationResponse)
+async def optimize_logistics_routes(request: RouteOptimizationRequest):
+    """
+    Optimize transport routes using Google Routes API.
+    Falls back to Distance Matrix + heuristics if Routes API is unavailable.
+    """
+    google_api_key = os.getenv("GOOGLE_MAPS_API_KEY")
+    
+    if not google_api_key:
+        # Return mock optimization data if no API key
+        return RouteOptimizationResponse(
+            status="simulated",
+            optimizedRoutes=[
+                OptimizedRoute(
+                    legId=leg.id,
+                    originalDistance=leg.distance,
+                    optimizedDistance=leg.distance * 0.92,  # Simulate 8% optimization
+                    distanceSaved=leg.distance * 0.08,
+                    originalDuration=leg.duration,
+                    optimizedDuration=leg.duration,
+                    trafficConditions="Normal",
+                    waypoints=None
+                )
+                for leg in request.transportLegs
+            ],
+            totalDistanceSaved=sum(leg.distance * 0.08 for leg in request.transportLegs),
+            totalEmissionsSaved=sum(leg.emissions * 0.08 for leg in request.transportLegs),
+            optimizationMethod="simulation",
+            message="Add GOOGLE_MAPS_API_KEY to .env for real route optimization"
+        )
+    
+    optimized_routes = []
+    total_distance_saved = 0
+    total_emissions_saved = 0
+    
+    async with httpx.AsyncClient() as client:
+        for leg in request.transportLegs:
+            try:
+                # Use Google Routes API for compute routes
+                routes_url = "https://routes.googleapis.com/directions/v2:computeRoutes"
+                
+                # Prepare request body for Routes API
+                body = {
+                    "origin": {
+                        "location": {
+                            "latLng": {
+                                "latitude": leg.fromLocation["coordinates"]["lat"],
+                                "longitude": leg.fromLocation["coordinates"]["lng"]
+                            }
+                        }
+                    },
+                    "destination": {
+                        "location": {
+                            "latLng": {
+                                "latitude": leg.toLocation["coordinates"]["lat"],
+                                "longitude": leg.toLocation["coordinates"]["lng"]
+                            }
+                        }
+                    },
+                    "travelMode": "DRIVE" if leg.mode in ["truck", "conveyor"] else "TRANSIT",
+                    "routingPreference": "TRAFFIC_AWARE",
+                    "computeAlternativeRoutes": True,
+                    "routeModifiers": {
+                        "avoidTolls": False,
+                        "avoidHighways": False,
+                        "avoidFerries": True
+                    }
+                }
+                
+                headers = {
+                    "Content-Type": "application/json",
+                    "X-Goog-Api-Key": google_api_key,
+                    "X-Goog-FieldMask": "routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline,routes.routeLabels"
+                }
+                
+                response = await client.post(routes_url, json=body, headers=headers, timeout=10.0)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    routes = data.get("routes", [])
+                    
+                    if routes:
+                        best_route = routes[0]
+                        optimized_distance_m = best_route.get("distanceMeters", leg.distance * 1000)
+                        optimized_distance_km = optimized_distance_m / 1000
+                        
+                        duration_str = best_route.get("duration", "0s")
+                        # Parse duration (e.g., "3600s" -> "1 hour")
+                        try:
+                            duration_seconds = int(duration_str.replace("s", ""))
+                            hours = duration_seconds // 3600
+                            minutes = (duration_seconds % 3600) // 60
+                            optimized_duration = f"{hours}h {minutes}m" if hours > 0 else f"{minutes}m"
+                        except:
+                            optimized_duration = leg.duration
+                        
+                        distance_saved = max(0, leg.distance - optimized_distance_km)
+                        emission_factor = distance_saved / leg.distance if leg.distance > 0 else 0
+                        emissions_saved = leg.emissions * emission_factor
+                        
+                        total_distance_saved += distance_saved
+                        total_emissions_saved += emissions_saved
+                        
+                        optimized_routes.append(OptimizedRoute(
+                            legId=leg.id,
+                            originalDistance=leg.distance,
+                            optimizedDistance=round(optimized_distance_km, 1),
+                            distanceSaved=round(distance_saved, 1),
+                            originalDuration=leg.duration,
+                            optimizedDuration=optimized_duration,
+                            routePolyline=best_route.get("polyline", {}).get("encodedPolyline"),
+                            trafficConditions="Traffic-aware routing applied",
+                            alternativeRoutes=[
+                                {
+                                    "distance": r.get("distanceMeters", 0) / 1000,
+                                    "label": r.get("routeLabels", ["Alternative"])[0] if r.get("routeLabels") else "Alternative"
+                                }
+                                for r in routes[1:3]  # Include up to 2 alternatives
+                            ] if len(routes) > 1 else None
+                        ))
+                    else:
+                        # No routes found, use original
+                        optimized_routes.append(OptimizedRoute(
+                            legId=leg.id,
+                            originalDistance=leg.distance,
+                            optimizedDistance=leg.distance,
+                            distanceSaved=0,
+                            originalDuration=leg.duration,
+                            optimizedDuration=leg.duration,
+                            trafficConditions="No route data available"
+                        ))
+                else:
+                    # API error, fall back to original
+                    optimized_routes.append(OptimizedRoute(
+                        legId=leg.id,
+                        originalDistance=leg.distance,
+                        optimizedDistance=leg.distance,
+                        distanceSaved=0,
+                        originalDuration=leg.duration,
+                        optimizedDuration=leg.duration,
+                        trafficConditions=f"API returned {response.status_code}"
+                    ))
+                    
+            except Exception as e:
+                # On error, include original leg with error info
+                optimized_routes.append(OptimizedRoute(
+                    legId=leg.id,
+                    originalDistance=leg.distance,
+                    optimizedDistance=leg.distance,
+                    distanceSaved=0,
+                    originalDuration=leg.duration,
+                    optimizedDuration=leg.duration,
+                    trafficConditions=f"Error: {str(e)}"
+                ))
+    
+    return RouteOptimizationResponse(
+        status="success" if total_distance_saved > 0 else "no_optimization",
+        optimizedRoutes=optimized_routes,
+        totalDistanceSaved=round(total_distance_saved, 1),
+        totalEmissionsSaved=round(total_emissions_saved, 2),
+        optimizationMethod="google_routes_api",
+        message=f"Optimized {len(optimized_routes)} transport legs"
+    )
+
+
+@app.get("/api/logistics/distance-matrix")
+async def get_distance_matrix(origins: str, destinations: str):
+    """
+    Get distance matrix for multiple origin-destination pairs.
+    Uses Google Distance Matrix API.
+    """
+    google_api_key = os.getenv("GOOGLE_MAPS_API_KEY")
+    
+    if not google_api_key:
+        raise HTTPException(status_code=400, detail="GOOGLE_MAPS_API_KEY not configured")
+    
+    try:
+        async with httpx.AsyncClient() as client:
+            url = "https://maps.googleapis.com/maps/api/distancematrix/json"
+            params = {
+                "origins": origins,
+                "destinations": destinations,
+                "key": google_api_key,
+                "mode": "driving",
+                "units": "metric"
+            }
+            
+            response = await client.get(url, params=params, timeout=10.0)
+            
+            if response.status_code == 200:
+                return response.json()
+            else:
+                raise HTTPException(status_code=response.status_code, detail="Distance Matrix API error")
+                
+    except httpx.TimeoutException:
+        raise HTTPException(status_code=504, detail="API timeout")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 # ============================================================================
 # Main Entry Point

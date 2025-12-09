@@ -29,6 +29,35 @@ export interface ByproductManagement {
   economicValue: 'Cost' | 'Neutral' | 'Revenue';
   volume: number; // kg per ton of product
   destination?: string; // e.g., "Cement Industry", "Landfill"
+  destinationCoordinates?: { lat: number; lng: number };
+}
+
+// Logistics interfaces for route optimization
+export interface TransportLeg {
+  id: string;
+  fromStage: string; // Stage ID
+  toStage: string; // Stage ID
+  fromLocation: {
+    name: string;
+    coordinates: { lat: number; lng: number };
+  };
+  toLocation: {
+    name: string;
+    coordinates: { lat: number; lng: number };
+  };
+  material: string; // What is being transported
+  mode: 'truck' | 'rail' | 'ship' | 'pipeline' | 'conveyor';
+  distance: number; // km
+  duration: string; // e.g., "4-6 hours"
+  emissions: number; // kg CO2e per tonne transported
+  vehicleType?: string; // e.g., "40-ton lorry", "freight train"
+  frequency?: string; // e.g., "Daily", "Weekly"
+}
+
+export interface LogisticsData {
+  transportLegs: TransportLeg[];
+  totalDistance: number; // km
+  totalTransportEmissions: number; // kg CO2e
 }
 
 export interface Ore {
@@ -49,6 +78,7 @@ export interface ProcessingRoute {
   totalCarbon?: number; // Total kg CO2e per tonne
   totalEnergy?: number; // Total MJ per tonne
   circularityScore?: number; // 0-100
+  logistics?: LogisticsData; // Transport logistics with coordinates
 }
 
 export interface Stage {
